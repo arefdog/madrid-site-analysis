@@ -20,10 +20,12 @@ function landClassLegend(lang) {
   const t = lang === 'es'
     ? { u: 'Urbano', uc: 'consolidado', un: 'no consolidado',
         z: 'Urbanizable', zd: 'delimitado', zn: 'no delimitado',
-        r: 'Rústico (no urbanizable)', rn: 'suelo no urbanizable', rs: 'sistemas generales' }
+        r: 'Rústico (no urbanizable)', rn: 'suelo no urbanizable', rs: 'sistemas generales',
+        click: '<b>Haz clic</b> en el mapa para ver la clase de suelo en ese punto.' }
     : { u: 'Urbano (urban / built)', uc: 'consolidated', un: 'undeveloped',
         z: 'Urbanizable (developable)', zd: 'delimited', zn: 'non-delimited',
-        r: 'Rústico (rural / non-developable)', rn: 'non-developable land', rs: 'public systems & other' };
+        r: 'Rústico (rural / non-developable)', rn: 'non-developable land', rs: 'public systems & other',
+        click: '<b>Click the map</b> to read the land class at that point.' };
   return `
     <div style="line-height:1.7">
       <div><b>${t.u}</b></div>
@@ -32,6 +34,7 @@ function landClassLegend(lang) {
       <div>${sw(C['SUELO URBANIZABLE DELIMITADO O SECTORIZADO'])} ${t.zd} &nbsp; ${sw(C['SUELO URBANIZABLE NO DELIMITADO O SECTORIZADO'])} ${t.zn}</div>
       <div style="margin-top:3px"><b>${t.r}</b></div>
       <div>${sw(C['SUELO NO URBANIZABLE'])} ${t.rn} &nbsp; ${sw(C['SISTEMAS GENERALES'])} ${t.rs}</div>
+      <div style="margin-top:5px;color:#555">${t.click}</div>
     </div>`;
 }
 
