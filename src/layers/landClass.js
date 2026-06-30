@@ -1,6 +1,7 @@
 import L from 'leaflet';
 import { SOURCES } from '../config.js';
 import { arcgisExportLayer } from './util/arcgisExport.js';
+import { onMapTap } from './util/mapTap.js';
 
 // Clasificación del suelo (SIU) — formal planning classification that gates
 // development. We override the source symbology (via ArcGIS dynamicLayers) into
@@ -96,8 +97,10 @@ export default {
     const tiles = arcgisExportLayer(s.url, { dynamicLayers, attribution: s.attribution, opacity: 0.6 });
     const group = L.layerGroup([tiles]);
 
-    // Click-to-query the planning class, active only while this layer is on.
-    const onClick = async (e) => {
+    // Tap/click-to-query the planning class, active only while this layer is on.
+    // onMapTap handles single taps on iOS (where map 'click' needs a double tap
+    // when a custom tile layer is present — Leaflet #8236) plus desktop clicks.
+    const onTap = async (e) => {
       const popup = L.popup({ maxWidth: 260 })
         .setLatLng(e.latlng)
         .setContent('Reading land classification…')
@@ -109,8 +112,9 @@ export default {
       }
     };
 
-    group.on('add', () => map.on('click', onClick));
-    group.on('remove', () => { map.off('click', onClick); map.closePopup(); });
+    let unbind = null;
+    group.on('add', () => { unbind = onMapTap(map, onTap); });
+    group.on('remove', () => { unbind?.(); unbind = null; map.closePopup(); });
     return group;
   },
 };
