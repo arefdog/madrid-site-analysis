@@ -40,9 +40,11 @@ html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystem
 .panel.collapsed .note { display: none; }
 .panel.collapsed .collapse::before { content: '☰'; }
 
-/* Mobile: keep the panel compact so it never swallows the whole screen. */
+/* Mobile: keep the panel compact so it never swallows the map. It caps at ~40%
+   of the height (legends scroll inside) so most of the screen stays tappable —
+   otherwise an expanded legend covers the plots you're trying to tap. */
 @media (max-width: 600px) {
-  .panel { width: min(72vw, 280px); max-height: 70%; font-size: 12px; top: 8px; left: 8px; padding: 12px; }
+  .panel { width: min(64vw, 240px); max-height: 40%; font-size: 12px; top: 8px; left: 8px; padding: 12px; }
 }
 
 .group { border-top: 1px solid var(--border); padding: 10px 0; }
