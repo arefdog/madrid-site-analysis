@@ -22,11 +22,13 @@ import cadastre from './cadastre.js';
 import landClass from './landClass.js';
 import landcover from './landcover.js';
 import airbnb from './airbnb.js';
+import hotels from './hotels.js';
 
 export const layers = [
   base,
   purchasingPower,
   airbnb,
+  hotels,
   transport,
   topography,
   cadastre,
