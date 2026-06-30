@@ -59,6 +59,8 @@ export const SOURCES = {
     landClass: {
       url: 'https://mapas.fomento.gob.es/arcgis/rest/services/SIU/CLASES_DE_SUELO/MapServer',
       layers: 'show:0',
+      // Layer 0 exposes the planning class in this field — used by click-to-query.
+      classField: 'ClaseSuelo',
       attribution: 'SIU — Min. de Vivienda y Agenda Urbana (clasificación del suelo)',
     },
   },
