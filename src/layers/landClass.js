@@ -168,7 +168,10 @@ export default {
       controller?.abort();
       controller = new AbortController();
       clearHighlight();
-      const popup = L.popup({ maxWidth: 280 })
+      // closeOnClick:false so the "ghost" click a touch fires right after the
+      // tap doesn't immediately dismiss the popup we just opened. A new tap
+      // replaces it (autoClose), and the × button still closes it.
+      const popup = L.popup({ maxWidth: 280, closeOnClick: false })
         .setLatLng(e.latlng)
         .setContent('Reading land classification…')
         .openOn(map);
