@@ -9,16 +9,24 @@ export function buildPanel(el, layers, ctx) {
   const s = getStrings(ctx.lang);
   el.innerHTML = `
     <div class="phead">
-      <div>
+      <div class="ptitle">
         <h1>${s.title}</h1>
         <div class="sub">${s.subtitle}</div>
       </div>
-      <button class="lang" type="button" title="Language">${ctx.lang === 'en' ? 'ES' : 'EN'}</button>
+      <div class="pbtns">
+        <button class="lang" type="button" title="Language">${ctx.lang === 'en' ? 'ES' : 'EN'}</button>
+        <button class="collapse" type="button" title="Show/hide panel" aria-label="Show/hide panel"></button>
+      </div>
     </div>
     ${GROUPS.map((g) => groupHtml(g, layers, s, ctx.activeIds)).join('')}
     <div class="note">${s.note}</div>`;
 
   el.querySelector('.lang').addEventListener('click', () => ctx.onLang(ctx.lang === 'en' ? 'es' : 'en'));
+  el.classList.toggle('collapsed', localStorage.getItem('byld.collapsed') === '1');
+  el.querySelector('.collapse').addEventListener('click', () => {
+    const collapsed = el.classList.toggle('collapsed');
+    localStorage.setItem('byld.collapsed', collapsed ? '1' : '0');
+  });
 
   el.querySelectorAll('input[data-layer]').forEach((input) => {
     input.addEventListener('change', () => {

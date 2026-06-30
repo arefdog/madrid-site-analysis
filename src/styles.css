@@ -24,12 +24,27 @@ html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystem
 .panel .sub { color: var(--muted); font-size: 11px; margin-bottom: 12px; }
 
 .phead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.phead .lang {
+.phead .pbtns { flex: none; display: flex; gap: 6px; }
+.phead button {
   flex: none; cursor: pointer; font-size: 11px; font-weight: 600;
   color: var(--panel-fg); background: transparent;
   border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px;
 }
-.phead .lang:hover { border-color: var(--accent); color: var(--accent); }
+.phead button:hover { border-color: var(--accent); color: var(--accent); }
+.phead .collapse::before { content: '–'; font-size: 14px; line-height: 1; }
+
+/* Collapsed: panel shrinks to just the reopen button so the map is visible. */
+.panel.collapsed { width: auto; padding: 8px; }
+.panel.collapsed .ptitle,
+.panel.collapsed .lang,
+.panel.collapsed .group,
+.panel.collapsed .note { display: none; }
+.panel.collapsed .collapse::before { content: '☰'; }
+
+/* Mobile: keep the panel compact so it never swallows the whole screen. */
+@media (max-width: 600px) {
+  .panel { width: min(72vw, 280px); max-height: 70%; font-size: 12px; top: 8px; left: 8px; padding: 12px; }
+}
 
 .group { border-top: 1px solid var(--border); padding: 10px 0; }
 .group:first-of-type { border-top: none; }
