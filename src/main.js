@@ -16,6 +16,7 @@ const map = L.map('map', {
   minZoom: MAP.minZoom,
   maxZoom: MAP.maxZoom,
 });
+if (import.meta.env?.DEV) window.__map = map; // dev-only debug handle
 
 // Lazily instantiate each layer's Leaflet object on first activation.
 const instances = new Map();

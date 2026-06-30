@@ -73,6 +73,7 @@ authoritative sources:
 | Purchasing power | **live** | INE table 31097 — *renta neta media por hogar* 2023, all 179 municipalities (`npm run data:income`) |
 | Cadastral parcels + site info | **live** | Catastro WMS + reverse-geocode (cadastral ref, address, official sheet) |
 | Land use / land cover | **live** | Copernicus CORINE 2018 (greenfield vs. built) |
+| Short-term rental (Airbnb) | **live** | Inside Airbnb — est. revenue/occupancy/price per barrio (`npm run data:airbnb`) |
 | Topography | **live** | Esri hillshade + EU-DEM 25 m point elevation |
 | Land classification (urbano/urbanizable/rústico) | **live** | SIU *Clases de Suelo* (Min. Vivienda) — ArcGIS export tiles |
 | Transport access | rail tiles only | CRTM stations + walk/drive isochrones (OpenRouteService) |
