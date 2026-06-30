@@ -27,7 +27,7 @@ export default {
   id: 'overlay-score',
   label: 'Attractiveness score (wellness villas)',
   group: 'overlay',
-  enabled: true,
+  enabled: false,
   create() {
     const group = L.layerGroup();
     fetch(muniUrl)
