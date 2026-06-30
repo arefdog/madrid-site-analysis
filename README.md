@@ -75,6 +75,7 @@ authoritative sources:
 | Land use / land cover | **live** | Copernicus CORINE 2018 (greenfield vs. built) |
 | Short-term rental (Airbnb) | **live** | Inside Airbnb — est. revenue/occupancy/price per barrio (`npm run data:airbnb`) |
 | Hotel concentration | **live** | OpenStreetMap — hotels per municipality + star breakdown (`npm run data:hotels`) |
+| Attractiveness score | **live** | Composite 0–100, weighted for luxury wellness villas (`npm run data:scores`) |
 | Topography | **live** | Esri hillshade + EU-DEM 25 m point elevation |
 | Land classification (urbano/urbanizable/rústico) | **live** | SIU *Clases de Suelo* (Min. Vivienda) — ArcGIS export tiles |
 | Transport access | rail tiles only | CRTM stations + walk/drive isochrones (OpenRouteService) |

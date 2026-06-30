@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "data:income": "node scripts/fetch-income.mjs",
     "data:airbnb": "node scripts/build-airbnb.mjs",
-    "data:hotels": "node scripts/build-hotels.mjs"
+    "data:hotels": "node scripts/build-hotels.mjs",
+    "data:scores": "node scripts/build-scores.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4"
