@@ -9,7 +9,7 @@ export default {
   id: 'workspace-plots',
   label: 'My candidate plots',
   group: 'workspace',
-  enabled: true,
+  enabled: false,
   create(map) {
     const drawn = new L.FeatureGroup();
 
