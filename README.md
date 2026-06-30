@@ -68,7 +68,7 @@ authoritative sources:
 
 | Layer | Status | Real source |
 |-------|--------|-------------|
-| Purchasing power | placeholder values | INE *Atlas de Distribución de Renta de los Hogares* (census-section) |
+| Purchasing power | **live** | INE table 31097 — *renta neta media por hogar* 2023, all 179 municipalities (`npm run data:income`) |
 | Cadastral parcels + site info | **live** | Catastro WMS + reverse-geocode (cadastral ref, address, official sheet) |
 | Land use / land cover | **live** | Copernicus CORINE 2018 (greenfield vs. built) |
 | Topography | **live** | Esri hillshade + EU-DEM 25 m point elevation |
@@ -93,6 +93,5 @@ Run data pipelines from `scripts/` (e.g. `npm run data:income`). Raw downloads
 go to `data/raw/` (gitignored); the app consumes processed JSON/GeoJSON in
 `data/`.
 
-> ⚠️ `data/income.json` currently holds **illustrative placeholder** income
-> figures — ranked plausibly but not authoritative. Replace before using for
-> decisions.
+`data/income.json` and `data/madrid-municipios.geojson` are vendored (no
+external runtime dependency). Refresh income from INE with `npm run data:income`.

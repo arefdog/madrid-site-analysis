@@ -68,23 +68,6 @@ export const SOURCES = {
     'https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X={x}&Coordenada_Y={y}',
   // Public web sheet for a parcel (developers open this for the official record).
   cadastreSheet: 'https://www1.sedecatastro.gob.es/Cartografia/mapa.aspx?refcat={rc}',
-
-  // Boundary GeoJSON candidates, tried in order until one loads.
-  boundaries: [
-    'https://raw.githubusercontent.com/martgnz/comunidad-de-madrid-municipios/master/municipios.geojson',
-    'https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/madrid-districts.geojson',
-  ],
+  // Municipality boundaries are vendored in /data/madrid-municipios.geojson and
+  // imported directly by the purchasing-power layer (no external runtime fetch).
 };
-
-// GeoJSON property naming varies by source — resolve a feature's display name.
-export function featureName(props = {}) {
-  return (
-    props.name ||
-    props.NAMEUNIT ||
-    props.nombre ||
-    props.NOMBRE ||
-    props.municipio ||
-    props.texto ||
-    ''
-  );
-}
