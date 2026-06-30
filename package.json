@@ -1,0 +1,20 @@
+{
+  "name": "madrid-site-analysis",
+  "version": "0.1.0",
+  "private": true,
+  "description": "BYLD — interactive map to screen plots and areas across the Comunidad de Madrid (purchasing power, transport, roads, topography, zoning).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "data:income": "node scripts/fetch-income.mjs"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

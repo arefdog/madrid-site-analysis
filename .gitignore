@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.DS_Store
+# Large/raw source datasets — keep out of git, regenerate via scripts/
+data/raw/
+*.log

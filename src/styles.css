@@ -1,0 +1,50 @@
+@import 'leaflet/dist/leaflet.css';
+@import 'leaflet-draw/dist/leaflet.draw.css';
+
+:root {
+  --panel-bg: #1c1f26;
+  --panel-fg: #e8eaed;
+  --accent: #4da3ff;
+  --muted: #9aa0aa;
+  --border: #2c313b;
+}
+
+html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+#map { position: absolute; inset: 0; }
+
+.panel {
+  position: absolute; top: 12px; left: 12px; z-index: 1000;
+  width: 290px; max-height: calc(100% - 24px); overflow-y: auto;
+  background: var(--panel-bg); color: var(--panel-fg);
+  border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
+  padding: 14px 16px; font-size: 13px;
+}
+.panel h1 { font-size: 15px; margin: 0 0 2px; }
+.panel .sub { color: var(--muted); font-size: 11px; margin-bottom: 12px; }
+
+.phead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.phead .lang {
+  flex: none; cursor: pointer; font-size: 11px; font-weight: 600;
+  color: var(--panel-fg); background: transparent;
+  border: 1px solid var(--border); border-radius: 6px; padding: 3px 9px;
+}
+.phead .lang:hover { border-color: var(--accent); color: var(--accent); }
+
+.group { border-top: 1px solid var(--border); padding: 10px 0; }
+.group:first-of-type { border-top: none; }
+.group h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+
+label.row { display: flex; align-items: center; gap: 8px; padding: 3px 0; cursor: pointer; }
+label.row input { accent-color: var(--accent); }
+label.row .status { margin-left: auto; font-size: 10px; color: var(--muted); }
+
+.legend { margin: 6px 0 4px 24px; font-size: 11px; color: var(--muted); }
+.legend .scale { display: flex; height: 10px; border-radius: 3px; overflow: hidden; margin: 4px 0; }
+.legend .scale span { flex: 1; }
+.legend .ends { display: flex; justify-content: space-between; }
+
+.note { font-size: 10px; color: var(--muted); margin-top: 10px; line-height: 1.4; }
+
+.leaflet-popup-content { font-size: 12px; line-height: 1.5; }
+.leaflet-popup-content b { color: #1c1f26; }
