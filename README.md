@@ -38,7 +38,9 @@ madrid-site-analysis/
       ├─ purchasingPower.js# income choropleth
       ├─ transport.js      # rail/metro overlay
       ├─ topography.js     # hillshade / slope
-      └─ plots.js          # drawn candidate plots (saved to localStorage)
+      ├─ cadastre.js       # cadastral parcels + click site info
+      ├─ landClass.js      # land classification (urbano/urbanizable/rústico)
+      └─ landcover.js      # CORINE land use
 ```
 
 ### Adding a layer

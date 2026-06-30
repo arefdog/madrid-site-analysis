@@ -21,7 +21,6 @@ import topography from './topography.js';
 import cadastre from './cadastre.js';
 import landClass from './landClass.js';
 import landcover from './landcover.js';
-import plots from './plots.js';
 
 export const layers = [
   base,
@@ -31,11 +30,9 @@ export const layers = [
   cadastre,
   landClass,
   landcover,
-  plots,
 ].flat();
 
 export const GROUPS = [
   { id: 'base', title: 'Base map' },
   { id: 'overlay', title: 'Overlays' },
-  { id: 'workspace', title: 'Workspace' },
 ];

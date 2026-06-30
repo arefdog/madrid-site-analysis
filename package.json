@@ -11,8 +11,7 @@
     "data:income": "node scripts/fetch-income.mjs"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
-    "leaflet-draw": "^1.0.4"
+    "leaflet": "^1.9.4"
   },
   "devDependencies": {
     "vite": "^5.4.0"

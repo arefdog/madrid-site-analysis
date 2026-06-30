@@ -39,8 +39,8 @@ export const STRINGS = {
   en: {
     title: 'Madrid Site Analysis',
     subtitle: 'BYLD · plot & area screening',
-    note: 'Draw tools (top-right) outline candidate plots — saved to your browser. Click a parcel/district for its data. New datasets plug into <code>src/layers/</code>.',
-    groups: { base: 'Base map', overlay: 'Overlays', workspace: 'Workspace' },
+    note: 'Click a parcel or municipality for its data. New datasets plug into <code>src/layers/</code>.',
+    groups: { base: 'Base map', overlay: 'Overlays' },
     layers: {
       'base-light': { label: 'Street (light)' },
       'base-topo': { label: 'Topography / terrain' },
@@ -56,14 +56,13 @@ export const STRINGS = {
         legend: landClassLegend('en') },
       'overlay-landcover': { label: 'Land use / land cover (CORINE)',
         legend: '<div>Red = built/urban · yellow = agricultural · green = forest/natural. Greenfield vs. developed land.</div>' },
-      'workspace-plots': { label: 'My candidate plots' },
     },
   },
   es: {
     title: 'Análisis de Suelo — Madrid',
     subtitle: 'BYLD · cribado de parcelas y zonas',
-    note: 'Las herramientas de dibujo (arriba a la derecha) trazan parcelas candidatas — guardadas en tu navegador. Haz clic en una parcela/distrito para ver sus datos. Nuevos datos se añaden en <code>src/layers/</code>.',
-    groups: { base: 'Mapa base', overlay: 'Capas', workspace: 'Espacio de trabajo' },
+    note: 'Haz clic en una parcela o municipio para ver sus datos. Nuevos datos se añaden en <code>src/layers/</code>.',
+    groups: { base: 'Mapa base', overlay: 'Capas' },
     layers: {
       'base-light': { label: 'Callejero (claro)' },
       'base-topo': { label: 'Topografía / relieve' },
@@ -79,7 +78,6 @@ export const STRINGS = {
         legend: landClassLegend('es') },
       'overlay-landcover': { label: 'Usos del suelo / cobertura (CORINE)',
         legend: '<div>Rojo = urbano/construido · amarillo = agrícola · verde = bosque/natural. Suelo virgen vs. desarrollado.</div>' },
-      'workspace-plots': { label: 'Mis parcelas candidatas' },
     },
   },
 };
