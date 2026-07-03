@@ -21,10 +21,14 @@ const r = (p) => JSON.parse(readFileSyncWrap(p));
 import { readFileSync } from 'node:fs';
 function readFileSyncWrap(p) { return readFileSync(join(ROOT, p), 'utf8'); }
 
-const WEIGHTS = { income: 0.30, nature: 0.25, access: 0.20, exclusivity: 0.15, premiumHosp: 0.10 };
+const WEIGHTS = { income: 0.10, nature: 0.50, access: 0.35, exclusivity: 0.05, premiumHosp: 0 };
 const MADRID = [40.4168, -3.7038]; // Puerta del Sol
 const ACCESS_PEAK_KM = 32;          // sweet spot: reachable, not in the city
 const ACCESS_SIGMA = 22;
+// Wellness siting favours accessible mid-sierra altitude, not the highest peaks:
+// score nature as a sweet-spot around ~900 m rather than "higher is better".
+const NATURE_PEAK_M = 900;
+const NATURE_SIGMA_M = 200;
 
 const toRad = (d) => (d * Math.PI) / 180;
 function haversine([la1, lo1], [la2, lo2]) {
@@ -81,16 +85,17 @@ async function main() {
 
   // Normalisers
   const nIncome = minmax(rows.filter((x) => x.income != null).map((x) => x.income));
-  const nNature = minmax(rows.map((x) => x.elev));
   const nExcl = minmax(rows.map((x) => 1 / (1 + x.hotelCount)));
   const nHosp = minmax(rows.map((x) => x.premium));
   const accessRaw = (d) => Math.exp(-(((d - ACCESS_PEAK_KM) / ACCESS_SIGMA) ** 2)) * 100;
+  // Nature as a wellness sweet-spot: accessible mid-sierra altitude scores best.
+  const natureRaw = (m) => Math.exp(-(((m - NATURE_PEAK_M) / NATURE_SIGMA_M) ** 2)) * 100;
 
   const values = {};
   for (const x of rows) {
     const parts = {
       income: x.income == null ? 0 : Math.round(nIncome(x.income)),
-      nature: Math.round(nNature(x.elev)),
+      nature: Math.round(natureRaw(x.elev)),
       access: Math.round(accessRaw(x.distMadrid)),
       exclusivity: Math.round(nExcl(1 / (1 + x.hotelCount))),
       premiumHosp: Math.round(nHosp(x.premium)),
@@ -105,8 +110,8 @@ async function main() {
     meta: {
       model: 'Luxury wellness retreat + branded villas',
       weights: WEIGHTS,
-      factors: 'income, nature(elevation), access(distance sweet-spot), exclusivity(low hotel density), premiumHosp(4-5★)',
-      note: 'Scores are relative rankings within the region (0–100), not absolute.',
+      factors: 'income, nature(sweet-spot altitude ~900m), access(distance sweet-spot ~32km), exclusivity(low hotel density), premiumHosp(4-5★)',
+      note: 'Nature and access are scored as wellness sweet-spots (accessible mid-sierra, ~30 min out) rather than "more is better". Scores are relative rankings within the region (0–100), not absolute.',
       generated: new Date().toISOString().slice(0, 10),
     },
     values,
