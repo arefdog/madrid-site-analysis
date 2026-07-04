@@ -11,6 +11,35 @@ const STYLE_APPROX = { color: '#d97706', weight: 2, dashArray: '6 4', fillColor:
 
 const SITES = [
   {
+    id: 'boalo-estate',
+    name: 'Boalo — BYLD landscape estate',
+    // Coordinates from the BYLD Boalo deck cover (40.7167 N, 3.9000 W).
+    // No cadastral reference in the deck, so the footprint is a ~7 ha
+    // placeholder around that point until a refcat is provided.
+    marker: [40.7167, -3.9],
+    refs: [],
+    footprint: [
+      [40.7178, -3.9018],
+      [40.7176, -3.8982],
+      [40.7156, -3.8984],
+      [40.7158, -3.902],
+    ],
+    facts: `
+      <b>Boalo — BYLD landscape estate</b><br>
+      <span style="color:#555">BYLD deck · May 2026 · under reservation</span>
+      <hr style="margin:6px 0;border:0;border-top:1px solid #ccc">
+      <b>70,484 m²</b> · single contiguous parcel, one owner · southern edge of El Boalo<br>
+      920 m elevation · S/SE orientation · 0 km to the P.N. de Guadarrama buffer<br>
+      Program (17,621 m² buildable · 25%): residences 5,392 m² · hotel 5,286 m² (44 keys) ·
+      spa + restaurant 5,110 m² · VPP 3,524 m² · parking 1,762 m²<br>
+      Dehesa &amp; trails kept open: 52,863 m² (75% of parcel)<br>
+      <hr style="margin:6px 0;border:0;border-top:1px solid #ccc">
+      <span style="color:#555">Map readout: El Boalo scores <b>90/100</b> (nature 100 · access 100 ·
+      income 34 · exclusivity 33) · ~29 min from Madrid (M-607/A-6).<br>
+      Location from deck coordinates — footprint indicative until a cadastral
+      reference is added.</span>`,
+  },
+  {
     id: 'colmenarejo-ue18',
     name: 'U.E. 18 «Colonia de Santiago» — Colmenarejo',
     // Access corner: Camino de la Fuente Elvira × Calle del Pisuerga.
