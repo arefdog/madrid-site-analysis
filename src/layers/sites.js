@@ -13,11 +13,12 @@ const SITES = [
   {
     id: 'boalo-estate',
     name: 'Boalo — BYLD landscape estate',
-    // Coordinates from the BYLD Boalo deck cover (40.7167 N, 3.9000 W).
-    // No cadastral reference in the deck, so the footprint is a ~7 ha
-    // placeholder around that point until a refcat is provided.
+    // Marker from the BYLD Boalo deck cover (40.7167 N, 3.9000 W); the
+    // outline comes from the parcel's official Catastro geometry.
     marker: [40.7167, -3.9],
-    refs: [],
+    refs: [
+      { rc: '1683501VL2018S', label: 'Parcela catastral · 70,484 m²' },
+    ],
     footprint: [
       [40.7178, -3.9018],
       [40.7176, -3.8982],
@@ -35,9 +36,7 @@ const SITES = [
       Dehesa &amp; trails kept open: 52,863 m² (75% of parcel)<br>
       <hr style="margin:6px 0;border:0;border-top:1px solid #ccc">
       <span style="color:#555">Map readout: El Boalo scores <b>90/100</b> (nature 100 · access 100 ·
-      income 34 · exclusivity 33) · ~29 min from Madrid (M-607/A-6).<br>
-      Location from deck coordinates — footprint indicative until a cadastral
-      reference is added.</span>`,
+      income 34 · exclusivity 33) · ~29 min from Madrid (M-607/A-6).</span>`,
   },
   {
     id: 'colmenarejo-ue18',
