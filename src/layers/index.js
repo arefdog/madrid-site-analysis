@@ -24,9 +24,11 @@ import landcover from './landcover.js';
 import airbnb from './airbnb.js';
 import hotels from './hotels.js';
 import scores from './scores.js';
+import sites from './sites.js';
 
 export const layers = [
   base,
+  sites,
   scores,
   purchasingPower,
   airbnb,
