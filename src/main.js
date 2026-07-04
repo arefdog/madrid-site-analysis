@@ -4,6 +4,7 @@ import { MAP } from './config.js';
 import { layers } from './layers/index.js';
 import { buildPanel, setLegendVisible } from './ui/panel.js';
 import { requireAccess } from './gate.js';
+import 'leaflet-rotate';
 
 // Fix Leaflet's default marker icon paths under bundlers.
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -20,6 +21,12 @@ const map = L.map('map', {
   zoom: MAP.zoom,
   minZoom: MAP.minZoom,
   maxZoom: MAP.maxZoom,
+  // Map rotation + compass control (drag the compass to rotate, click to reset
+  // to north). Also two-finger rotate on touch and Shift-drag on desktop.
+  rotate: true,
+  touchRotate: true,
+  shiftKeyRotate: true,
+  rotateControl: { closeOnZeroBearing: false, position: 'bottomright' },
 });
 if (import.meta.env?.DEV) window.__map = map; // dev-only debug handle
 
