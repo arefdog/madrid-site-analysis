@@ -70,6 +70,10 @@ export const SOURCES = {
     'https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X={x}&Coordenada_Y={y}',
   // Public web sheet for a parcel (developers open this for the official record).
   cadastreSheet: 'https://www1.sedecatastro.gob.es/Cartografia/mapa.aspx?refcat={rc}',
+  // Catastro INSPIRE WFS: exact parcel polygon (GML) for a cadastral reference.
+  // Same host as cadastreByCoord, CORS-enabled.
+  cadastreParcelWfs:
+    'https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx?service=wfs&version=2&request=getfeature&STOREDQUERIE_ID=GetParcel&srsname=EPSG::4326&refcat={rc}',
   // Municipality boundaries are vendored in /data/madrid-municipios.geojson and
   // imported directly by the purchasing-power layer (no external runtime fetch).
 };
