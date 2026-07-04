@@ -3,6 +3,7 @@ import './styles.css';
 import { MAP } from './config.js';
 import { layers } from './layers/index.js';
 import { buildPanel, setLegendVisible } from './ui/panel.js';
+import { requireAccess } from './gate.js';
 
 // Fix Leaflet's default marker icon paths under bundlers.
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -10,6 +11,10 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow });
 
+// Gate the app behind the collaborator password before building the map.
+requireAccess().then(initApp);
+
+function initApp() {
 const map = L.map('map', {
   center: MAP.center,
   zoom: MAP.zoom,
@@ -58,3 +63,4 @@ render();
 
 // Activate everything marked enabled by default (base layer first, underneath).
 layers.filter((l) => l.enabled).forEach((l) => toggle(l, true));
+}
