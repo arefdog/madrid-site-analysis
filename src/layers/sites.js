@@ -33,15 +33,18 @@ const SITES = [
       { rc: '4606506VK1940N', label: 'Parcela 12 · 1,011.64 m²' },
       { rc: '28061A02200075', label: 'Parcela rústica 28061A02200075' },
     ],
-    // Offline fallback only (±100 m): strip running SSW from C. del Pisuerga
-    // to the Galapagar municipal boundary, per NNSS Colmenarejo plan P.3a.
+    // Offline fallback only (±50 m): E–W block cluster SE of the Fuente
+    // Elvira × Pisuerga junction, per the relative positions encoded in the
+    // manzana numbers (46065 → 47074 → 48077/48061, each ~100 m apart E) and
+    // the listing aerial (field between C. del Pisuerga and C. del Ter, with
+    // the rústico parcel running E into the dehesa).
     footprint: [
-      [40.5591, -4.0082],
-      [40.5589, -4.0067],
-      [40.5574, -4.0062],
-      [40.554, -4.005],
-      [40.5538, -4.0058],
-      [40.5573, -4.007],
+      [40.5586, -4.0075],
+      [40.5578, -4.004],
+      [40.557, -4.0028],
+      [40.5561, -4.0037],
+      [40.5566, -4.006],
+      [40.5572, -4.007],
     ],
     facts: `
       <b>U.E. 18 «Colonia de Santiago» — Colmenarejo</b><br>
