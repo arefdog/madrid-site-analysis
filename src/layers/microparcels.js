@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
+import { fetchParcelRings } from './masterplan.js';
 
 // Micro-parcel subdivision v4: terrain-driven generative masterplan.
 //
@@ -191,17 +192,27 @@ export default {
   enabled: true,
   create() {
     const group = L.layerGroup();
-    if (!BOALO?.footprint) return group;
-
-    const rings = [BOALO.footprint];
-    const b = bbox(rings);
     const renderer = L.canvas({ padding: 0.5 });
 
     (async () => {
+      // Official Catastro parcel geometry (same WFS as sites/masterplan);
+      // the hand-drawn footprint is only a last-resort fallback.
+      const rc = BOALO?.cadastre?.refs?.[0]?.rc;
+      let rings;
+      try {
+        if (!rc) throw new Error('no cadastral ref');
+        rings = await fetchParcelRings(rc);
+      } catch (e) {
+        console.warn('[microparcels] Catastro unavailable, using footprint:', e.message);
+        rings = BOALO?.footprint ? [BOALO.footprint] : [];
+      }
+      if (!rings.length) return;
+
+      const b = bbox(rings);
       const { elevAt, source } = await terrainModel(b);
 
       const latRef = (b.latMin + b.latMax) / 2;
-      const siteArea = ringAreaM2(BOALO.footprint, latRef);
+      const siteArea = rings.reduce((s, ring) => s + ringAreaM2(ring, latRef), 0);
       const cellSideM = Math.sqrt(siteArea / TARGET_PARCELS);
       const dLat = cellSideM / M_PER_DEG_LAT;
       const dLng = cellSideM / (M_PER_DEG_LAT * Math.cos((latRef * Math.PI) / 180));
