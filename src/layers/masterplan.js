@@ -162,6 +162,24 @@ export function fetchParcelRings(rc) {
     });
 }
 
+// Single source of truth for the Boalo site geometry, shared by every layer
+// that draws on the estate (masterplan zones, micro-parcels). Memoized so the
+// WFS is hit once; resolves to the official parcel rings or, failing that,
+// the hand-drawn footprint.
+let boaloRingsPromise = null;
+export function getBoaloRings() {
+  if (!boaloRingsPromise) {
+    const boalo = SITES['boalo-estate'];
+    const rc = boalo?.cadastre?.refs?.[0]?.rc;
+    boaloRingsPromise = (rc ? fetchParcelRings(rc) : Promise.reject(new Error('no rc')))
+      .catch((e) => {
+        console.warn('[boalo] Catastro unavailable, using footprint:', e.message);
+        return boalo?.footprint ? [boalo.footprint] : [];
+      });
+  }
+  return boaloRingsPromise;
+}
+
 function addBoaloZones(group, rings) {
   const b = bbox(rings);
   for (const spec of BOALO_BANDS) {
@@ -181,15 +199,8 @@ export default {
   create() {
     const group = L.layerGroup();
 
-    // --- Boalo: fetch the single parcel, band it into zones. -------------
-    const boalo = SITES['boalo-estate'];
-    const boaloRc = boalo?.cadastre?.refs?.[0]?.rc;
-    (boaloRc ? fetchParcelRings(boaloRc) : Promise.reject(new Error('no rc')))
-      .catch((e) => {
-        console.warn('[masterplan] Boalo Catastro unavailable, using footprint:', e.message);
-        return boalo?.footprint ? [boalo.footprint] : [];
-      })
-      .then((rings) => { if (rings.length) addBoaloZones(group, rings); });
+    // --- Boalo: shared site geometry, banded into zones. ------------------
+    getBoaloRings().then((rings) => { if (rings.length) addBoaloZones(group, rings); });
 
     // --- Colmenarejo: color each real parcel by its program role. --------
     const colme = SITES['colmenarejo-ue18'];
