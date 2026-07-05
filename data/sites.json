@@ -8,7 +8,7 @@
       "location: marker, accessNote, distances[]",
       "cadastre: refs[] (rc, label, areaM2) — outlines fetched live from Catastro INSPIRE",
       "planning: classification{category, detail[{class,scope}], basis}, instrument, unit, buildableM2, capacity, density, cessions, path, constraints",
-      "market: price, terms, pricePerM2, listingUrl — model readout joins from scores.json via muniCode",
+      "market: price, terms, pricePerM2, comps, listingUrl — model readout joins from scores.json via muniCode",
       "fit: one-line BYLD product fit",
       "footprint: fallback polygon if Catastro is unreachable"
     ]
@@ -104,7 +104,8 @@
         "price": 4000000,
         "pricePerM2": 56.7,
         "listingUrl": "https://www.idealista.com/venta-terrenos/el-boalo-madrid/",
-        "terms": "€2M down payment + €2M in kind at end of construction"
+        "terms": "€2M down payment + €2M in kind at end of construction",
+        "comps": "Probable identity: public 68,938 m² «urbanizable»-marketed El Boalo listing at €3.95M (€57/m²). Genuine rustic dehesa comps trade far lower (large stone-walled fincas in El Boalo/Manzanares list without urbanization value); small consolidated urban plots in the corridor run €200–350/m²."
       },
       "fit": "Full BYLD program IF entitlement achievable — currently high planning risk: no PGOU, regional zero-growth stance, PRCAM protection likely. €57/m² asking (matching 68,938 m² public listing at €3.95M) already prices in entitlement hope; genuine rustic dehesa trades far lower.",
       "footprint": [
@@ -140,6 +141,10 @@
         {
           "label": "NNSS Colmenarejo 1996 · ficha U.E. 18 «Colonia de Santiago» (in listing photos)",
           "url": null
+        },
+        {
+          "label": "TEAM COMPASS ad («5 parcelas», sewer in C. Cerca del Pino) — syndicated on wallapop/yaencontre/nuroa",
+          "url": "https://es.wallapop.com/inmobiliaria/parcela/colmenarejo"
         }
       ],
       "land": {
@@ -259,18 +264,19 @@
           "basis": "NNSS Colmenarejo 1996 — ficha «Desarrollo de Unidad de Ejecución en S.U.» + plan P.3a «Calificación del suelo urbano» (both in the listing)."
         },
         "instrument": "NNSS de Planeamiento de Colmenarejo (1996)",
-        "unit": "U.E. 18 — «Cerca del Pino» per listing / «Colonia de Santiago» per 1996 ficha. Unit total: 17,789 m² (listing) vs 27,122 m² (ficha) — discrepancy to verify; the sale covers 5,251 m² of it (10,894 m² stated «a la venta» unit-wide)",
+        "unit": "U.E. 18 — «Cerca del Pino» per ad / «Colonia de Santiago» per 1996 ficha. No official re-delimitation found (BOCM/municipal records, researched 05-Jul-2026): the ad’s 17,789 m² unit total and 10,894 m² «a la venta» are vendor claims; the ficha’s 27,122 m² stands as the only public delimitation. Ad shows a 5,932.78 m² «resultado de segregación» — private segregation activity; request the segregation licence + nota simple.",
         "buildableM2": null,
         "capacity": "Max 18 homes unit-wide (ficha) · sale portion ≈ 3-5 single-family plots · Zona SU-UE 18 Grado 3º",
         "density": "Occupation 25% · edificability 0.25 m²/m² net · 2 floors + bajo cubierta (6.50 m eaves, 8.50 m ridge) · min parcel 1,000 m², 20 m frontage, setbacks 4/4/3 m",
         "cessions": "3,948 m² green space to the municipality («zona entre calles») + road network",
-        "path": "Estudio de Detalle + urbanisation project · sistema de compensación, private initiative",
-        "constraints": "Two zona-verde parcels (1,952.60 + 2,043.27 m²) inside the unit; abuts the Galapagar municipal boundary"
+        "path": "Estudio de Detalle + urbanisation project + compensación still ALL pending — no ED or proyecto de urbanización for U.E.18 found in any public record: zero execution progress in ~30 years (only a sewer main in Calle Cerca del Pino). Execution-risk precedent next door: Galapagar’s U.E.-7 «Fuente Elvira» has been stalled 15+ years since the Martinsa-Fadesa bankruptcy, with distressed plot valuations.",
+        "constraints": "Two zona-verde parcels (1,952.60 + 2,043.27 m²) inside the unit; abuts the Galapagar boundary. Heritage angle: «Colonia de Santiago» is a 1929 summer colony with catalogued traditional houses — check the municipal catalog. Must-pull documents (bot-blocked online): TSJ Madrid sentencia in PLANEA (expte. 61657, Colmenarejo) and the modificaciones list at transparencia.ayto-colmenarejo.org. Verify ordinance parameters: nearby TEAM COMPASS parcels quote 0.20 m²/m², 15% ocupación."
       },
       "market": {
         "price": 244900,
         "pricePerM2": 46.6,
-        "listingUrl": "https://www.idealista.com/inmueble/111936104/"
+        "listingUrl": "https://www.idealista.com/inmueble/111936104/",
+        "comps": "Raw in-unit at €46.6/m² vs €170–280/m² for finished/consolidated Colmenarejo plots (e.g. 1,190 m² €199.5k; 4,770 m² package at Monterrubio×Torreón €931k ≈ €195/m²) — a ~75–83% raw-land discount consistent with an unexecuted unit. Downside precedent: stalled Galapagar Fuente Elvira unit plots near single-digit €/m² in distress."
       },
       "fit": "Small-scale entry: ~3-5 unifamiliar plots (Echo/Duo cluster) at €46.6/m² raw — not a retreat site; different asset class from Boalo",
       "footprint": [

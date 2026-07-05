@@ -111,6 +111,7 @@ export function reportHtml(site) {
       row('Asking price', market.price ? `€${num(market.price)}` : '—'),
       row('Terms', dash(market.terms)),
       row('€/m²', market.pricePerM2 ? `€${num(market.pricePerM2)}` : '—'),
+      row('Comps', dash(market.comps)),
       row('Listing', market.listingUrl
         ? `<a href="${market.listingUrl}" target="_blank" rel="noopener">open listing ↗</a>` : '—'),
       row('Model readout', modelReadout(site.muniCode)),
