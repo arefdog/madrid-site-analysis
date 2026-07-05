@@ -25,10 +25,12 @@ import airbnb from './airbnb.js';
 import hotels from './hotels.js';
 import scores from './scores.js';
 import sites from './sites.js';
+import masterplan from './masterplan.js';
 
 export const layers = [
   base,
   sites,
+  masterplan,
   scores,
   purchasingPower,
   airbnb,
