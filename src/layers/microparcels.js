@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
-import { fetchParcelRings } from './masterplan.js';
+import { getBoaloRings } from './masterplan.js';
 
 // Micro-parcel subdivision v4: terrain-driven generative masterplan.
 //
@@ -170,21 +170,6 @@ function slopeDegAt(elevAt, lat, lng) {
   return (Math.atan(Math.sqrt(gLat ** 2 + gLng ** 2)) * 180) / Math.PI;
 }
 
-// Catastro reverse lookup: which parcel contains this WGS84 point?
-// Same host the app already uses for the INSPIRE parcel WFS.
-const RCCOOR_URL =
-  'https://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?SRS=EPSG:4326&Coordenada_X={lng}&Coordenada_Y={lat}';
-
-async function resolveRcAtPoint(lat, lng) {
-  const res = await fetch(RCCOOR_URL.replace('{lng}', lng).replace('{lat}', lat));
-  if (!res.ok) throw new Error(`Catastro coords ${res.status}`);
-  const xml = await res.text();
-  const pc1 = /<pc1>\s*([^<\s]+)\s*<\/pc1>/.exec(xml)?.[1];
-  const pc2 = /<pc2>\s*([^<\s]+)\s*<\/pc2>/.exec(xml)?.[1];
-  if (!pc1 || !pc2) throw new Error('no parcel at point');
-  return pc1 + pc2;
-}
-
 // Buildability 0–100: terrain, access to circulation, zone constraints.
 function buildabilityScore(cell, zoneId) {
   let score = 80;
@@ -210,40 +195,11 @@ export default {
     const renderer = L.canvas({ padding: 0.5 });
 
     (async () => {
-      // Resolve the parcel UNDER THE PIN at runtime instead of trusting the
-      // stored cadastral ref (which decodes to a map sheet ~3 km NW of the
-      // marker — likely a stale listing match). Chain: parcel-at-marker →
-      // stored ref → hand-drawn footprint. The resolved RC is surfaced in
-      // every popup so the data file can be corrected once confirmed.
-      const marker = BOALO?.location?.marker;
-      const storedRc = BOALO?.cadastre?.refs?.[0]?.rc;
-      let rings = null;
-      let rcUsed = null;
-      if (marker) {
-        try {
-          rcUsed = await resolveRcAtPoint(marker[0], marker[1]);
-          if (storedRc && rcUsed !== storedRc) {
-            console.warn(`[microparcels] parcel at marker is ${rcUsed}, but sites.json says ${storedRc} — using the marker parcel`);
-          }
-          rings = await fetchParcelRings(rcUsed);
-        } catch (e) {
-          console.warn('[microparcels] marker-parcel lookup failed:', e.message);
-          rcUsed = null;
-        }
-      }
-      if (!rings && storedRc) {
-        try {
-          rings = await fetchParcelRings(storedRc);
-          rcUsed = storedRc;
-        } catch (e) {
-          console.warn('[microparcels] stored-ref lookup failed:', e.message);
-        }
-      }
-      if (!rings) {
-        console.warn('[microparcels] Catastro unavailable, using hand-drawn footprint');
-        rings = BOALO?.footprint ? [BOALO.footprint] : [];
-      }
+      // Exactly the same geometry the masterplan-zones layer draws (shared,
+      // memoized promise) — the grid and the zones can never diverge.
+      const rings = await getBoaloRings();
       if (!rings.length) return;
+      const rcUsed = BOALO?.cadastre?.refs?.[0]?.rc ?? null;
 
       const b = bbox(rings);
       const { elevAt, source } = await terrainModel(b);
