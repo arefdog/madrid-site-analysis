@@ -152,7 +152,7 @@ const COLMENAREJO_RUSTIC = {
   cteRef: 'SNU — no edificability · Ley 9/2001 cessions per ficha U.E. 18',
 };
 
-function fetchParcelRings(rc) {
+export function fetchParcelRings(rc) {
   return fetch(SOURCES.cadastreParcelWfs.replace('{rc}', rc))
     .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`Catastro ${r.status}`))))
     .then((gml) => {
