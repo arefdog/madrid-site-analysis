@@ -24,6 +24,10 @@
         {
           "label": "BYLD deck v0.3 (May 2026)",
           "url": null
+        },
+        {
+          "label": "Possible public listing match: 68,938 m² “urbanizable” El Boalo · €3.95M (idealista)",
+          "url": "https://www.idealista.com/venta-terrenos/el-boalo-madrid/"
         }
       ],
       "land": {
@@ -77,11 +81,15 @@
           "category": "unverified",
           "detail": [
             {
+              "class": "SUELO NO URBANIZABLE",
+              "scope": "Likely — the coordinates sit ~1.3 km E/SE of the village in dehesa covered by the Parque Regional Cuenca Alta del Manzanares (PRCAM, added to El Boalo by Ley 7/1991); NNSS classify such land as SNU de especial protección. Not confirmed for the exact parcel."
+            },
+            {
               "class": null,
-              "scope": "Catastro: urbana register (ref 1683501VL2018S). The 3,524 m² VPP quota in the program is characteristic of an urbanizable sector — indication only, not confirmed."
+              "scope": "Counter-signal: Catastro urbana-format ref (1683501VL2018S) — an anomaly to reconcile; the ref itself has no public trace and is unverified."
             }
           ],
-          "basis": "No planning ficha in hand. Verify: Land classification layer click on the parcel (SIU) or El Boalo NNSS."
+          "basis": "Research 05-Jul-2026: NNSS 1997/98 in force, no PGOU (2018 avance stalled; CM territorial reports push zero growth and downzoning). No urbanizable sector matching a 70,484 m² program exists in public records. Verify: sedecatastro + SIU click on the parcel."
         },
         "instrument": null,
         "unit": null,
@@ -89,16 +97,16 @@
         "capacity": "Branded residences 5,392 m² · hotel 5,286 m² (44 keys) · spa + restaurant 5,110 m² · VPP 3,524 m² · parking 1,762 m²",
         "density": "25% buildable ratio · 75% (52,863 m²) held as dehesa & trails",
         "cessions": null,
-        "path": "Modular permitting pathway · subject to municipal approval (v0.3, indicative)",
-        "constraints": "P.N. de Guadarrama buffer edge — protected horizon that cannot be built against"
+        "path": "Deck assumes modular permitting, subject to municipal approval — but the 25% / 17,621 m² buildability has no identified basis in any planning instrument (promoter aspiration, not entitlement). VPP flag: 3,524 m² ≈ 20% of total vs Madrid statutory 30% of residential buildability (Ley 9/2001).",
+        "constraints": "PRIMARY: likely PRCAM (parque regional) protected zoning — urbanization precluded in the A.2/B1 zones around El Boalo. Also: P.N. Guadarrama ZPP/PRUG buffer; Ley 7/2024 extends infraction/restoration window on protected land to 15 years; active local opposition (Ecologistas en Acción) with CM escalation track record against NNSS upzonings (Miragallos case, 2025)."
       },
       "market": {
         "price": 4000000,
         "pricePerM2": 56.7,
-        "listingUrl": null,
+        "listingUrl": "https://www.idealista.com/venta-terrenos/el-boalo-madrid/",
         "terms": "€2M down payment + €2M in kind at end of construction"
       },
-      "fit": "Full BYLD program — landscape hotel + branded residences (Echo / Duo / Grand), operator-run",
+      "fit": "Full BYLD program IF entitlement achievable — currently high planning risk: no PGOU, regional zero-growth stance, PRCAM protection likely. €57/m² asking (matching 68,938 m² public listing at €3.95M) already prices in entitlement hope; genuine rustic dehesa trades far lower.",
       "footprint": [
         [
           40.7178,
