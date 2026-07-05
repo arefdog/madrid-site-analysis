@@ -177,11 +177,19 @@ export function parseGmlRings(gml) {
   return rings;
 }
 
+// Average of a ring's vertices — a point inside compact parcels, used to place
+// the marker within the outline (no map needed, unlike Polygon.getCenter()).
+function centroid(ring) {
+  let lat = 0, lng = 0;
+  for (const [a, b] of ring) { lat += a; lng += b; }
+  return [lat / ring.length, lng / ring.length];
+}
+
 export default {
   id: 'overlay-sites',
   label: 'Identified sites',
   group: 'overlay',
-  enabled: true,
+  enabled: false,
   create() {
     const group = L.layerGroup();
     for (const site of SITES) {
@@ -190,8 +198,14 @@ export default {
             .bindPopup(compactPopup(site, '<span style="color:#555">Approximate outline</span>'), { maxWidth: 300 })
         : null;
       if (approx) group.addLayer(approx);
-      group.addLayer(L.marker(site.location.marker, { title: site.name })
-        .bindPopup(compactPopup(site), { maxWidth: 300 }));
+
+      // Keep the marker inside the parcel outline: start at the footprint's
+      // centroid (fall back to the given point), then snap into the real
+      // Catastro parcel once its exact geometry loads.
+      const start = site.footprint ? centroid(site.footprint) : site.location.marker;
+      const marker = L.marker(start, { title: site.name })
+        .bindPopup(compactPopup(site), { maxWidth: 300 });
+      group.addLayer(marker);
 
       let gotExact = false;
       for (const ref of site.cadastre?.refs || []) {
@@ -200,7 +214,11 @@ export default {
           .then((gml) => {
             const rings = parseGmlRings(gml);
             if (!rings.length) throw new Error('no geometry in response');
-            if (!gotExact && approx) { gotExact = true; group.removeLayer(approx); }
+            if (!gotExact) {
+              gotExact = true;
+              if (approx) group.removeLayer(approx);
+              marker.setLatLng(centroid(rings[0])); // move pin into the real parcel
+            }
             group.addLayer(L.polygon(rings, STYLE_EXACT)
               .bindPopup(compactPopup(site, `${ref.label} · ${catastroLink(ref.rc)}`), { maxWidth: 300 }));
           })

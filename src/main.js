@@ -66,8 +66,9 @@ function setLang(next) {
 }
 
 const panelEl = document.getElementById('panel');
-render();
 
-// Activate everything marked enabled by default (base layer first, underneath).
+// Activate default layers first so the panel reflects their state, then render
+// (otherwise default-on layers show on the map but read as unchecked).
 layers.filter((l) => l.enabled).forEach((l) => toggle(l, true));
+render();
 }
