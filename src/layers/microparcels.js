@@ -1,31 +1,42 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
 
-// Micro-parcel generation v2: intelligent scattering respecting topography, roads, and zones.
-// 1000 parcels (70.5 m² each) distributed by zone with elevation-based clustering,
-// road network for commons, and parking clusters near access.
+// Micro-parcel subdivision v3: a continuous ~1000-cell master grid that covers
+// 100% of the Boalo estate. Each cell is a real polygon (~70.5 m²) clipped to
+// the site footprint, so edge parcels follow the cadastral boundary exactly.
+// Cells are the atomic sale/planning unit — adjacent cells combine freely into
+// larger lots, which is what gives the masterplan its layout flexibility.
+//
+// Per-cell attributes: zone (from the masterplan band model), buildability
+// score 0–100 (terrain + access + zone constraints), distance to the trail
+// spine, and interpolated elevation (one batched EU-DEM request; graceful
+// fallback to terrain-agnostic scoring if the API is unreachable).
 
 const SITES = Object.fromEntries(sitesData.sites.map((s) => [s.id, s]));
 const BOALO = SITES['boalo-estate'];
 
-const ZONE_ALLOCATIONS = {
-  Z1: { count: 198, color: '#1e40af', name: 'Hotel core', opacity: 0.45, type: 'development' },
-  Z2: { count: 227, color: '#ea580c', name: 'Residences', opacity: 0.45, type: 'development' },
-  Z3: { count: 64, color: '#be185d', name: 'VPP village', opacity: 0.45, type: 'development' },
-  Z4: { count: 85, color: '#b8860b', name: 'Equestrian', opacity: 0.45, type: 'development' },
-  Z5: { count: 425, color: '#65a30d', name: 'Commons', opacity: 0.35, type: 'commons' },
+const TARGET_PARCELS = 1000;
+const M_PER_DEG_LAT = 111320;
+
+const ZONES = {
+  Z1: { color: '#1e40af', name: 'Hotel core', type: 'development' },
+  Z2: { color: '#ea580c', name: 'Residences', type: 'development' },
+  Z3: { color: '#be185d', name: 'VPP village', type: 'development' },
+  Z4: { color: '#b8860b', name: 'Equestrian', type: 'development' },
+  Z5: { color: '#86efac', name: 'Commons / dehesa', type: 'commons' },
 };
 
-const ZONE_BANDS = {
-  Z1: { latFrom: 0.2, latTo: 0.65, lngFrom: 0, lngTo: 0.32 },
-  Z2: { latFrom: 0.15, latTo: 0.75, lngFrom: 0.32, lngTo: 0.68 },
-  Z3: { latFrom: 0.65, latTo: 1, lngFrom: 0, lngTo: 0.3 },
-  Z4: { latFrom: 0.2, latTo: 0.7, lngFrom: 0.68, lngTo: 1 },
-  Z5: { latFrom: 0, latTo: 1, lngFrom: 0, lngTo: 1 },
-};
+// Band model (fractions of the site bbox) — mirrors the masterplan layer.
+// First matching band wins; anything unmatched is commons.
+const ZONE_BANDS = [
+  ['Z1', { latFrom: 0.2, latTo: 0.65, lngFrom: 0, lngTo: 0.32 }],
+  ['Z3', { latFrom: 0.65, latTo: 1, lngFrom: 0, lngTo: 0.3 }],
+  ['Z2', { latFrom: 0.15, latTo: 0.75, lngFrom: 0.32, lngTo: 0.68 }],
+  ['Z4', { latFrom: 0.2, latTo: 0.7, lngFrom: 0.68, lngTo: 1 }],
+];
 
-// Elevation cache to avoid re-querying same points.
-const elevationCache = new Map();
+const ROAD_STYLE = { color: '#2d3748', fillColor: '#4a5568', fillOpacity: 0.55 };
+const PARKING_STYLE = { color: '#5c4a33', fillColor: '#8b7355', fillOpacity: 0.55 };
 
 function bbox(rings) {
   let latMin = Infinity, latMax = -Infinity, lngMin = Infinity, lngMax = -Infinity;
@@ -40,274 +51,124 @@ function bbox(rings) {
   return { latMin, latMax, lngMin, lngMax };
 }
 
-function bandRect(b, latFrom, latTo, lngFrom, lngTo) {
-  const dLat = b.latMax - b.latMin;
-  const dLng = b.lngMax - b.lngMin;
-  return {
-    latMin: b.latMin + dLat * latFrom,
-    latMax: b.latMin + dLat * latTo,
-    lngMin: b.lngMin + dLng * lngFrom,
-    lngMax: b.lngMin + dLng * lngTo,
-  };
+// ---------------------------------------------------------------------------
+// Sutherland–Hodgman clip of a ring against an axis-aligned rect. Rings are
+// [lat, lng] arrays. Returns [] when the ring misses the rect entirely.
+
+function clipHalfPlane(ring, inside, intersect) {
+  const out = [];
+  for (let i = 0; i < ring.length; i++) {
+    const cur = ring[i];
+    const prev = ring[(i + ring.length - 1) % ring.length];
+    const curIn = inside(cur);
+    if (curIn !== inside(prev)) out.push(intersect(prev, cur));
+    if (curIn) out.push(cur);
+  }
+  return out;
 }
 
-async function queryElevation(lat, lng) {
-  const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
-  if (elevationCache.has(key)) return elevationCache.get(key);
+function clipRingToRect(ring, r) {
+  let poly = ring;
+  const planes = [
+    [(p) => p[0] >= r.latMin, 0, r.latMin],
+    [(p) => p[0] <= r.latMax, 0, r.latMax],
+    [(p) => p[1] >= r.lngMin, 1, r.lngMin],
+    [(p) => p[1] <= r.lngMax, 1, r.lngMax],
+  ];
+  for (const [inside, axis, val] of planes) {
+    if (poly.length < 3) return [];
+    poly = clipHalfPlane(poly, inside, (a, b) => {
+      const t = (val - a[axis]) / (b[axis] - a[axis]);
+      return axis === 0
+        ? [val, a[1] + t * (b[1] - a[1])]
+        : [a[0] + t * (b[0] - a[0]), val];
+    });
+  }
+  return poly.length >= 3 ? poly : [];
+}
 
+// Planar shoelace area in m² (fine at parcel scale).
+function ringAreaM2(ring, latRef) {
+  const mPerDegLng = M_PER_DEG_LAT * Math.cos((latRef * Math.PI) / 180);
+  let sum = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const [aLat, aLng] = ring[i];
+    const [bLat, bLng] = ring[(i + 1) % ring.length];
+    sum += (aLng * mPerDegLng) * (bLat * M_PER_DEG_LAT) - (bLng * mPerDegLng) * (aLat * M_PER_DEG_LAT);
+  }
+  return Math.abs(sum) / 2;
+}
+
+// ---------------------------------------------------------------------------
+// Terrain: one batched EU-DEM request for a coarse sample grid, then bilinear
+// interpolation for every cell. Returns null if the API is unreachable.
+
+async function fetchElevationGrid(b, n = 6) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const lat = b.latMin + ((b.latMax - b.latMin) * i) / (n - 1);
+      const lng = b.lngMin + ((b.lngMax - b.lngMin) * j) / (n - 1);
+      pts.push(`${lat.toFixed(5)},${lng.toFixed(5)}`);
+    }
+  }
   try {
-    const url = `https://api.opentopodata.org/v1/eudem25m?locations=${lat.toFixed(5)},${lng.toFixed(5)}`;
+    const url = `https://api.opentopodata.org/v1/eudem25m?locations=${pts.join('|')}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`elevation API ${res.status}`);
     const data = await res.json();
-    const v = data?.results?.[0]?.elevation;
-    elevationCache.set(key, v ?? null);
-    return v ?? null;
+    const grid = data?.results?.map((r) => r.elevation);
+    if (!grid || grid.length !== n * n || grid.some((v) => v == null)) return null;
+
+    return (lat, lng) => {
+      const fi = ((lat - b.latMin) / (b.latMax - b.latMin)) * (n - 1);
+      const fj = ((lng - b.lngMin) / (b.lngMax - b.lngMin)) * (n - 1);
+      const i0 = Math.max(0, Math.min(n - 2, Math.floor(fi)));
+      const j0 = Math.max(0, Math.min(n - 2, Math.floor(fj)));
+      const ti = fi - i0, tj = fj - j0;
+      const v00 = grid[i0 * n + j0], v01 = grid[i0 * n + j0 + 1];
+      const v10 = grid[(i0 + 1) * n + j0], v11 = grid[(i0 + 1) * n + j0 + 1];
+      return v00 * (1 - ti) * (1 - tj) + v01 * (1 - ti) * tj + v10 * ti * (1 - tj) + v11 * ti * tj;
+    };
   } catch (e) {
-    console.warn('Elevation query failed:', e.message);
-    elevationCache.set(key, null);
+    console.warn('[microparcels] elevation unavailable, terrain-agnostic scoring:', e.message);
     return null;
   }
 }
 
-// Calculate slope between two points (in degrees). Returns null if any point elevation unavailable.
-async function calculateSlope(lat1, lng1, lat2, lng2) {
-  const elev1 = await queryElevation(lat1, lng1);
-  const elev2 = await queryElevation(lat2, lng2);
-  if (elev1 === null || elev2 === null) return null;
-
-  // Haversine distance in meters.
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-  const distance = R * 2 * Math.asin(Math.sqrt(a));
-
-  if (distance < 10) return 0;
-  const elevDiff = Math.abs(elev2 - elev1);
-  return Math.atan(elevDiff / distance) * 180 / Math.PI;
+// Local slope in degrees from the interpolated surface (central differences
+// over ~25 m — matches the EU-DEM resolution).
+function slopeDeg(elevAt, lat, lng) {
+  if (!elevAt) return null;
+  const dLat = 25 / M_PER_DEG_LAT;
+  const dLng = 25 / (M_PER_DEG_LAT * Math.cos((lat * Math.PI) / 180));
+  const gLat = (elevAt(lat + dLat, lng) - elevAt(lat - dLat, lng)) / 50;
+  const gLng = (elevAt(lat, lng + dLng) - elevAt(lat, lng - dLng)) / 50;
+  return (Math.atan(Math.sqrt(gLat ** 2 + gLng ** 2)) * 180) / Math.PI;
 }
 
-function pointInRings(lat, lng, rings) {
-  for (const ring of rings) {
-    if (pointInPolygon(lat, lng, ring)) return true;
-  }
-  return false;
+function distM(aLat, aLng, bLat, bLng) {
+  const dLat = (aLat - bLat) * M_PER_DEG_LAT;
+  const dLng = (aLng - bLng) * M_PER_DEG_LAT * Math.cos((aLat * Math.PI) / 180);
+  return Math.sqrt(dLat ** 2 + dLng ** 2);
 }
 
-function pointInPolygon(lat, lng, ring) {
-  let inside = false;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [lat1, lng1] = ring[i];
-    const [lat2, lng2] = ring[j];
-    const intersect = ((lat1 > lng) !== (lat2 > lng)) && (lat < ((lng2 - lng1) * (lng - lat1)) / (lat2 - lat1) + lng1);
-    if (intersect) inside = !inside;
+// Buildability 0–100: terrain, access to the trail spine, zone constraints.
+function buildabilityScore(cell, zoneId) {
+  let score = 80;
+  if (cell.slope != null) {
+    if (cell.slope > 20) score -= 25;
+    else if (cell.slope > 12) score -= 12;
+    else if (cell.slope > 7) score -= 5;
   }
-  return inside;
-}
-
-// Generate parcels with smart topography clustering.
-async function generateParcelsForZone(zoneId, rect, count, rings) {
-  const parcels = [];
-  let attempts = 0;
-  const maxAttempts = count * 8;
-
-  while (parcels.length < count && attempts < maxAttempts) {
-    attempts++;
-
-    let lat, lng;
-
-    // For Z2 (residences), bias toward E/SE side for better views of Guadarrama.
-    if (zoneId === 'Z2') {
-      const lngBias = rect.lngMin + (rect.lngMax - rect.lngMin) * (0.5 + Math.random() * 0.5);
-      lat = rect.latMin + Math.random() * (rect.latMax - rect.latMin);
-      lng = lngBias;
-    } else {
-      lat = rect.latMin + Math.random() * (rect.latMax - rect.latMin);
-      lng = rect.lngMin + Math.random() * (rect.lngMax - rect.lngMin);
-    }
-
-    if (!pointInRings(lat, lng, rings)) continue;
-
-    const elev = await queryElevation(lat, lng);
-    if (elev === null) continue;
-
-    // For development zones, query nearby points to check slope.
-    if (ZONE_ALLOCATIONS[zoneId].type === 'development') {
-      const sampleDist = 0.0005;
-      const slopes = await Promise.all([
-        calculateSlope(lat, lng, lat + sampleDist, lng),
-        calculateSlope(lat, lng, lat - sampleDist, lng),
-        calculateSlope(lat, lng, lat, lng + sampleDist),
-        calculateSlope(lat, lng, lat, lng - sampleDist),
-      ]);
-
-      const validSlopes = slopes.filter(s => s !== null);
-      if (validSlopes.length === 0) continue;
-      const avgSlope = validSlopes.reduce((a, b) => a + b, 0) / validSlopes.length;
-
-      // Max slope thresholds: 15° for VPP (tighter), 25° for others.
-      const maxSlope = zoneId === 'Z3' ? 15 : 25;
-      if (avgSlope > maxSlope) continue;
-    }
-
-    parcels.push({ zoneId, lat, lng, color: ZONE_ALLOCATIONS[zoneId].color, elev });
-  }
-
-  return parcels;
-}
-
-// Generate smart road/path network for Z5 (commons).
-function generateRoadNetwork(rect, rings, count) {
-  const roads = [];
-
-  // Main vertical spine: trail loop through middle.
-  const spineLng = rect.lngMin + (rect.lngMax - rect.lngMin) * 0.5;
-  const spineSegments = Math.floor(count * 0.3);
-  const segmentHeight = (rect.latMax - rect.latMin) / spineSegments;
-
-  for (let i = 0; i < spineSegments; i++) {
-    const lat = rect.latMin + (i + 0.5) * segmentHeight;
-    if (pointInRings(lat, spineLng, rings)) {
-      roads.push({ zoneId: 'Z5', lat, lng: spineLng, color: '#65a30d', type: 'spine', radius: 3.5, weight: 1 });
-    }
-  }
-
-  // Cross-paths every 3-4 spine segments.
-  const crossSpacing = Math.floor(spineSegments / 3);
-  const crossPaths = Math.floor(count * 0.2);
-
-  for (let i = 0; i < spineSegments; i += crossSpacing) {
-    const latAtCross = rect.latMin + (i + 0.5) * segmentHeight;
-    const pathCount = Math.floor(crossPaths / (spineSegments / crossSpacing));
-    const lngSpan = rect.lngMax - rect.lngMin;
-
-    for (let j = 0; j < pathCount; j++) {
-      const lng = rect.lngMin + (j / pathCount) * lngSpan;
-      if (pointInRings(latAtCross, lng, rings)) {
-        roads.push({ zoneId: 'Z5', lat: latAtCross, lng, color: '#65a30d', type: 'cross', radius: 2.5, weight: 0.5, opacity: 0.25 });
-      }
-    }
-  }
-
-  // Remaining: green space (meadows, dehesa).
-  const scatterCount = count - roads.length;
-  let scatterAttempts = 0;
-  const maxScatterAttempts = scatterCount * 3;
-
-  while (roads.length < count && scatterAttempts < maxScatterAttempts) {
-    scatterAttempts++;
-    const lat = rect.latMin + Math.random() * (rect.latMax - rect.latMin);
-    const lng = rect.lngMin + Math.random() * (rect.lngMax - rect.lngMin);
-
-    if (pointInRings(lat, lng, rings)) {
-      roads.push({ zoneId: 'Z5', lat, lng, color: '#86efac', type: 'green', radius: 2, weight: 0, opacity: 0.2 });
-    }
-  }
-
-  return roads.slice(0, count);
-}
-
-// Buildability scoring (0–100) based on slope, access proximity, and zone.
-// Higher score = more developable; lower = constraints.
-function calculateBuildabilityScore(parcel, roadNetwork, zoneId) {
-  const alloc = ZONE_ALLOCATIONS[zoneId];
-  if (alloc.type === 'commons') return null; // Commons not for building
-
-  let score = 80; // Baseline
-
-  // Slope penalty: steeper = harder/costlier.
-  // This is approximate; in production, use actual slope calc.
-  if (parcel.elev) {
-    // Assume 920m baseline (Boalo elevation).
-    const elevDeviation = Math.abs(parcel.elev - 920);
-    if (elevDeviation > 30) score -= 15; // High elevation variation
-  }
-
-  // Access proximity: distance to nearest road (spine or cross-path).
-  // Calculate great-circle distance to closest road parcel.
-  let minDistToRoad = Infinity;
-  for (const road of roadNetwork) {
-    if (road.type === 'spine' || road.type === 'cross') {
-      const dLat = (parcel.lat - road.lat) * 111000; // meters/degree lat
-      const dLng = (parcel.lng - road.lng) * 111000 * Math.cos(parcel.lat * Math.PI / 180);
-      const dist = Math.sqrt(dLat ** 2 + dLng ** 2);
-      minDistToRoad = Math.min(minDistToRoad, dist);
-    }
-  }
-
-  // Access scoring: within 100m = ideal, 200m = acceptable, >300m = constrained.
-  if (minDistToRoad > 300) score -= 25;
-  else if (minDistToRoad > 150) score -= 10;
-  else if (minDistToRoad > 100) score -= 5;
-
-  // Zone-specific adjustments.
-  if (zoneId === 'Z1') {
-    score += 10; // Hotel core: premium access, infrastructure ready
-  } else if (zoneId === 'Z3') {
-    score -= 5; // VPP: regulatory constraints (compact, connected to town)
-  } else if (zoneId === 'Z4') {
-    score -= 10; // Equestrian: infrastructure (stables) only where flat
-  }
-
-  // Z2 bonus for S/SE exposure (views, solar gain).
-  if (zoneId === 'Z2' && parcel.lng > (ZONE_BANDS.Z2.lngMin + ZONE_BANDS.Z2.lngMax) / 2) {
-    score += 5;
-  }
-
+  if (cell.roadDist > 300) score -= 25;
+  else if (cell.roadDist > 150) score -= 10;
+  else if (cell.roadDist > 100) score -= 5;
+  if (zoneId === 'Z1') score += 10;      // access-ready hotel core
+  else if (zoneId === 'Z3') score -= 5;  // VPP regulatory envelope
+  else if (zoneId === 'Z4') score -= 10; // stables want flat ground
+  if (zoneId === 'Z2' && cell.fLng > 0.5) score += 5; // E/SE views
   return Math.max(0, Math.min(100, score));
-}
-
-// Parking cluster generation: identify flatter parcels near Z1 access for underground garage.
-function generateParkingCluster(z1Parcels, z5Spine, b, rings) {
-  if (z1Parcels.length === 0) return [];
-
-  // Find SW corner of Z1 (access point).
-  let accessPoint = z1Parcels[0];
-  for (const p of z1Parcels) {
-    if (p.lng < accessPoint.lng || (p.lng === accessPoint.lng && p.lat < accessPoint.lat)) {
-      accessPoint = p;
-    }
-  }
-
-  // Nearest Z5 spine point to access.
-  let nearestSpine = z5Spine[0];
-  let minDistToSpine = Infinity;
-  for (const s of z5Spine) {
-    const dLat = (s.lat - accessPoint.lat) * 111000;
-    const dLng = (s.lng - accessPoint.lng) * 111000 * Math.cos(accessPoint.lat * Math.PI / 180);
-    const dist = Math.sqrt(dLat ** 2 + dLng ** 2);
-    if (dist < minDistToSpine) {
-      minDistToSpine = dist;
-      nearestSpine = s;
-    }
-  }
-
-  // Generate parking cluster: ~1,762 m² needs ~25 parcels of 70.5 m² each.
-  const parkingCount = 25;
-  const parkingParcels = [];
-  const clusterRadius = 0.0003; // ~33 meters
-
-  for (let i = 0; i < parkingCount; i++) {
-    const angle = (i / parkingCount) * Math.PI * 2;
-    const r = clusterRadius * (0.5 + Math.random() * 0.5); // Randomize within radius
-    const lat = nearestSpine.lat + r * Math.cos(angle);
-    const lng = nearestSpine.lng + r * Math.sin(angle);
-
-    if (pointInRings(lat, lng, rings)) {
-      parkingParcels.push({
-        type: 'parking',
-        lat,
-        lng,
-        color: '#8b7355',
-        radius: 3,
-        opacity: 0.5,
-        label: 'Parking (subterranean)',
-      });
-    }
-  }
-
-  return parkingParcels;
 }
 
 export default {
@@ -317,91 +178,135 @@ export default {
   enabled: false,
   create() {
     const group = L.layerGroup();
-    const boalo = BOALO;
+    if (!BOALO?.footprint) return group;
 
-    if (!boalo?.footprint) return group;
-
-    const rings = [boalo.footprint];
+    const rings = [BOALO.footprint];
     const b = bbox(rings);
+    const renderer = L.canvas({ padding: 0.5 }); // ~1000 polygons: canvas, not SVG
 
-    // Generate all zones asynchronously.
     (async () => {
-      const allDevParcels = { Z1: [], Z2: [], Z3: [], Z4: [] };
+      const elevAt = await fetchElevationGrid(b);
 
-      // Development zones: elevation-aware, slope-filtered.
-      for (const [zoneId, alloc] of Object.entries(ZONE_ALLOCATIONS)) {
-        if (alloc.type === 'development') {
-          const band = ZONE_BANDS[zoneId];
-          const rect = bandRect(b, band.latFrom, band.latTo, band.lngFrom, band.lngTo);
-          const parcels = await generateParcelsForZone(zoneId, rect, alloc.count, rings);
-          allDevParcels[zoneId] = parcels;
+      // Cell size chosen so the parcels INSIDE the footprint number ~1000.
+      // The bbox holds more cells than the site; scale by the area ratio.
+      const siteArea = ringAreaM2(BOALO.footprint, (b.latMin + b.latMax) / 2);
+      const cellSideM = Math.sqrt(siteArea / TARGET_PARCELS);
+      const latRef = (b.latMin + b.latMax) / 2;
+      const dLat = cellSideM / M_PER_DEG_LAT;
+      const dLng = cellSideM / (M_PER_DEG_LAT * Math.cos((latRef * Math.PI) / 180));
+      const rows = Math.ceil((b.latMax - b.latMin) / dLat);
+      const cols = Math.ceil((b.lngMax - b.lngMin) / dLng);
+
+      // --- Pass 1: clip every grid cell to the footprint. ------------------
+      const cells = [];
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const rect = {
+            latMin: b.latMin + r * dLat,
+            latMax: b.latMin + (r + 1) * dLat,
+            lngMin: b.lngMin + c * dLng,
+            lngMax: b.lngMin + (c + 1) * dLng,
+          };
+          for (const ring of rings) {
+            const clipped = clipRingToRect(ring, rect);
+            if (!clipped.length) continue;
+            const area = ringAreaM2(clipped, latRef);
+            if (area < 2) continue; // degenerate boundary sliver
+            const cLat = (rect.latMin + rect.latMax) / 2;
+            const cLng = (rect.lngMin + rect.lngMax) / 2;
+            const fLat = (cLat - b.latMin) / (b.latMax - b.latMin);
+            const fLng = (cLng - b.lngMin) / (b.lngMax - b.lngMin);
+            let zoneId = 'Z5';
+            for (const [id, band] of ZONE_BANDS) {
+              if (fLat >= band.latFrom && fLat < band.latTo && fLng >= band.lngFrom && fLng < band.lngTo) {
+                zoneId = id;
+                break;
+              }
+            }
+            cells.push({ poly: clipped, area, cLat, cLng, fLat, fLng, zoneId, kind: 'parcel' });
+          }
         }
       }
 
-      // Commons zone: smart road network + green space.
-      const z5Band = ZONE_BANDS.Z5;
-      const z5Rect = bandRect(b, z5Band.latFrom, z5Band.latTo, z5Band.lngFrom, z5Band.lngTo);
-      const roadParcels = generateRoadNetwork(z5Rect, rings, ZONE_ALLOCATIONS.Z5.count);
-      const z5Spine = roadParcels.filter((p) => p.type === 'spine');
+      // --- Pass 2: carve the circulation network out of the commons. -------
+      // Vertical trail spine at mid-longitude + three cross-paths.
+      const spineLng = (b.lngMin + b.lngMax) / 2;
+      const crossLats = [0.3, 0.55, 0.8].map((f) => b.latMin + f * (b.latMax - b.latMin));
+      for (const cell of cells) {
+        if (cell.zoneId !== 'Z5') continue;
+        const onSpine = Math.abs(cell.cLng - spineLng) < dLng / 2;
+        const onCross = crossLats.some((lat) => Math.abs(cell.cLat - lat) < dLat / 2);
+        if (onSpine || onCross) cell.kind = 'road';
+      }
+      const roadCells = cells.filter((c) => c.kind === 'road');
 
-      // Calculate buildability scores for all development parcels.
-      for (const [zoneId, parcels] of Object.entries(allDevParcels)) {
-        for (const p of parcels) {
-          p.buildScore = calculateBuildabilityScore(p, roadParcels, zoneId);
-          // Color intensity reflects buildability: 0–50 = dim, 50–100 = bright.
-          p.buildOpacity = Math.max(0.2, ZONE_ALLOCATIONS[zoneId].opacity * (0.4 + (p.buildScore / 100) * 0.6));
+      // --- Pass 3: terrain, access, buildability. --------------------------
+      for (const cell of cells) {
+        cell.elev = elevAt ? elevAt(cell.cLat, cell.cLng) : null;
+        cell.slope = slopeDeg(elevAt, cell.cLat, cell.cLng);
+        let min = Infinity;
+        for (const road of roadCells) {
+          const d = distM(cell.cLat, cell.cLng, road.cLat, road.cLng);
+          if (d < min) min = d;
+        }
+        cell.roadDist = min;
+        if (ZONES[cell.zoneId].type === 'development') {
+          cell.score = buildabilityScore(cell, cell.zoneId);
         }
       }
 
-      // Render development parcels with buildability coloring.
-      for (const [zoneId, parcels] of Object.entries(allDevParcels)) {
-        const alloc = ZONE_ALLOCATIONS[zoneId];
-        for (const p of parcels) {
-          const circle = L.circleMarker([p.lat, p.lng], {
-            radius: 3,
-            color: p.color,
-            weight: 0.5,
-            fillColor: p.color,
-            fillOpacity: p.buildOpacity,
-          })
-            .bindPopup(
-              `<b>${alloc.name}</b><br>${zoneId}<br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>` +
-              `Elev: ${p.elev ? p.elev.toFixed(0) + ' m' : '?'}<br>` +
-              `<b>Buildability: ${p.buildScore.toFixed(0)}/100</b>` +
-              (p.buildScore > 70 ? '<br>✓ Optimal' : p.buildScore > 50 ? '<br>◐ Acceptable' : '<br>✗ Constrained')
-            );
-          group.addLayer(circle);
+      // --- Pass 4: parking cluster — 25 cells (~1,762 m²) at the spine junction
+      // closest to the Z1 hotel access (its SW corner).
+      const z1 = cells.filter((c) => c.zoneId === 'Z1');
+      if (z1.length && roadCells.length) {
+        const access = z1.reduce((a, c) => (c.cLng < a.cLng ? c : a));
+        const junction = roadCells.reduce((a, c) =>
+          distM(c.cLat, c.cLng, access.cLat, access.cLng) < distM(a.cLat, a.cLng, access.cLat, access.cLng) ? c : a);
+        cells
+          .filter((c) => c.kind === 'parcel')
+          .sort((p, q) =>
+            distM(p.cLat, p.cLng, junction.cLat, junction.cLng) - distM(q.cLat, q.cLng, junction.cLat, junction.cLng))
+          .slice(0, 25)
+          .forEach((c) => { c.kind = 'parking'; });
+      }
+
+      // --- Pass 5: render. --------------------------------------------------
+      const counts = {};
+      let id = 0;
+      for (const cell of cells) {
+        id++;
+        const zone = ZONES[cell.zoneId];
+        counts[cell.zoneId] = (counts[cell.zoneId] || 0) + 1;
+        const ref = `MP-${String(id).padStart(4, '0')}`;
+        const facts =
+          `Area: ${cell.area.toFixed(0)} m²` +
+          (cell.elev != null ? `<br>Elevation: ~${cell.elev.toFixed(0)} m` : '') +
+          (cell.slope != null ? `<br>Slope: ~${cell.slope.toFixed(1)}°` : '') +
+          `<br>Trail access: ${cell.roadDist.toFixed(0)} m`;
+
+        let style, popup;
+        if (cell.kind === 'road') {
+          style = { ...ROAD_STYLE, weight: 0.6 };
+          popup = `<b>${ref} · Trail / path</b><br>Commons circulation spine<br>${facts}`;
+        } else if (cell.kind === 'parking') {
+          style = { ...PARKING_STYLE, weight: 1, dashArray: '3,2' };
+          popup = `<b>${ref} · Parking (subterranean)</b><br>Part of the 25-cell garage cluster (~1,762 m²) at the Z1 access junction.<br>${facts}`;
+        } else if (cell.score != null) {
+          const bright = 0.15 + (cell.score / 100) * 0.45; // buildability → fill intensity
+          style = { color: zone.color, weight: 0.5, fillColor: zone.color, fillOpacity: bright };
+          const verdict = cell.score > 70 ? '✓ Optimal' : cell.score > 50 ? '◐ Acceptable' : '✗ Constrained';
+          popup =
+            `<b>${ref} · ${zone.name} (${cell.zoneId})</b><br>${facts}` +
+            `<br><b>Buildability: ${cell.score.toFixed(0)}/100</b> ${verdict}` +
+            `<br><span style="color:#666">Combine with adjacent cells for larger lots.</span>`;
+        } else {
+          style = { color: '#65a30d', weight: 0.4, fillColor: zone.color, fillOpacity: 0.2 };
+          popup = `<b>${ref} · ${zone.name} (${cell.zoneId})</b><br>Green meadow / dehesa<br>${facts}`;
         }
-      }
 
-      // Render commons: roads + green space.
-      for (const p of roadParcels) {
-        const fillOpacity = p.opacity ?? ZONE_ALLOCATIONS.Z5.opacity;
-        const circle = L.circleMarker([p.lat, p.lng], {
-          radius: p.radius ?? 3,
-          color: p.color,
-          weight: p.weight ?? 0.5,
-          fillColor: p.color,
-          fillOpacity,
-        })
-          .bindPopup(`<b>Commons: ${p.type}</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`);
-        group.addLayer(circle);
+        group.addLayer(L.polygon(cell.poly, { renderer, ...style }).bindPopup(popup));
       }
-
-      // Parking cluster (subterranean garage near Z1 access).
-      const parkingParcels = generateParkingCluster(allDevParcels.Z1, z5Spine, b, rings);
-      for (const p of parkingParcels) {
-        const circle = L.circleMarker([p.lat, p.lng], {
-          radius: p.radius,
-          color: p.color,
-          weight: 1,
-          fillColor: p.color,
-          fillOpacity: p.opacity,
-          dashArray: '2,2', // Dashed to indicate underground
-        })
-          .bindPopup(`<b>${p.label}</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>Est. 1,762 m² underground`);
-        group.addLayer(circle);
-      }
+      console.info('[microparcels]', cells.length, 'parcels;', 'zone counts:', counts);
     })();
 
     return group;
