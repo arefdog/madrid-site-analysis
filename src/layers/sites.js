@@ -109,6 +109,7 @@ export function reportHtml(site) {
     ].join(''))}
     ${section('5 · Market & model', [
       row('Asking price', market.price ? `€${num(market.price)}` : '—'),
+      row('Terms', dash(market.terms)),
       row('€/m²', market.pricePerM2 ? `€${num(market.pricePerM2)}` : '—'),
       row('Listing', market.listingUrl
         ? `<a href="${market.listingUrl}" target="_blank" rel="noopener">open listing ↗</a>` : '—'),

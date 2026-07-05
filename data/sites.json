@@ -1,14 +1,14 @@
 {
   "meta": {
     "version": 1,
-    "note": "Standardized plot reports. Every identified site follows the same schema; null/missing fields render as em-dashes so gaps are visible, not hidden. Coordinates are [lat, lng]. Financial deal terms are deliberately kept out of this file — it ships to the browser.",
+    "note": "Standardized plot reports. Every identified site follows the same schema; null/missing fields render as em-dashes so gaps are visible, not hidden. Coordinates are [lat, lng]. Deal terms appear only where the owner approved publishing them; the map is collaborator-gated.",
     "template": [
       "identity: id, name, municipality, muniCode, status, sources[]",
       "land: grossM2, parcelCount, landClass, features, orientation, elevationM",
       "location: marker, accessNote, distances[]",
       "cadastre: refs[] (rc, label, areaM2) — outlines fetched live from Catastro INSPIRE",
       "planning: classification{category, detail[{class,scope}], basis}, instrument, unit, buildableM2, capacity, density, cessions, path, constraints",
-      "market: price, pricePerM2, listingUrl — model readout joins from scores.json via muniCode",
+      "market: price, terms, pricePerM2, listingUrl — model readout joins from scores.json via muniCode",
       "fit: one-line BYLD product fit",
       "footprint: fallback polygon if Catastro is unreachable"
     ]
@@ -93,9 +93,10 @@
         "constraints": "P.N. de Guadarrama buffer edge — protected horizon that cannot be built against"
       },
       "market": {
-        "price": null,
-        "pricePerM2": null,
-        "listingUrl": null
+        "price": 4000000,
+        "pricePerM2": 56.7,
+        "listingUrl": null,
+        "terms": "€2M down payment + €2M in kind at end of construction"
       },
       "fit": "Full BYLD program — landscape hotel + branded residences (Echo / Duo / Grand), operator-run",
       "footprint": [
