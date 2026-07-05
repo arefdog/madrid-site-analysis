@@ -188,7 +188,7 @@ export default {
   id: 'overlay-microparcels',
   label: 'Micro-parcels (1000-unit master grid)',
   group: 'overlay',
-  enabled: false,
+  enabled: true,
   create() {
     const group = L.layerGroup();
     if (!BOALO?.footprint) return group;
