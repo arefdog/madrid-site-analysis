@@ -128,7 +128,7 @@
         ]
       ],
       "masterplan": {
-        "version": "v0.1 suggestion · indicative · subject to entitlement (see Planning risk)",
+        "version": "v0.2 · commercially oriented · indicative · entitlement-gated",
         "assumptions": "Deck program envelope respected: 17,621 m² buildable (25%), 75% dehesa untouched. All buildings prefabricated, on stilts, no excavation outside the core.",
         "zones": [
           {
@@ -192,10 +192,10 @@
           "Dark-sky lighting throughout; residences reached on foot/buggy from core parking"
         ],
         "phasing": [
-          "P0 — Entitlement: classification verified, planning instrument secured (gating item)",
-          "P1 — Core + 6 Echo show units + trail loop (revenue + sales engine)",
-          "P2 — Residence waves along contours as sales absorb",
-          "P3 — VPP delivery per licence conditions + equestrian centre"
+          "P0 — Entitlement gate: verify classification; structure payments vs planning milestones; open dialogue with ayuntamiento on a precedent-scale modificación (26-home Miragallos scale, with VPP per Ley 9/2001)",
+          "P1 — Precedent-scale residential: ~15–25 residences on 2–3 ha nearest the village edge + trail commons (transaction-proven product; funds the hold)",
+          "P2 — Conditional resort core: hotel + spa only upon sector approval; design reserved in Z1",
+          "P3 — VPP delivery per instrument conditions; equestrian + farm meadow activation"
         ],
         "codeBasis": [
           "Entitlement instrument TBD (gating P0): no urbanizable sector exists today — schema is drawn to Ley 9/2001 sector standards so it survives whichever instrument is secured (Plan Parcial after reclassification, or convenio)",
@@ -203,7 +203,12 @@
           "NNSS El Boalo 1997/98 height culture: B+1 / ~6.5–7 m in unifamiliar zones — Echo/Duo/Grand (single storey on stilts) comply by design; the 44-key hotel volume needs its own sector ordinance",
           "Overlays prevail over municipal code: PRCAM PORN zoning + P.N. Guadarrama PRUG/ZPP; Ley 7/2024 15-year infraction window on protected land",
           "CTE all DBs + wildland-urban interface fire criteria (DB-SI + Plan INFOMA): defensible-space strip around each unit in the dehesa, water reserve for hydrants at the core"
-        ]
+        ],
+        "commercial": {
+          "thesis": "MILESTONE-GATED ENTITLEMENT PLAY. The transaction record shows: (1) ZERO hotel/branded-residence transactions in the sierra — no exit comps support underwriting a 44-key hotel as base case; (2) the municipality DOES approve precedent-scale residential upzonings (Miragallos: 26 homes, 2025; UE-4C: 10,228 m², 2025) — 1–3 ha residential is the entitlement size that actually clears; (3) serviced residential land is the scarce, liquid product corridor-wide.",
+          "valueLadder": "€4M ask (€56.7/m²) already prices entitlement hope — genuine PRCAM dehesa trades far lower. Protect the downside: stage land payments to planning milestones (the €2M in-kind at end of construction already defers half; push for the €2M down to sit in escrow/option against reclassification). Base-case value = rustic dehesa + option value, NOT hotel exit.",
+          "exit": "Phase 1 (precedent scale): ~15–25 branded residences on ~2–3 ha via modificación puntual — the transaction-proven product, sellable unit-by-unit. Phase 2 (conditional): hotel + spa core ONLY if a sector/PGOU materializes; until then run the dehesa as low-intensity estate (equestrian, events per PRCAM allowances) to carry costs."
+        }
       }
     },
     {
@@ -385,7 +390,7 @@
         ]
       ],
       "masterplan": {
-        "version": "v0.1 suggestion · indicative · requires U.E. execution first (ED + urbanisation + reparcelación)",
+        "version": "v0.2 · commercially oriented · indicative",
         "assumptions": "Sale portion 5,251 m²; ordinance per ad: min parcel 1,000 m², occupation 25%, 0.25 m²/m² net, 2 floors + bajo cubierta (6.5 m), setbacks 4/4/3, 20 m frontage.",
         "zones": [
           {
@@ -429,15 +434,21 @@
           "Buy-side design: parcel lines drawn so each lot independently satisfies frontage/setback/20 m-circle rules"
         ],
         "phasing": [
-          "P0 — Diligence: nota simple + segregation licence + compensación board status with remaining owners (they hold the rest of the 10,894 m² on sale)",
-          "P1 — U.E. execution: Estudio de Detalle + urbanisation project (cost shared pro-rata — the real price beyond €46.6/m²)",
-          "P2 — Segregate 4 lots, place 4 modular villas as a single BYLD mini-cluster or plot-by-plot exit"
+          "P0 — Diligence: nota simple + segregation licence + who the remaining U.E. owners are (compensación arithmetic)",
+          "P1 — Control cheap: acquire at raw price; align/lead the junta de compensación",
+          "P2 — Execute the unit: ED + proyecto de urbanización (this step IS the margin)",
+          "P3 — Exit serviced plots at €170–250/m²; at most one modular show villa to anchor pricing"
         ],
         "codeBasis": [
           "NNSS Colmenarejo 1996 · Zona 03 grado 3º (ordinance per listing): parcela ≥1,000 m² · frente ≥20 m · círculo Ø20 m inscribable · ocupación ≤25% · edificabilidad 0.25 m²/m² neta · ≤2 plantas + bajo cubierta · cornisa 6.50 m / cumbrera 8.50 m · retranqueos 4 m frente / 4 m fondo / 3 m laterales",
           "Ley 9/2001 del Suelo CM: execution by sistema de compensación — cessions per ficha (viario + 3,948 m² zona verde) and urbanisation costs shared pro-rata among unit owners; parking ≥1.5 plazas per 100 m² edificable (min 1 per dwelling) within the actuación",
           "CTE (DB-SE structure · DB-HE energy/near-zero · DB-SI fire · DB-HR noise) + CM habitability minimums apply to the modular units; factory-built path still requires licencia de obra against these DBs"
-        ]
+        ],
+        "commercial": {
+          "thesis": "SERVICED-PLOT PLAY, not spec villas. The public record prices the whole value ladder: raw in-unit land €46.6/m² (subject) → finished/consolidated plots €170–280/m² (live Colmenarejo comps). The ~4x step is captured by EXECUTING the unit (ED + urbanisation + reparcelación), not by building. Villa construction adds capital and absorption risk in a market with modest purchasing power (income score 34) for thinner incremental margin.",
+          "valueLadder": "5,251 m² raw at €244,900 → serviced ≈ €0.9–1.3M at plot comps (€170–250/m²), MINUS pro-rata urbanisation cost (benchmark pending — transactions research running) and time (compensación with the remaining owners of the 10,894 m² on sale). Build at most ONE show villa (modular Duo Lounge) to set the price ceiling for the remaining plots.",
+          "exit": "Sell 3 serviced plots to self-builders (the transaction-proven product here) + optional show villa; or wholesale the serviced position to a small promoter."
+        }
       }
     }
   ]

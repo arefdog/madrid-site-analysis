@@ -132,6 +132,8 @@ function masterplanHtml(mp) {
     <div class="sr-note" style="margin:0 0 8px">${mp.version || ''}<br>${mp.assumptions || ''}</div>
     ${zones}
     ${row('Unit mix', mix || '—')}
+    ${row('Commercial', mp.commercial
+      ? `<b>${mp.commercial.thesis}</b><br><br>${mp.commercial.valueLadder}<br><br>Exit: ${mp.commercial.exit}` : '—')}
     ${row('Code basis', list(mp.codeBasis) || '—')}
     ${row('Principles', list(mp.principles) || '—')}
     ${row('Phasing', list(mp.phasing) || '—')}`;
