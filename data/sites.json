@@ -106,7 +106,7 @@
         "pricePerM2": 56.7,
         "listingUrl": "https://www.idealista.com/venta-terrenos/el-boalo-madrid/",
         "terms": "€2M down payment + €2M in kind at end of construction",
-        "comps": "Probable identity: public 68,938 m² «urbanizable»-marketed El Boalo listing at €3.95M (€57/m²). Genuine rustic dehesa comps trade far lower (large stone-walled fincas in El Boalo/Manzanares list without urbanization value); small consolidated urban plots in the corridor run €200–350/m²."
+        "comps": "Probable listing match €3.95M/68,938 m². Product comps: pareados €550–645k new (€3,200–3,580/m² built), resale €2,060–2,680/m² corridor-wide (+8–19% YoY). Hospitality negatives: no sierra hotel transactions 2020–26; El Paular 44-key closed 11+ yrs, zero tender bids; boutique ADR €121–188; villa rentals €240–378/night; rural occupancy ~22%."
       },
       "fit": "Full BYLD program IF entitlement achievable — currently high planning risk: no PGOU, regional zero-growth stance, PRCAM protection likely. €57/m² asking (matching 68,938 m² public listing at €3.95M) already prices in entitlement hope; genuine rustic dehesa trades far lower.",
       "footprint": [
@@ -128,7 +128,7 @@
         ]
       ],
       "masterplan": {
-        "version": "v0.2 · commercially oriented · indicative · entitlement-gated",
+        "version": "v0.3 · transaction-calibrated · indicative · entitlement-gated",
         "assumptions": "Deck program envelope respected: 17,621 m² buildable (25%), 75% dehesa untouched. All buildings prefabricated, on stilts, no excavation outside the core.",
         "zones": [
           {
@@ -205,9 +205,9 @@
           "CTE all DBs + wildland-urban interface fire criteria (DB-SI + Plan INFOMA): defensible-space strip around each unit in the dehesa, water reserve for hydrants at the core"
         ],
         "commercial": {
-          "thesis": "MILESTONE-GATED ENTITLEMENT PLAY. The transaction record shows: (1) ZERO hotel/branded-residence transactions in the sierra — no exit comps support underwriting a 44-key hotel as base case; (2) the municipality DOES approve precedent-scale residential upzonings (Miragallos: 26 homes, 2025; UE-4C: 10,228 m², 2025) — 1–3 ha residential is the entitlement size that actually clears; (3) serviced residential land is the scarce, liquid product corridor-wide.",
-          "valueLadder": "€4M ask (€56.7/m²) already prices entitlement hope — genuine PRCAM dehesa trades far lower. Protect the downside: stage land payments to planning milestones (the €2M in-kind at end of construction already defers half; push for the €2M down to sit in escrow/option against reclassification). Base-case value = rustic dehesa + option value, NOT hotel exit.",
-          "exit": "Phase 1 (precedent scale): ~15–25 branded residences on ~2–3 ha via modificación puntual — the transaction-proven product, sellable unit-by-unit. Phase 2 (conditional): hotel + spa core ONLY if a sector/PGOU materializes; until then run the dehesa as low-intensity estate (equestrian, events per PRCAM allowances) to carry costs."
+          "thesis": "RESIDENTIAL IS THE BANKABLE EXIT; the hotel fails every public benchmark. Zero sierra hotel transactions 2020–2026; the only 44-key comp — Santa María de El Paular (Rascafría) — has been CLOSED 11+ years and its operating tender drew zero bids; multiple sierra hotels sit unsold on the asking market. €500 ADR is ~2.7x the top boutique comp (Box Art La Torre €121–188), above whole-villa nightly rates (€240–378), against 21.6% rural occupancy. Underwrite hospitality at €130–200 ADR / sub-50% occupancy — at which it is amenity, not exit.",
+          "valueLadder": "Proven product in Market B: 170–215 m² pareados at €550–645k (€3,200–3,580/m² — Moralzarzal phase II implies phase I absorbed); resale €2,060–2,680/m², riding +8–19% YoY. Phase-1 at precedent scale (15–25 residences × ~150–200 m²) ≈ €8–14M gross revenue potential IF entitled. Land at €56.7/m² remains entitlement-hope pricing; stage payments to milestones.",
+          "exit": "Sell residences unit-by-unit (transaction-proven). Hotel/spa core stays conditional and small (amenity economics); consider operator-light models (villas + services) that the villa-rental comps (€240–378/night) actually support."
         }
       }
     },
@@ -360,7 +360,7 @@
         "price": 244900,
         "pricePerM2": 46.6,
         "listingUrl": "https://www.idealista.com/inmueble/111936104/",
-        "comps": "Raw in-unit at €46.6/m² vs €170–280/m² for finished/consolidated Colmenarejo plots (e.g. 1,190 m² €199.5k; 4,770 m² package at Monterrubio×Torreón €931k ≈ €195/m²) — a ~75–83% raw-land discount consistent with an unexecuted unit. Downside precedent: stalled Galapagar Fuente Elvira unit plots near single-digit €/m² in distress."
+        "comps": "Houses Colmenarejo €2,423–2,597/m² asking (+20–26% YoY; avg deal ~€748k); Galapagar registered: new-build €2,410/m², second-hand €1,910/m². New-build promos sell at €2,850–3,580/m² (Living Natura, Arroyo del Moral II). Finished plots ask €185–196/m² vs Madrid urbanisation benchmark €100–150/m² of land. Raw in-unit (subject) €46.6/m²."
       },
       "fit": "Small-scale entry: ~3-5 unifamiliar plots (Echo/Duo cluster) at €46.6/m² raw — not a retreat site; different asset class from Boalo",
       "footprint": [
@@ -390,7 +390,7 @@
         ]
       ],
       "masterplan": {
-        "version": "v0.2 · commercially oriented · indicative",
+        "version": "v0.3 · transaction-calibrated · indicative",
         "assumptions": "Sale portion 5,251 m²; ordinance per ad: min parcel 1,000 m², occupation 25%, 0.25 m²/m² net, 2 floors + bajo cubierta (6.5 m), setbacks 4/4/3, 20 m frontage.",
         "zones": [
           {
@@ -445,9 +445,9 @@
           "CTE (DB-SE structure · DB-HE energy/near-zero · DB-SI fire · DB-HR noise) + CM habitability minimums apply to the modular units; factory-built path still requires licencia de obra against these DBs"
         ],
         "commercial": {
-          "thesis": "SERVICED-PLOT PLAY, not spec villas. The public record prices the whole value ladder: raw in-unit land €46.6/m² (subject) → finished/consolidated plots €170–280/m² (live Colmenarejo comps). The ~4x step is captured by EXECUTING the unit (ED + urbanisation + reparcelación), not by building. Villa construction adds capital and absorption risk in a market with modest purchasing power (income score 34) for thinner incremental margin.",
-          "valueLadder": "5,251 m² raw at €244,900 → serviced ≈ €0.9–1.3M at plot comps (€170–250/m²), MINUS pro-rata urbanisation cost (benchmark pending — transactions research running) and time (compensación with the remaining owners of the 10,894 m² on sale). Build at most ONE show villa (modular Duo Lounge) to set the price ceiling for the remaining plots.",
-          "exit": "Sell 3 serviced plots to self-builders (the transaction-proven product here) + optional show villa; or wholesale the serviced position to a small promoter."
+          "thesis": "HYBRID — margin is thinner than the raw/finished spread suggests. Plot exit comps ask €185–196/m² but the Madrid urbanisation benchmark is €100–150/m² of land (€40+ where networks are adjacent — the sewer already runs in the street axis, favorable here). Raw at €46.6 + urbanisation lands all-in near the exit price, so the serviced-plot flip alone is thin. The richer, transaction-backed prize: new-build chalet supply in Colmenarejo is ~3 small promotions while houses ask €2,423–2,597/m² (+20–26% YoY, avg closed deal ~€748k) — build-to-sell captures €2,850–3,250/m² new-build pricing on ~290 m² villas.",
+          "valueLadder": "Exit plots: ~3–4 lots ≈ €0.7–1.0M gross. Costs: €245k land + urbanisation 5,251 m² × €60–120 (LINE-ITEM COSTING REQUIRED — CAM Base de Datos de la Construcción / Ayto. Madrid cuadro de precios) + carry. Villa route: 4 × 290 m² × €2,850–3,200 ≈ €3.3–3.7M revenue vs ~€3.0–3.6M all-in cost. KILL CRITERION: if the costed urbanisation exceeds ~€120/m² of land, flip-only or pass.",
+          "exit": "Base: execute unit + sell 3 serviced plots + 1 modular show villa. Upside: build all 4 (scarcity supports it — only promotion-grade supply is 3 small co-op schemes from €368k). Data gap: per-municipality MIVAU transaction counts need a manual XLS pull; plot days-on-market unpublished."
         }
       }
     }
