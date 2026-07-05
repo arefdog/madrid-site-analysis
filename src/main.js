@@ -30,7 +30,7 @@ const map = L.map('map', {
   shiftKeyRotate: true,
   rotateControl: isTouchDevice() ? false : { closeOnZeroBearing: false, position: 'bottomright' },
 });
-if (import.meta.env?.DEV) window.__map = map; // dev-only debug handle
+window.__map = map; // debug/automation handle
 
 // Lazily instantiate each layer's Leaflet object on first activation.
 const instances = new Map();
