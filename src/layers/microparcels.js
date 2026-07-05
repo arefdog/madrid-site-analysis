@@ -208,6 +208,108 @@ function generateRoadNetwork(rect, rings, count) {
   return roads.slice(0, count);
 }
 
+// Buildability scoring (0–100) based on slope, access proximity, and zone.
+// Higher score = more developable; lower = constraints.
+function calculateBuildabilityScore(parcel, roadNetwork, zoneId) {
+  const alloc = ZONE_ALLOCATIONS[zoneId];
+  if (alloc.type === 'commons') return null; // Commons not for building
+
+  let score = 80; // Baseline
+
+  // Slope penalty: steeper = harder/costlier.
+  // This is approximate; in production, use actual slope calc.
+  if (parcel.elev) {
+    // Assume 920m baseline (Boalo elevation).
+    const elevDeviation = Math.abs(parcel.elev - 920);
+    if (elevDeviation > 30) score -= 15; // High elevation variation
+  }
+
+  // Access proximity: distance to nearest road (spine or cross-path).
+  // Calculate great-circle distance to closest road parcel.
+  let minDistToRoad = Infinity;
+  for (const road of roadNetwork) {
+    if (road.type === 'spine' || road.type === 'cross') {
+      const dLat = (parcel.lat - road.lat) * 111000; // meters/degree lat
+      const dLng = (parcel.lng - road.lng) * 111000 * Math.cos(parcel.lat * Math.PI / 180);
+      const dist = Math.sqrt(dLat ** 2 + dLng ** 2);
+      minDistToRoad = Math.min(minDistToRoad, dist);
+    }
+  }
+
+  // Access scoring: within 100m = ideal, 200m = acceptable, >300m = constrained.
+  if (minDistToRoad > 300) score -= 25;
+  else if (minDistToRoad > 150) score -= 10;
+  else if (minDistToRoad > 100) score -= 5;
+
+  // Zone-specific adjustments.
+  if (zoneId === 'Z1') {
+    score += 10; // Hotel core: premium access, infrastructure ready
+  } else if (zoneId === 'Z3') {
+    score -= 5; // VPP: regulatory constraints (compact, connected to town)
+  } else if (zoneId === 'Z4') {
+    score -= 10; // Equestrian: infrastructure (stables) only where flat
+  }
+
+  // Z2 bonus for S/SE exposure (views, solar gain).
+  if (zoneId === 'Z2' && parcel.lng > (ZONE_BANDS.Z2.lngMin + ZONE_BANDS.Z2.lngMax) / 2) {
+    score += 5;
+  }
+
+  return Math.max(0, Math.min(100, score));
+}
+
+// Parking cluster generation: identify flatter parcels near Z1 access for underground garage.
+function generateParkingCluster(z1Parcels, z5Spine, b, rings) {
+  if (z1Parcels.length === 0) return [];
+
+  // Find SW corner of Z1 (access point).
+  let accessPoint = z1Parcels[0];
+  for (const p of z1Parcels) {
+    if (p.lng < accessPoint.lng || (p.lng === accessPoint.lng && p.lat < accessPoint.lat)) {
+      accessPoint = p;
+    }
+  }
+
+  // Nearest Z5 spine point to access.
+  let nearestSpine = z5Spine[0];
+  let minDistToSpine = Infinity;
+  for (const s of z5Spine) {
+    const dLat = (s.lat - accessPoint.lat) * 111000;
+    const dLng = (s.lng - accessPoint.lng) * 111000 * Math.cos(accessPoint.lat * Math.PI / 180);
+    const dist = Math.sqrt(dLat ** 2 + dLng ** 2);
+    if (dist < minDistToSpine) {
+      minDistToSpine = dist;
+      nearestSpine = s;
+    }
+  }
+
+  // Generate parking cluster: ~1,762 m² needs ~25 parcels of 70.5 m² each.
+  const parkingCount = 25;
+  const parkingParcels = [];
+  const clusterRadius = 0.0003; // ~33 meters
+
+  for (let i = 0; i < parkingCount; i++) {
+    const angle = (i / parkingCount) * Math.PI * 2;
+    const r = clusterRadius * (0.5 + Math.random() * 0.5); // Randomize within radius
+    const lat = nearestSpine.lat + r * Math.cos(angle);
+    const lng = nearestSpine.lng + r * Math.sin(angle);
+
+    if (pointInRings(lat, lng, rings)) {
+      parkingParcels.push({
+        type: 'parking',
+        lat,
+        lng,
+        color: '#8b7355',
+        radius: 3,
+        opacity: 0.5,
+        label: 'Parking (subterranean)',
+      });
+    }
+  }
+
+  return parkingParcels;
+}
+
 export default {
   id: 'overlay-microparcels',
   label: 'Micro-parcels (1000-unit master grid)',
@@ -224,24 +326,15 @@ export default {
 
     // Generate all zones asynchronously.
     (async () => {
+      const allDevParcels = { Z1: [], Z2: [], Z3: [], Z4: [] };
+
       // Development zones: elevation-aware, slope-filtered.
       for (const [zoneId, alloc] of Object.entries(ZONE_ALLOCATIONS)) {
         if (alloc.type === 'development') {
           const band = ZONE_BANDS[zoneId];
           const rect = bandRect(b, band.latFrom, band.latTo, band.lngFrom, band.lngTo);
           const parcels = await generateParcelsForZone(zoneId, rect, alloc.count, rings);
-
-          for (const p of parcels) {
-            const circle = L.circleMarker([p.lat, p.lng], {
-              radius: 3,
-              color: p.color,
-              weight: 0.5,
-              fillColor: p.color,
-              fillOpacity: alloc.opacity,
-            })
-              .bindPopup(`<b>${alloc.name}</b><br>${zoneId}<br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>Elev: ${p.elev ? p.elev.toFixed(0) + ' m' : '?'}`);
-            group.addLayer(circle);
-          }
+          allDevParcels[zoneId] = parcels;
         }
       }
 
@@ -249,7 +342,39 @@ export default {
       const z5Band = ZONE_BANDS.Z5;
       const z5Rect = bandRect(b, z5Band.latFrom, z5Band.latTo, z5Band.lngFrom, z5Band.lngTo);
       const roadParcels = generateRoadNetwork(z5Rect, rings, ZONE_ALLOCATIONS.Z5.count);
+      const z5Spine = roadParcels.filter((p) => p.type === 'spine');
 
+      // Calculate buildability scores for all development parcels.
+      for (const [zoneId, parcels] of Object.entries(allDevParcels)) {
+        for (const p of parcels) {
+          p.buildScore = calculateBuildabilityScore(p, roadParcels, zoneId);
+          // Color intensity reflects buildability: 0–50 = dim, 50–100 = bright.
+          p.buildOpacity = Math.max(0.2, ZONE_ALLOCATIONS[zoneId].opacity * (0.4 + (p.buildScore / 100) * 0.6));
+        }
+      }
+
+      // Render development parcels with buildability coloring.
+      for (const [zoneId, parcels] of Object.entries(allDevParcels)) {
+        const alloc = ZONE_ALLOCATIONS[zoneId];
+        for (const p of parcels) {
+          const circle = L.circleMarker([p.lat, p.lng], {
+            radius: 3,
+            color: p.color,
+            weight: 0.5,
+            fillColor: p.color,
+            fillOpacity: p.buildOpacity,
+          })
+            .bindPopup(
+              `<b>${alloc.name}</b><br>${zoneId}<br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>` +
+              `Elev: ${p.elev ? p.elev.toFixed(0) + ' m' : '?'}<br>` +
+              `<b>Buildability: ${p.buildScore.toFixed(0)}/100</b>` +
+              (p.buildScore > 70 ? '<br>✓ Optimal' : p.buildScore > 50 ? '<br>◐ Acceptable' : '<br>✗ Constrained')
+            );
+          group.addLayer(circle);
+        }
+      }
+
+      // Render commons: roads + green space.
       for (const p of roadParcels) {
         const fillOpacity = p.opacity ?? ZONE_ALLOCATIONS.Z5.opacity;
         const circle = L.circleMarker([p.lat, p.lng], {
@@ -260,6 +385,21 @@ export default {
           fillOpacity,
         })
           .bindPopup(`<b>Commons: ${p.type}</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`);
+        group.addLayer(circle);
+      }
+
+      // Parking cluster (subterranean garage near Z1 access).
+      const parkingParcels = generateParkingCluster(allDevParcels.Z1, z5Spine, b, rings);
+      for (const p of parkingParcels) {
+        const circle = L.circleMarker([p.lat, p.lng], {
+          radius: p.radius,
+          color: p.color,
+          weight: 1,
+          fillColor: p.color,
+          fillOpacity: p.opacity,
+          dashArray: '2,2', // Dashed to indicate underground
+        })
+          .bindPopup(`<b>${p.label}</b><br>${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}<br>Est. 1,762 m² underground`);
         group.addLayer(circle);
       }
     })();
