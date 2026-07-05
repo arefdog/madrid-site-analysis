@@ -87,3 +87,40 @@ label.row .status { margin-left: auto; font-size: 10px; color: var(--muted); }
 
 .leaflet-popup-content { font-size: 12px; line-height: 1.5; }
 .leaflet-popup-content b { color: #1c1f26; }
+
+/* Standardized site report (identified sites layer) */
+.sr-overlay {
+  position: fixed; inset: 0; z-index: 1500;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 12, 16, .55);
+}
+.sr-card {
+  position: relative; width: min(92vw, 560px); max-height: 86vh; overflow-y: auto;
+  background: var(--panel-bg); color: var(--panel-fg);
+  border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .5);
+  padding: 18px 20px; font-size: 13px; line-height: 1.55;
+}
+.sr-close {
+  position: absolute; top: 10px; right: 12px;
+  background: transparent; border: none; color: var(--muted);
+  font-size: 22px; cursor: pointer; line-height: 1;
+}
+.sr-close:hover { color: var(--panel-fg); }
+.sr-head h3 { margin: 0 34px 4px 0; font-size: 16px; }
+.sr-sub { color: var(--muted); font-size: 12px; }
+.sr-sub a { color: var(--accent); text-decoration: none; }
+.sr-section { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 10px; }
+.sr-section h4 {
+  margin: 0 0 8px; font-size: 11px; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--muted);
+}
+.sr-row { display: flex; gap: 10px; margin-bottom: 5px; }
+.sr-row > span { flex: 0 0 118px; color: var(--muted); }
+.sr-row > div { flex: 1; }
+.sr-row a, .sr-section a { color: var(--accent); text-decoration: none; }
+.sr-note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+.sr-open {
+  background: var(--accent); color: #0b0d10; border: none; border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
