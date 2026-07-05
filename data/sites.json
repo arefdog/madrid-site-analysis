@@ -119,24 +119,24 @@
     },
     {
       "id": "colmenarejo-ue18",
-      "name": "U.E. 18 «Colonia de Santiago» — Colmenarejo",
+      "name": "U.E. 18 — Calle del Pisuerga s/n, Colmenarejo",
       "municipality": "Colmenarejo",
       "muniCode": "28044",
-      "status": "On market · identified Jul 2026",
+      "status": "On market · €244,900 · TEAM COMPASS · identified Jul 2026",
       "sources": [
         {
-          "label": "idealista listing 111936104",
+          "label": "idealista listing 111936104 (TEAM COMPASS)",
           "url": "https://www.idealista.com/inmueble/111936104/"
         },
         {
-          "label": "NNSS Colmenarejo 1996 · ficha U.E. 18",
+          "label": "NNSS Colmenarejo 1996 · ficha U.E. 18 «Colonia de Santiago» (in listing photos)",
           "url": null
         }
       ],
       "land": {
-        "grossM2": 27122,
-        "parcelCount": 13,
-        "landClass": "Catastro: 12 urbana parcels + 1 rústica",
+        "grossM2": 5251,
+        "parcelCount": "Segregable into 3 parcels of 1,000 m² min (per listing); sewer on Calle Cerca del Pino axis",
+        "landClass": "Catastro: urbana register (U.E. parcels) — listing header labels it «Urbanizable»",
         "features": "Open field between C. del Pisuerga and the Galapagar boundary dehesa, SE edge of town",
         "orientation": null,
         "elevationM": 830
@@ -250,20 +250,20 @@
           "basis": "NNSS Colmenarejo 1996 — ficha «Desarrollo de Unidad de Ejecución en S.U.» + plan P.3a «Calificación del suelo urbano» (both in the listing)."
         },
         "instrument": "NNSS de Planeamiento de Colmenarejo (1996)",
-        "unit": "Unidad de Ejecución U.E. 18 «Colonia de Santiago»",
+        "unit": "U.E. 18 — «Cerca del Pino» per listing / «Colonia de Santiago» per 1996 ficha. Unit total: 17,789 m² (listing) vs 27,122 m² (ficha) — discrepancy to verify; the sale covers 5,251 m² of it (10,894 m² stated «a la venta» unit-wide)",
         "buildableM2": null,
-        "capacity": "Max 18 homes · low-density single-family (Zona 03 grado 3º)",
-        "density": "7 homes/ha gross",
-        "cessions": "Internal road network + 3,948 m² green space (Zona 07 grado 1º)",
+        "capacity": "Max 18 homes unit-wide (ficha) · sale portion ≈ 3-5 single-family plots · Zona SU-UE 18 Grado 3º",
+        "density": "Occupation 25% · edificability 0.25 m²/m² net · 2 floors + bajo cubierta (6.50 m eaves, 8.50 m ridge) · min parcel 1,000 m², 20 m frontage, setbacks 4/4/3 m",
+        "cessions": "3,948 m² green space to the municipality («zona entre calles») + road network",
         "path": "Estudio de Detalle + urbanisation project · sistema de compensación, private initiative",
         "constraints": "Two zona-verde parcels (1,952.60 + 2,043.27 m²) inside the unit; abuts the Galapagar municipal boundary"
       },
       "market": {
-        "price": null,
-        "pricePerM2": null,
+        "price": 244900,
+        "pricePerM2": 46.6,
         "listingUrl": "https://www.idealista.com/inmueble/111936104/"
       },
-      "fit": "Branded-residences-only play (18-home cap, no hotel buildability) — different asset class from Boalo",
+      "fit": "Small-scale entry: ~3-5 unifamiliar plots (Echo/Duo cluster) at €46.6/m² raw — not a retreat site; different asset class from Boalo",
       "footprint": [
         [
           40.5586,
