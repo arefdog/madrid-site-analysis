@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { SOURCES } from '../config.js';
+import { CLASS_COLORS } from './landClass.js';
 import sitesData from '../../data/sites.json';
 import scores from '../../data/scores.json';
 
@@ -31,6 +32,23 @@ function row(label, value) {
 
 function section(title, body) {
   return `<div class="sr-section"><h4>${title}</h4>${body}</div>`;
+}
+
+// Official land-class chip, colored like the Land classification layer.
+function classChip(cls) {
+  const rgb = CLASS_COLORS[cls];
+  if (!rgb) return '<i>unverified</i>';
+  return `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;` +
+    `background:rgb(${rgb.join(',')});border:1px solid rgba(255,255,255,.35);` +
+    `margin-right:5px;vertical-align:-1px"></span>${cls.toLowerCase()}`;
+}
+
+function classificationHtml(c) {
+  if (!c) return '—';
+  const items = (c.detail || [])
+    .map((d) => `<div><b>${classChip(d.class)}</b>${d.scope ? ` — ${d.scope}` : ''}</div>`)
+    .join('');
+  return `${items || '—'}${c.basis ? `<div class="sr-note">Basis: ${c.basis}</div>` : ''}`;
 }
 
 function catastroLink(rc) {
@@ -79,6 +97,7 @@ export function reportHtml(site) {
     ].join(''))}
     ${section('3 · Cadastre', refRows)}
     ${section('4 · Planning', [
+      row('Classification', classificationHtml(plan.classification)),
       row('Instrument', dash(plan.instrument)),
       row('Unit / sector', dash(plan.unit)),
       row('Buildable', plan.buildableM2 ? `${num(plan.buildableM2)} m²` : '—'),
