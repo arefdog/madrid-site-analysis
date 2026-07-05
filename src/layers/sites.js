@@ -116,7 +116,25 @@ export function reportHtml(site) {
         ? `<a href="${market.listingUrl}" target="_blank" rel="noopener">open listing ↗</a>` : '—'),
       row('Model readout', modelReadout(site.muniCode)),
     ].join(''))}
-    ${section('6 · BYLD fit', dash(site.fit))}`;
+    ${section('6 · BYLD fit', dash(site.fit))}
+    ${section('7 · Masterplan (suggested)', masterplanHtml(site.masterplan))}`;
+}
+
+function masterplanHtml(mp) {
+  if (!mp) return '—';
+  const zones = (mp.zones || []).map((z) =>
+    `<div class="sr-row"><span>${z.id} ${z.name}</span><div>` +
+    `${z.areaM2 ? `${num(z.areaM2)} m² env` : '—'}${z.builtM2 ? ` · ${num(z.builtM2)} m² built` : ''}<br>` +
+    `<span style="opacity:.85">${z.program}</span></div></div>`).join('');
+  const mix = (mp.unitMix || []).map((u) => `${u.count} × ${u.type} — ${u.note}`).join('<br>');
+  const list = (arr) => (arr || []).map((x) => `• ${x}`).join('<br>');
+  return `
+    <div class="sr-note" style="margin:0 0 8px">${mp.version || ''}<br>${mp.assumptions || ''}</div>
+    ${zones}
+    ${row('Unit mix', mix || '—')}
+    ${row('Code basis', list(mp.codeBasis) || '—')}
+    ${row('Principles', list(mp.principles) || '—')}
+    ${row('Phasing', list(mp.phasing) || '—')}`;
 }
 
 function openReport(site) {

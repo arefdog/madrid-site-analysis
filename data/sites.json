@@ -10,7 +10,8 @@
       "planning: classification{category, detail[{class,scope}], basis}, instrument, unit, buildableM2, capacity, density, cessions, path, constraints",
       "market: price, terms, pricePerM2, comps, listingUrl — model readout joins from scores.json via muniCode",
       "fit: one-line BYLD product fit",
-      "footprint: fallback polygon if Catastro is unreachable"
+      "footprint: fallback polygon if Catastro is unreachable",
+      "masterplan: version, assumptions, zones[{id,name,areaM2,builtM2,program}], unitMix[{type,count,note}], principles[], phasing[] — BYLD design suggestion, indicative"
     ]
   },
   "sites": [
@@ -125,7 +126,85 @@
           40.7158,
           -3.902
         ]
-      ]
+      ],
+      "masterplan": {
+        "version": "v0.1 suggestion · indicative · subject to entitlement (see Planning risk)",
+        "assumptions": "Deck program envelope respected: 17,621 m² buildable (25%), 75% dehesa untouched. All buildings prefabricated, on stilts, no excavation outside the core.",
+        "zones": [
+          {
+            "id": "Z1",
+            "name": "Arrival & core",
+            "areaM2": 14000,
+            "builtM2": 12158,
+            "program": "44-key landscape hotel (5,286 m²) + spa & farm-to-table restaurant (5,110 m²) + subterranean parking (1,762 m²). Compact cluster at the western access, screened by the first stone wall so the dehesa horizon stays clean."
+          },
+          {
+            "id": "Z2",
+            "name": "Residence contours",
+            "areaM2": 16000,
+            "builtM2": 5392,
+            "program": "~27 branded residences (deck indicative count) placed on S/SE contour lines at 25–40 m spacing, each on its own contour, no fences — Echo ring units on the granite shoulder, Duo along the oak line, Grand at the landscape edge."
+          },
+          {
+            "id": "Z3",
+            "name": "VPP village edge",
+            "areaM2": 4500,
+            "builtM2": 3524,
+            "program": "Regulated housing as a compact 2–3 storey piece on the corner nearest the village/road — connected to town, not embedded in the resort core."
+          },
+          {
+            "id": "Z4",
+            "name": "Equestrian & farm meadow",
+            "areaM2": 6000,
+            "builtM2": 300,
+            "program": "Equestrian centre + kitchen garden on the flat east meadow; light timber structures only."
+          },
+          {
+            "id": "Z5",
+            "name": "Dehesa commons",
+            "areaM2": 52863,
+            "builtM2": 0,
+            "program": "75% of the parcel held open: trail loop on the existing stone-wall spines, pozas path, dark-sky zone, no lighting beyond bollards."
+          }
+        ],
+        "unitMix": [
+          {
+            "type": "Echo / Echo Lounge",
+            "count": "~14",
+            "note": "1-bed circular, stilts — the signature; granite outcrop placements"
+          },
+          {
+            "type": "Duo / Duo Lounge",
+            "count": "~9",
+            "note": "2-bed linear — oak-line placements"
+          },
+          {
+            "type": "Grand",
+            "count": "~4",
+            "note": "3-bed at the quiet landscape edge"
+          }
+        ],
+        "principles": [
+          "No excavation, no permanent scar: stilts + craned modular units",
+          "Stone walls become the circulation and trail system — nothing demolished",
+          "Protected horizon: nothing built against the P.N. buffer sightline; core hugs the access edge",
+          "Water discipline: greywater loop to landscape irrigation; pool only at the spa core",
+          "Dark-sky lighting throughout; residences reached on foot/buggy from core parking"
+        ],
+        "phasing": [
+          "P0 — Entitlement: classification verified, planning instrument secured (gating item)",
+          "P1 — Core + 6 Echo show units + trail loop (revenue + sales engine)",
+          "P2 — Residence waves along contours as sales absorb",
+          "P3 — VPP delivery per licence conditions + equestrian centre"
+        ],
+        "codeBasis": [
+          "Entitlement instrument TBD (gating P0): no urbanizable sector exists today — schema is drawn to Ley 9/2001 sector standards so it survives whichever instrument is secured (Plan Parcial after reclassification, or convenio)",
+          "Ley 9/2001 del Suelo CM (as amended by Ley 7/2024): VPP reserve ≥30% of RESIDENTIAL edificability — deck VPP 3,524 m² = 39.5% of the 8,916 m² residential component (residences + VPP), compliant IF branded residences classify as vivienda; if keyed as hospitality the calc changes. Plus: 10% aprovechamiento cession to the ayuntamiento; redes locales ~30 m²/100 m² built; parking ≥1.5 plazas/100 m² (met subterranean at core)",
+          "NNSS El Boalo 1997/98 height culture: B+1 / ~6.5–7 m in unifamiliar zones — Echo/Duo/Grand (single storey on stilts) comply by design; the 44-key hotel volume needs its own sector ordinance",
+          "Overlays prevail over municipal code: PRCAM PORN zoning + P.N. Guadarrama PRUG/ZPP; Ley 7/2024 15-year infraction window on protected land",
+          "CTE all DBs + wildland-urban interface fire criteria (DB-SI + Plan INFOMA): defensible-space strip around each unit in the dehesa, water reserve for hydrants at the core"
+        ]
+      }
     },
     {
       "id": "colmenarejo-ue18",
@@ -304,7 +383,62 @@
           40.5572,
           -4.007
         ]
-      ]
+      ],
+      "masterplan": {
+        "version": "v0.1 suggestion · indicative · requires U.E. execution first (ED + urbanisation + reparcelación)",
+        "assumptions": "Sale portion 5,251 m²; ordinance per ad: min parcel 1,000 m², occupation 25%, 0.25 m²/m² net, 2 floors + bajo cubierta (6.5 m), setbacks 4/4/3, 20 m frontage.",
+        "zones": [
+          {
+            "id": "Z1",
+            "name": "Villa parcels",
+            "areaM2": 4700,
+            "builtM2": 1160,
+            "program": "4 parcels of ~1,150–1,250 m² fronting the Cerca del Pino sewer axis — each carries ~290 m² over 2 floors: BYLD Duo Lounge or Grand as a modular 2-storey villa with 900 m²+ private garden. Parcel lines drawn so each lot independently meets the 20 m frontage and Ø20 m circle rules."
+          },
+          {
+            "id": "Z2",
+            "name": "Shared entry & services",
+            "areaM2": 550,
+            "builtM2": 0,
+            "program": "Common drive + utilities corridor from Calle del Pisuerga; bin/parking pocket at the entry so parcels stay car-light."
+          },
+          {
+            "id": "Z3",
+            "name": "Green edge",
+            "areaM2": 0,
+            "builtM2": 0,
+            "program": "The unit’s zona-verde cession (3,948 m², outside the sale) lands «entre calles» — design the villas to face it as borrowed landscape toward the Galapagar dehesa."
+          }
+        ],
+        "unitMix": [
+          {
+            "type": "Duo Lounge (2-storey)",
+            "count": "2–3",
+            "note": "~250–300 m² built each"
+          },
+          {
+            "type": "Grand (2-storey)",
+            "count": "1–2",
+            "note": "corner parcels with dehesa frontage"
+          }
+        ],
+        "principles": [
+          "Front the existing sewer axis — minimize urbanisation scope attributable to this portion",
+          "One shared entry, car-light parcels; hedging not walls toward the green cession",
+          "Modular 2-storey variants of the BYLD cassette to stay under the 6.5 m eave",
+          "Buy-side design: parcel lines drawn so each lot independently satisfies frontage/setback/20 m-circle rules"
+        ],
+        "phasing": [
+          "P0 — Diligence: nota simple + segregation licence + compensación board status with remaining owners (they hold the rest of the 10,894 m² on sale)",
+          "P1 — U.E. execution: Estudio de Detalle + urbanisation project (cost shared pro-rata — the real price beyond €46.6/m²)",
+          "P2 — Segregate 4 lots, place 4 modular villas as a single BYLD mini-cluster or plot-by-plot exit"
+        ],
+        "codeBasis": [
+          "NNSS Colmenarejo 1996 · Zona 03 grado 3º (ordinance per listing): parcela ≥1,000 m² · frente ≥20 m · círculo Ø20 m inscribable · ocupación ≤25% · edificabilidad 0.25 m²/m² neta · ≤2 plantas + bajo cubierta · cornisa 6.50 m / cumbrera 8.50 m · retranqueos 4 m frente / 4 m fondo / 3 m laterales",
+          "Ley 9/2001 del Suelo CM: execution by sistema de compensación — cessions per ficha (viario + 3,948 m² zona verde) and urbanisation costs shared pro-rata among unit owners; parking ≥1.5 plazas per 100 m² edificable (min 1 per dwelling) within the actuación",
+          "CTE (DB-SE structure · DB-HE energy/near-zero · DB-SI fire · DB-HR noise) + CM habitability minimums apply to the modular units; factory-built path still requires licencia de obra against these DBs"
+        ]
+      }
     }
   ]
 }
