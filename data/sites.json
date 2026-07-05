@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "version": 1,
+    "note": "Standardized plot reports. Every identified site follows the same schema; null/missing fields render as em-dashes so gaps are visible, not hidden. Coordinates are [lat, lng]. Financial deal terms are deliberately kept out of this file — it ships to the browser.",
+    "template": [
+      "identity: id, name, municipality, muniCode, status, sources[]",
+      "land: grossM2, parcelCount, landClass, features, orientation, elevationM",
+      "location: marker, accessNote, distances[]",
+      "cadastre: refs[] (rc, label, areaM2) — outlines fetched live from Catastro INSPIRE",
+      "planning: instrument, unit, buildableM2, capacity, density, cessions, path, constraints",
+      "market: price, pricePerM2, listingUrl — model readout joins from scores.json via muniCode",
+      "fit: one-line BYLD product fit",
+      "footprint: fallback polygon if Catastro is unreachable"
+    ]
+  },
+  "sites": [
+    {
+      "id": "boalo-estate",
+      "name": "Boalo — BYLD landscape estate",
+      "municipality": "El Boalo",
+      "muniCode": "28023",
+      "status": "Under reservation · BYLD · May 2026",
+      "sources": [
+        { "label": "BYLD deck v0.3 (May 2026)", "url": null }
+      ],
+      "land": {
+        "grossM2": 70484,
+        "parcelCount": 1,
+        "landClass": "Rústico · dehesa",
+        "features": "Meadow and dehesa giving way to pine and granite outcrops; stone walls; Torre del Parro on the horizon",
+        "orientation": "S/SE",
+        "elevationM": 920
+      },
+      "location": {
+        "marker": [40.7167, -3.9],
+        "accessNote": "0 km — on the buffer of the P.N. de Guadarrama (protected horizon)",
+        "distances": [
+          { "label": "Madrid centro", "km": 43, "time": "45 min" },
+          { "label": "MAD — Barajas", "km": 52, "time": "55 min" },
+          { "label": "Manzanares El Real", "km": 8, "time": "11 min" },
+          { "label": "Cerceda", "km": 2, "time": "5 min" }
+        ]
+      },
+      "cadastre": {
+        "refs": [
+          { "rc": "1683501VL2018S", "label": "Parcela catastral", "areaM2": 70484 }
+        ]
+      },
+      "planning": {
+        "instrument": null,
+        "unit": null,
+        "buildableM2": 17621,
+        "capacity": "Branded residences 5,392 m² · hotel 5,286 m² (44 keys) · spa + restaurant 5,110 m² · VPP 3,524 m² · parking 1,762 m²",
+        "density": "25% buildable ratio · 75% (52,863 m²) held as dehesa & trails",
+        "cessions": null,
+        "path": "Modular permitting pathway · subject to municipal approval (v0.3, indicative)",
+        "constraints": "P.N. de Guadarrama buffer edge — protected horizon that cannot be built against"
+      },
+      "market": {
+        "price": null,
+        "pricePerM2": null,
+        "listingUrl": null
+      },
+      "fit": "Full BYLD program — landscape hotel + branded residences (Echo / Duo / Grand), operator-run",
+      "footprint": [
+        [40.7178, -3.9018],
+        [40.7176, -3.8982],
+        [40.7156, -3.8984],
+        [40.7158, -3.902]
+      ]
+    },
+    {
+      "id": "colmenarejo-ue18",
+      "name": "U.E. 18 «Colonia de Santiago» — Colmenarejo",
+      "municipality": "Colmenarejo",
+      "muniCode": "28044",
+      "status": "On market · identified Jul 2026",
+      "sources": [
+        { "label": "idealista listing 111936104", "url": "https://www.idealista.com/inmueble/111936104/" },
+        { "label": "NNSS Colmenarejo 1996 · ficha U.E. 18", "url": null }
+      ],
+      "land": {
+        "grossM2": 27122,
+        "parcelCount": 13,
+        "landClass": "Suelo urbano (execution unit) + rústico edge parcel",
+        "features": "Open field between C. del Pisuerga and the Galapagar boundary dehesa, SE edge of town",
+        "orientation": null,
+        "elevationM": 830
+      },
+      "location": {
+        "marker": [40.5587, -4.0076],
+        "accessNote": "Access at Camino de la Fuente Elvira × Calle del Pisuerga",
+        "distances": [
+          { "label": "Madrid centro", "km": 31, "time": "~40 min" },
+          { "label": "Galapagar", "km": 4, "time": "7 min" },
+          { "label": "A-6 (Las Rozas)", "km": 12, "time": "15 min" }
+        ]
+      },
+      "cadastre": {
+        "refs": [
+          { "rc": "4707410VK1940N", "label": "Parcela 01", "areaM2": 1219.75 },
+          { "rc": "4707409VK1940N", "label": "Parcela 02", "areaM2": 1053.38 },
+          { "rc": "4707408VK1940N", "label": "Parcela 03", "areaM2": 1049.88 },
+          { "rc": "4807708VK1940N", "label": "Parcela 04", "areaM2": 1009.23 },
+          { "rc": "4807707VK1940N", "label": "Parcela 05", "areaM2": 1008.27 },
+          { "rc": "4807706VK1940N", "label": "Parcela 06", "areaM2": 1004.09 },
+          { "rc": "4807705VK1940N", "label": "Parcela 07", "areaM2": 1002.26 },
+          { "rc": "4806107VK1940N", "label": "Parcela 08", "areaM2": 1554.02 },
+          { "rc": "4606512VK1940N", "label": "Parcela 09", "areaM2": 1118.27 },
+          { "rc": "4606511VK1940N", "label": "Parcela 10", "areaM2": 1224.99 },
+          { "rc": "4606507VK1940N", "label": "Parcela 11", "areaM2": 1023.86 },
+          { "rc": "4606506VK1940N", "label": "Parcela 12", "areaM2": 1011.64 },
+          { "rc": "28061A02200075", "label": "Parcela rústica", "areaM2": null }
+        ]
+      },
+      "planning": {
+        "instrument": "NNSS de Planeamiento de Colmenarejo (1996)",
+        "unit": "Unidad de Ejecución U.E. 18 «Colonia de Santiago»",
+        "buildableM2": null,
+        "capacity": "Max 18 homes · low-density single-family (Zona 03 grado 3º)",
+        "density": "7 homes/ha gross",
+        "cessions": "Internal road network + 3,948 m² green space (Zona 07 grado 1º)",
+        "path": "Estudio de Detalle + urbanisation project · sistema de compensación, private initiative",
+        "constraints": "Two zona-verde parcels (1,952.60 + 2,043.27 m²) inside the unit; abuts the Galapagar municipal boundary"
+      },
+      "market": {
+        "price": null,
+        "pricePerM2": null,
+        "listingUrl": "https://www.idealista.com/inmueble/111936104/"
+      },
+      "fit": "Branded-residences-only play (18-home cap, no hotel buildability) — different asset class from Boalo",
+      "footprint": [
+        [40.5586, -4.0075],
+        [40.5578, -4.004],
+        [40.557, -4.0028],
+        [40.5561, -4.0037],
+        [40.5566, -4.006],
+        [40.5572, -4.007]
+      ]
+    }
+  ]
+}
