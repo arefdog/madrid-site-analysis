@@ -116,7 +116,7 @@ function zonePopup(zone, site) {
     : '';
 
   const cteLink = `<div style="margin-top:6px;font-size:11px;color:#666">
-    <a href="#" onclick="console.log('CTE: ${zone.cteRef}'); return false;">Show CTE codes ↗</a>
+    <code style="font-size:10px;color:#888">${zone.cteRef}</code>
   </div>`;
 
   return `
