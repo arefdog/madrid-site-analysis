@@ -16,6 +16,7 @@ L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, 
 requireAccess().then(initApp);
 
 function initApp() {
+const isTouchDevice = () => (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
 const map = L.map('map', {
   center: MAP.center,
   zoom: MAP.zoom,
@@ -23,10 +24,11 @@ const map = L.map('map', {
   maxZoom: MAP.maxZoom,
   // Map rotation + compass control (drag the compass to rotate, click to reset
   // to north). Also two-finger rotate on touch and Shift-drag on desktop.
+  // On mobile, disable the compass button to prevent accidental taps; keep two-finger rotation.
   rotate: true,
   touchRotate: true,
   shiftKeyRotate: true,
-  rotateControl: { closeOnZeroBearing: false, position: 'bottomright' },
+  rotateControl: isTouchDevice() ? false : { closeOnZeroBearing: false, position: 'bottomright' },
 });
 if (import.meta.env?.DEV) window.__map = map; // dev-only debug handle
 
