@@ -35,7 +35,7 @@
 - **Exclusion buffers:** 25 m perimeter strip (INFOMA fire self-protection + road setback) frozen out of development, rendered hatched; slots for vía pecuaria / arroyo / PRCAM polygons in the config once verified.
 - **Cessions ledger:** live *cuadro de superficies* per zone + edificability + compliance checks (green ≥15/100, VPP ≥30%, parking ≥1.5/100) shown on-map.
 - **Exports:** GeoJSON (GIS), **DXF in ETRS89/UTM 30N** (CAD, official CRS), CSV area schedule — the technical annexes a consultant needs.
-- **Terrain:** baked heightmap pipeline (CI workflow `bake-terrain`); currently EU-DEM 25 m at 20×20; **TODO: swap sampler to IGN MDT02/05 LiDAR** for grading-quality contours.
+- **Terrain:** baked heightmap pipeline (CI workflow `bake-terrain`) now samples **IGN PNOA-LiDAR MDT05 (5 m)** via the INSPIRE WCS at 40×40 (~7 m spacing), with EU-DEM 25 m as an automatic fallback. The `source` field in `public/terrain/boalo.json` records which was actually used on the last bake. A field topographic survey is still required for the final planos.
 
 ## 4. Submission checklist (Plan Parcial scenario)
 
