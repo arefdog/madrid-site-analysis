@@ -1,0 +1,25 @@
+name: Bake Boalo terrain heightmap
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/bake-terrain.mjs
+      - name: Commit heightmap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/terrain/boalo.json
+          git diff --cached --quiet && echo "No terrain change" && exit 0
+          git commit -m "Bake Boalo terrain heightmap (EU-DEM 20x20)"
+          git push

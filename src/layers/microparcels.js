@@ -1,6 +1,8 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
+import planning from '../../data/planning-config.json';
 import { getBoaloRings } from './masterplan.js';
+import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
 
 // Micro-parcel subdivision v4: terrain-driven generative masterplan.
 //
@@ -50,6 +52,7 @@ const KIND_STYLES = {
   street: { color: '#4a5568', weight: 0.5, fillColor: '#6b7280', fillOpacity: 0.5 },
   path: { color: '#a89468', weight: 0.8, fillColor: '#d6c9a8', fillOpacity: 0.5, dashArray: '2,2' },
   parking: { color: '#5c4a33', weight: 1, fillColor: '#8b7355', fillOpacity: 0.55, dashArray: '3,2' },
+  protected: { color: '#4d7c0f', weight: 0.8, fillColor: '#a3e635', fillOpacity: 0.18, dashArray: '1,3' },
 };
 
 function bbox(rings) {
@@ -116,9 +119,56 @@ function distM(aLat, aLng, bLat, bLng) {
   return Math.sqrt(dLat ** 2 + dLng ** 2);
 }
 
+// Distance (m) from a point to the nearest boundary segment of the rings.
+function boundaryDistM(lat, lng, rings, latRef) {
+  const mLng = M_PER_DEG_LAT * Math.cos((latRef * Math.PI) / 180);
+  const px = lng * mLng, py = lat * M_PER_DEG_LAT;
+  let min = Infinity;
+  for (const ring of rings) {
+    for (let i = 0; i < ring.length; i++) {
+      const [aLat, aLng] = ring[i];
+      const [bLat, bLng] = ring[(i + 1) % ring.length];
+      const ax = aLng * mLng, ay = aLat * M_PER_DEG_LAT;
+      const bx = bLng * mLng, by = bLat * M_PER_DEG_LAT;
+      const dx = bx - ax, dy = by - ay;
+      const t = dx || dy ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy))) : 0;
+      const d = Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+      if (d < min) min = d;
+    }
+  }
+  return min;
+}
+
 // --- Terrain -----------------------------------------------------------------
 
-async function fetchElevationGrid(b, n = 6) {
+// Bilinear interpolator over an n×n grid spanning gb.
+function gridInterp(gb, n, grid) {
+  return (lat, lng) => {
+    const fi = ((lat - gb.latMin) / (gb.latMax - gb.latMin)) * (n - 1);
+    const fj = ((lng - gb.lngMin) / (gb.lngMax - gb.lngMin)) * (n - 1);
+    const i0 = Math.max(0, Math.min(n - 2, Math.floor(fi)));
+    const j0 = Math.max(0, Math.min(n - 2, Math.floor(fj)));
+    const ti = Math.max(0, Math.min(1, fi - i0)), tj = Math.max(0, Math.min(1, fj - j0));
+    const v00 = grid[i0 * n + j0], v01 = grid[i0 * n + j0 + 1];
+    const v10 = grid[(i0 + 1) * n + j0], v11 = grid[(i0 + 1) * n + j0 + 1];
+    return v00 * (1 - ti) * (1 - tj) + v01 * (1 - ti) * tj + v10 * ti * (1 - tj) + v11 * ti * tj;
+  };
+}
+
+// Baked heightmap (public/terrain/boalo.json, produced by scripts/bake-terrain.mjs
+// in CI where the network allows a much denser sample than one live request).
+async function bakedTerrain(b) {
+  const res = await fetch(`${import.meta.env.BASE_URL}terrain/boalo.json`);
+  if (!res.ok) throw new Error(`no baked terrain (${res.status})`);
+  const t = await res.json();
+  const gb = t.bbox;
+  if (!(gb.latMin <= b.latMin && gb.latMax >= b.latMax && gb.lngMin <= b.lngMin && gb.lngMax >= b.lngMax)) {
+    throw new Error('baked terrain does not cover the site bbox');
+  }
+  return { elevAt: gridInterp(gb, t.n, t.grid), source: t.source || 'baked heightmap' };
+}
+
+async function fetchElevationGrid(b, n = 10) {
   const pts = [];
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < n; j++) {
@@ -133,22 +183,17 @@ async function fetchElevationGrid(b, n = 6) {
   const data = await res.json();
   const grid = data?.results?.map((r) => r.elevation);
   if (!grid || grid.length !== n * n || grid.some((v) => v == null)) throw new Error('incomplete elevation grid');
-
-  return (lat, lng) => {
-    const fi = ((lat - b.latMin) / (b.latMax - b.latMin)) * (n - 1);
-    const fj = ((lng - b.lngMin) / (b.lngMax - b.lngMin)) * (n - 1);
-    const i0 = Math.max(0, Math.min(n - 2, Math.floor(fi)));
-    const j0 = Math.max(0, Math.min(n - 2, Math.floor(fj)));
-    const ti = fi - i0, tj = fj - j0;
-    const v00 = grid[i0 * n + j0], v01 = grid[i0 * n + j0 + 1];
-    const v10 = grid[(i0 + 1) * n + j0], v11 = grid[(i0 + 1) * n + j0 + 1];
-    return v00 * (1 - ti) * (1 - tj) + v01 * (1 - ti) * tj + v10 * ti * (1 - tj) + v11 * ti * tj;
-  };
+  return gridInterp(b, n, grid);
 }
 
 async function terrainModel(b) {
   try {
-    return { elevAt: await fetchElevationGrid(b), source: 'EU-DEM 25 m' };
+    return await bakedTerrain(b);
+  } catch (e) {
+    console.info('[microparcels] no baked terrain, trying live API:', e.message);
+  }
+  try {
+    return { elevAt: await fetchElevationGrid(b), source: 'EU-DEM 25 m (live)' };
   } catch (e) {
     console.warn('[microparcels] elevation API unavailable, using calibrated model:', e.message);
     // El Boalo: rises N-NW toward the Sierra, ~905 m at the eastern road.
@@ -236,6 +281,9 @@ export default {
               elev: elevAt(cLat, cLng),
               slope: slopeDegAt(elevAt, cLat, cLng),
               kind: null, zoneId: null, lotId: null,
+              // Perimeter buffer (fire self-protection strip + road setback):
+              // no development, only green uses and circulation crossings.
+              protected: boundaryDistM(cLat, cLng, rings, latRef) < (planning.exclusions?.perimeterBufferM ?? 0),
             };
             grid[r][c] = cell;
             cells.push(cell);
@@ -301,7 +349,7 @@ export default {
         for (const roadCell of hotelRun) {
           for (let off = 1; off <= 3; off++) {
             const cand = at(roadCell.r, roadCell.c + off);
-            if (cand && !cand.kind && !cand.zoneId && cand.slope < 18) cand.zoneId = 'Z1';
+            if (cand && !cand.kind && !cand.zoneId && !cand.protected && cand.slope < 18) cand.zoneId = 'Z1';
           }
         }
 
@@ -310,7 +358,7 @@ export default {
         for (let dr = -5; dr <= 5 && vpp < 70; dr++) {
           for (let dc = 0; dc >= -9 && vpp < 70; dc--) {
             const cand = at(start.r + dr, start.c + dc);
-            if (cand && !cand.kind && !cand.zoneId && cand.slope < 15) { cand.zoneId = 'Z3'; vpp++; }
+            if (cand && !cand.kind && !cand.zoneId && !cand.protected && cand.slope < 15) { cand.zoneId = 'Z3'; vpp++; }
           }
         }
 
@@ -344,7 +392,7 @@ export default {
               for (const col of bayCols) {
                 for (const depth of [1, 2]) {
                   const cand = at(j.r + side * depth, col);
-                  if (cand && !cand.kind && !cand.zoneId && cand.slope < 20) lotCells.push(cand);
+                  if (cand && !cand.kind && !cand.zoneId && !cand.protected && cand.slope < 20) lotCells.push(cand);
                 }
               }
               if (lotCells.length >= 4) {
@@ -364,7 +412,7 @@ export default {
             for (let dr = 0; dr < 11; dr++) {
               for (let dc = 0; dc < 11; dc++) {
                 const cand = at(r0 + dr, c0 + dc);
-                if (cand && !cand.kind && !cand.zoneId) { sum += cand.slope; free++; }
+                if (cand && !cand.kind && !cand.zoneId && !cand.protected) { sum += cand.slope; free++; }
               }
             }
             if (free < 70) continue;
@@ -376,21 +424,34 @@ export default {
           for (let dr = 0; dr < 11; dr++) {
             for (let dc = 0; dc < 11; dc++) {
               const cand = at(bestWin.r0 + dr, bestWin.c0 + dc);
-              if (cand && !cand.kind && !cand.zoneId) cand.zoneId = 'Z4';
+              if (cand && !cand.kind && !cand.zoneId && !cand.protected) cand.zoneId = 'Z4';
             }
           }
         }
 
-        // --- 6. Parking: 20 cells at the hotel junction (subterranean). -----
+        // --- 6. Parking at the hotel junction (subterranean), sized from the
+        // Ley 9/2001 standard: 1.5 spaces / 100 m² built, 25 m² per space.
         const hotelJunction = hotelRun[0];
         if (hotelJunction) {
-          cells
-            .filter((x) => !x.kind && !x.zoneId)
+          const law = planning.legal.cessions;
+          let builtM2 = 0;
+          for (const cell of cells) {
+            if (cell.zoneId && planning.zoning[cell.zoneId]) {
+              builtM2 += cell.area * planning.zoning[cell.zoneId].edifM2PerM2;
+            }
+          }
+          const requiredM2 = (builtM2 / 100) * law.parkingSpacesPer100m2Built * law.parkingSpaceM2;
+          const candidates = cells
+            .filter((x) => !x.kind && !x.zoneId && !x.protected)
             .sort((p, q) =>
               distM(p.cLat, p.cLng, hotelJunction.cLat, hotelJunction.cLng) -
-              distM(q.cLat, q.cLng, hotelJunction.cLat, hotelJunction.cLng))
-            .slice(0, 20)
-            .forEach((x) => { x.kind = 'parking'; });
+              distM(q.cLat, q.cLng, hotelJunction.cLat, hotelJunction.cLng));
+          let acc = 0;
+          for (const x of candidates) {
+            if (acc >= requiredM2) break;
+            x.kind = 'parking';
+            acc += x.area;
+          }
         }
       }
 
@@ -442,6 +503,10 @@ export default {
           counts.parking++;
           style = KIND_STYLES.parking;
           popup = `<b>${ref} · Parking (subterranean)</b><br>20-cell cluster (~1,400 m²) at the hotel junction.<br>${facts}`;
+        } else if (cell.protected) {
+          counts.protected = (counts.protected || 0) + 1;
+          style = KIND_STYLES.protected;
+          popup = `<b>${ref} · Perimeter buffer</b><br>${planning.exclusions.perimeterBufferNote}<br>${facts}`;
         } else {
           const zone = ZONES[cell.zoneId];
           counts[cell.zoneId] = (counts[cell.zoneId] || 0) + 1;
@@ -462,13 +527,14 @@ export default {
       }
 
       // Lot outlines: heavier border around each villa lot so the "house on a
-      // few pixels" unit reads at a glance.
+      // few pixels" unit reads at a glance. Outlines are kept for the exports.
       const lots = new Map();
       for (const cell of cells) {
         if (!cell.lotId) continue;
         if (!lots.has(cell.lotId)) lots.set(cell.lotId, []);
         lots.get(cell.lotId).push(cell);
       }
+      const lotExports = [];
       for (const [lotId, lotCells] of lots) {
         const rMin = Math.min(...lotCells.map((x) => x.r));
         const rMax = Math.max(...lotCells.map((x) => x.r));
@@ -483,16 +549,87 @@ export default {
         for (const ring of rings) {
           const outline = clipRingToRect(ring, rect);
           if (!outline.length) continue;
-          const area = lotCells.reduce((s, x) => s + x.area, 0);
+          lotExports.push({ id: lotId, outline, areaM2: lotCells.reduce((s, x) => s + x.area, 0) });
           group.addLayer(L.polygon(outline, {
             renderer, color: '#9a3412', weight: 1.6, fill: false, interactive: false,
           }));
-          void area; void lotId;
         }
       }
 
+      // --- 9. Cessions ledger (cuadro de superficies + Ley 9/2001 checks). --
+      const areas = { Z1: 0, Z2: 0, Z3: 0, Z4: 0, Z5: 0, road: 0, street: 0, path: 0, parking: 0, protected: 0 };
+      for (const cell of cells) {
+        if (cell.kind) areas[cell.kind] += cell.area;
+        else if (cell.protected) areas.protected += cell.area;
+        else areas[cell.zoneId] += cell.area;
+      }
+      const edif = {};
+      let totalEdif = 0;
+      for (const z of ['Z1', 'Z2', 'Z3', 'Z4']) {
+        edif[z] = areas[z] * (planning.zoning[z]?.edifM2PerM2 ?? 0);
+        totalEdif += edif[z];
+      }
+      const law = planning.legal.cessions;
+      const greenProvided = areas.Z5 + areas.protected + areas.path;
+      const greenRequired = (totalEdif / 100) * law.greenMinM2per100m2Built;
+      const vppShare = edif.Z2 + edif.Z3 > 0 ? edif.Z3 / (edif.Z2 + edif.Z3) : 0;
+      const parkingProvided = areas.parking / law.parkingSpaceM2;
+      const parkingRequired = (totalEdif / 100) * law.parkingSpacesPer100m2Built;
+      const ledger = {
+        siteArea,
+        totalEdif,
+        rows: [
+          { name: 'Hotel (Z1)', area: areas.Z1, pct: areas.Z1 / siteArea, edif: edif.Z1 },
+          { name: 'Villas (Z2)', area: areas.Z2, pct: areas.Z2 / siteArea, edif: edif.Z2 },
+          { name: 'VPP (Z3)', area: areas.Z3, pct: areas.Z3 / siteArea, edif: edif.Z3 },
+          { name: 'Ecuestre (Z4)', area: areas.Z4, pct: areas.Z4 / siteArea, edif: edif.Z4 },
+          { name: 'Dehesa / verde (Z5)', area: areas.Z5, pct: areas.Z5 / siteArea },
+          { name: 'Franja perimetral', area: areas.protected, pct: areas.protected / siteArea },
+          { name: 'Viario (vial + calles)', area: areas.road + areas.street, pct: (areas.road + areas.street) / siteArea },
+          { name: 'Sendas peatonales', area: areas.path, pct: areas.path / siteArea },
+          { name: 'Aparcamiento', area: areas.parking, pct: areas.parking / siteArea },
+        ],
+        checks: [
+          { label: `Verde ≥ ${law.greenMinM2per100m2Built} m²/100 m² edif.`, value: `${Math.round(greenProvided).toLocaleString('en')} m²`, required: `${Math.round(greenRequired).toLocaleString('en')} m²`, ok: greenProvided >= greenRequired },
+          { label: `VPP ≥ ${law.vppMinShareOfResidentialEdif * 100}% edif. residencial`, value: `${(vppShare * 100).toFixed(0)}%`, required: `${law.vppMinShareOfResidentialEdif * 100}%`, ok: vppShare >= law.vppMinShareOfResidentialEdif },
+          { label: `Aparcamiento ≥ ${law.parkingSpacesPer100m2Built} pl/100 m²`, value: `${Math.round(parkingProvided)} pl`, required: `${Math.round(parkingRequired)} pl`, ok: parkingProvided >= parkingRequired },
+        ],
+      };
+
+      // --- 10. On-map summary control: cuadro, checks, export buttons. ------
+      const control = L.control({ position: 'bottomleft' });
+      control.onAdd = () => {
+        const el = L.DomUtil.create('div', 'mp-summary');
+        el.style.cssText = 'background:rgba(17,24,39,.92);color:#e5e7eb;padding:10px 12px;border-radius:8px;font:11px/1.5 system-ui;max-width:260px;box-shadow:0 2px 10px rgba(0,0,0,.4)';
+        const rows = ledger.rows.filter((row) => row.area > 0).map((row) =>
+          `<tr><td>${row.name}</td><td style="text-align:right">${Math.round(row.area).toLocaleString('en')}</td><td style="text-align:right">${(row.pct * 100).toFixed(1)}%</td></tr>`).join('');
+        const checks = ledger.checks.map((check) =>
+          `<div>${check.ok ? '✅' : '❌'} ${check.label}: <b>${check.value}</b> / req. ${check.required}</div>`).join('');
+        el.innerHTML =
+          `<b>Cuadro de superficies</b> · ${Math.round(siteArea).toLocaleString('en')} m²` +
+          `<table style="border-collapse:collapse;width:100%;margin:4px 0">${rows}</table>` +
+          `<div style="margin:4px 0">Edificabilidad total: <b>${Math.round(totalEdif).toLocaleString('en')} m²</b></div>` +
+          `${checks}` +
+          `<div style="margin-top:6px;display:flex;gap:6px">` +
+          `<button data-x="geojson">GeoJSON</button><button data-x="dxf">DXF (UTM30)</button><button data-x="csv">Cuadro CSV</button></div>` +
+          `<div style="color:#9ca3af;margin-top:4px">Parámetros: ${planning.legal.cessions.source}. Zonas: hipótesis de trabajo.</div>`;
+        L.DomEvent.disableClickPropagation(el);
+        el.addEventListener('click', (ev) => {
+          const kind = ev.target?.dataset?.x;
+          if (kind === 'geojson') download('boalo-masterplan.geojson', 'application/geo+json', cellsToGeoJSON(cells, rings, { rc: rcUsed, site_m2: Math.round(siteArea) }));
+          if (kind === 'dxf') download('boalo-masterplan-utm30.dxf', 'application/dxf', cellsToDXF(cells, lotExports, rings));
+          if (kind === 'csv') download('boalo-cuadro-superficies.csv', 'text/csv', ledgerToCSV(ledger));
+        });
+        return el;
+      };
+      const attachControl = () => { if (group._map) control.addTo(group._map); };
+      group.on('add', attachControl);
+      group.on('remove', () => control.remove());
+      attachControl(); // layer may already be on the map (async build)
+
       console.info('[microparcels]', cells.length, 'cells;', lots.size, 'villa lots;', 'counts:', counts,
-        'terrain:', source, '| parcel:', rcUsed ?? 'footprint', `| site ${Math.round(siteArea)} m²`);
+        'terrain:', source, '| parcel:', rcUsed ?? 'footprint', `| site ${Math.round(siteArea)} m²`,
+        '| edif', Math.round(totalEdif), 'm² | checks:', ledger.checks.map((c) => `${c.label}=${c.ok}`).join(', '));
     })();
 
     return group;
