@@ -11,13 +11,15 @@
     "data:income": "node scripts/fetch-income.mjs",
     "data:airbnb": "node scripts/build-airbnb.mjs",
     "data:hotels": "node scripts/build-hotels.mjs",
-    "data:scores": "node scripts/build-scores.mjs"
+    "data:scores": "node scripts/build-scores.mjs",
+    "data:terrain": "node scripts/bake-terrain.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
     "leaflet-rotate": "^0.2.8"
   },
   "devDependencies": {
+    "geotiff": "^2.1.3",
     "playwright": "^1.61.1",
     "vite": "^5.4.0"
   }
