@@ -1,0 +1,36 @@
+{
+  "_comment": "Planning parameters driving the Boalo micro-parcel engine, the cessions ledger and the compliance checks. Every block carries a `status`: 'verified-law' = taken from regional law (citation in `source`); 'working-assumption' = plausible value pending the actual ficha in the El Boalo-Cerceda-Mataelpino NNSS — replace when verified.",
+
+  "legal": {
+    "cessions": {
+      "redesLocalesM2per100m2Built": 30,
+      "greenMinM2per100m2Built": 15,
+      "vppMinShareOfResidentialEdif": 0.30,
+      "parkingSpacesPer100m2Built": 1.5,
+      "parkingSpaceM2": 25,
+      "source": "Ley 9/2001 del Suelo CM, art. 36.6 (redes locales, zonas verdes, aparcamiento); reserva 30% VPP en suelo urbanizable (redacción vigente)",
+      "status": "verified-law"
+    },
+    "classification": {
+      "current": "PENDIENTE DE VERIFICAR — NNSS El Boalo/Cerceda/Mataelpino; el municipio está dentro del PRCAM (zonas A2/B1/P, Ley 1/1985 y 7/1991)",
+      "instrumentIfUrbanizable": "Plan Parcial",
+      "instrumentIfSNU": "Calificación urbanística (Ley 9/2001 art. 29) o modificación de planeamiento",
+      "status": "unverified"
+    }
+  },
+
+  "zoning": {
+    "Z1": { "edifM2PerM2": 1.0, "floors": 2, "use": "hotelero", "status": "working-assumption" },
+    "Z2": { "edifM2PerM2": 0.35, "floors": 2, "minLotM2": 300, "use": "residencial unifamiliar", "status": "working-assumption" },
+    "Z3": { "edifM2PerM2": 0.6, "floors": 2, "use": "residencial VPP", "status": "working-assumption" },
+    "Z4": { "edifM2PerM2": 0.05, "floors": 1, "use": "ecuestre / dotacional privado", "status": "working-assumption" }
+  },
+
+  "exclusions": {
+    "perimeterBufferM": 25,
+    "perimeterBufferNote": "Franja perimetral sin edificación: autoprotección incendios (INFOMA) + retranqueo a viario (Calle Berrocal). Solo usos verdes/viario.",
+    "protectionPolygons": [],
+    "protectionPolygonsNote": "Añadir aquí polígonos [lat,lng] de vías pecuarias, arroyos (DPH) o zonificación PRCAM cuando se verifiquen.",
+    "status": "working-assumption"
+  }
+}
