@@ -17,20 +17,42 @@ requireAccess().then(initApp);
 
 function initApp() {
 const isTouchDevice = () => (('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0));
+const touch = isTouchDevice();
 const map = L.map('map', {
   center: MAP.center,
   zoom: MAP.zoom,
   minZoom: MAP.minZoom,
   maxZoom: MAP.maxZoom,
-  // Map rotation + compass control (drag the compass to rotate, click to reset
-  // to north). Also two-finger rotate on touch and Shift-drag on desktop.
-  // On mobile, disable the compass button to prevent accidental taps; keep two-finger rotation.
+  // Map rotation. On desktop: Shift-drag to rotate + a draggable compass
+  // (bottom-right). On touch: rotation starts OFF (north-locked) so two-finger
+  // gestures only pan/zoom; the compass button (bottom-right) toggles two-finger
+  // rotation on/off. See the custom control below.
   rotate: true,
-  touchRotate: true,
+  touchRotate: !touch, // desktop on (no touch anyway); mobile starts locked
   shiftKeyRotate: true,
-  rotateControl: isTouchDevice() ? false : { closeOnZeroBearing: false, position: 'bottomright' },
+  rotateControl: touch ? false : { closeOnZeroBearing: false, position: 'bottomright' },
 });
 window.__map = map; // debug/automation handle
+
+// Touch devices: a simple on/off compass bottom-right. Tap to enable two-finger
+// rotation (arrow shows bearing), tap again to disable and snap back to north.
+// Overrides leaflet-rotate's 3-state cycle so there's no device-orientation mode.
+if (touch) {
+  const RotateToggle = L.Control.Rotate.extend({
+    _cycleState() {
+      const m = this._map;
+      if (!m) return;
+      if (m.touchRotate.enabled()) {
+        m.touchRotate.disable();
+        m.setBearing(0);
+      } else {
+        m.touchRotate.enable();
+      }
+      this._restyle();
+    },
+  });
+  new RotateToggle({ closeOnZeroBearing: false, position: 'bottomright' }).addTo(map);
+}
 
 // Lazily instantiate each layer's Leaflet object on first activation.
 const instances = new Map();
