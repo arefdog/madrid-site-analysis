@@ -234,7 +234,7 @@ export default {
   id: 'overlay-microparcels',
   label: 'Micro-parcels (1000-unit master grid)',
   group: 'overlay',
-  enabled: true,
+  enabled: false, // start blank — no overlays pre-ticked
   create() {
     const group = L.layerGroup();
     const renderer = L.canvas({ padding: 0.5 });
