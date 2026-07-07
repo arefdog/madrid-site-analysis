@@ -69,11 +69,13 @@ html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystem
    translucent, so the map is still visible beneath and to the right; long
    legends scroll inside instead of being clipped to a short box. */
 @media (max-width: 600px) {
-  .panel {
-    width: min(64vw, 240px); font-size: 12px; left: 8px; padding: 12px;
-    /* Pin top and bottom so the box spans the full height exactly, whatever the
-       mobile browser chrome does; content scrolls inside. */
-    top: 8px; bottom: 8px; max-height: none;
+  .panel { top: 8px; left: 8px; font-size: 12px; }
+  /* Expanded: span the full height exactly (content scrolls inside). Collapsed
+     stays a small button — the full-height pin must NOT apply to it, or the
+     collapse button becomes a tall empty strip over the map. */
+  .panel:not(.collapsed) {
+    width: min(64vw, 240px); padding: 12px;
+    bottom: 8px; max-height: none;
   }
 }
 
