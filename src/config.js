@@ -53,6 +53,30 @@ export const SOURCES = {
       layers: '12', // CLC 2018 raster
       attribution: 'Copernicus CORINE Land Cover 2018 (EEA)',
     },
+    // Official hydrography of the river-basin plans (Planes Hidrológicos
+    // 2022-2027) — the exact cartography the water authorities (Confederación
+    // Hidrográfica del Tajo / MITECO) plan against. Two services: the stream
+    // network (every río/arroyo) and surface water-body polygons (reservoirs,
+    // lakes). Note: despite the INSPIRE-style layer name, RedHidro2027 serves
+    // the red hidrográfica line network.
+    hydroNetwork: {
+      url: 'https://wms.mapama.gob.es/sig/Agua/PHC/RedHidro2027',
+      layers: 'HY.PhysicalWaters.Waterbodies',
+      attribution: 'MITECO — Red hidrográfica, Planes Hidrológicos 2022-2027',
+    },
+    hydroWaterBodies: {
+      url: 'https://wms.mapama.gob.es/sig/agua/PHC/MasasAguaSupP2027',
+      layers: 'AM.WaterBodyForWFD',
+      attribution: 'MITECO — Masas de agua superficial, PH 2022-2027',
+    },
+    // SNCZI flood zones (MITECO): modelled fluvial flood extents for 100- and
+    // 500-year return periods. This is the official dataset behind
+    // "zona inundable" constraints on a plot.
+    floodZones: {
+      url: 'https://servicios.idee.es/wms-inspire/riesgos-naturales/inundaciones',
+      layers: 'NZ.Flood.FluvialT500,NZ.Flood.FluvialT100',
+      attribution: 'MITECO — SNCZI zonas inundables',
+    },
   },
   // ArcGIS dynamic MapServers rendered via REST export tiles.
   arcgis: {

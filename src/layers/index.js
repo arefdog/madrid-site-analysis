@@ -21,6 +21,7 @@ import topography from './topography.js';
 import cadastre from './cadastre.js';
 import landClass from './landClass.js';
 import landcover from './landcover.js';
+import water from './water.js';
 import airbnb from './airbnb.js';
 import hotels from './hotels.js';
 import scores from './scores.js';
@@ -42,6 +43,7 @@ export const layers = [
   cadastre,
   landClass,
   landcover,
+  water,
 ].flat();
 
 export const GROUPS = [

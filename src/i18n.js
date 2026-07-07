@@ -71,6 +71,10 @@ export const STRINGS = {
         legend: landClassLegend('en') },
       'overlay-landcover': { label: 'Land use',
         legend: '<div>Red = built/urban · yellow = agricultural · green = forest/natural. Greenfield vs. developed land.</div>' },
+      'overlay-water': { label: 'Water Bodies',
+        legend: '<div>Rivers, streams (arroyos) and reservoirs from the official river-basin plans (MITECO / Confederación Hidrográfica — the cartography the water authorities plan with). Streams shown here carry legal protection setbacks even if dry on site.</div>' },
+      'overlay-flood': { label: 'Flood Zones',
+        legend: '<div>Official MITECO flood mapping: modelled extents for 100- and 500-year floods. Overlap with a parcel usually means build restrictions — check before committing to a site.</div>' },
     },
   },
   es: {
@@ -105,6 +109,10 @@ export const STRINGS = {
         legend: landClassLegend('es') },
       'overlay-landcover': { label: 'Usos del suelo',
         legend: '<div>Rojo = urbano/construido · amarillo = agrícola · verde = bosque/natural. Suelo virgen vs. desarrollado.</div>' },
+      'overlay-water': { label: 'Masas de Agua',
+        legend: '<div>Ríos, arroyos y embalses de los planes hidrológicos oficiales (MITECO / Confederación Hidrográfica — la cartografía con la que planifican los organismos de cuenca). Los cauces aquí señalados tienen zonas de protección legales aunque estén secos.</div>' },
+      'overlay-flood': { label: 'Zonas Inundables',
+        legend: '<div>Cartografía oficial de inundabilidad del MITECO: láminas para periodos de retorno de 100 y 500 años. Si solapa una parcela, suele implicar restricciones de edificación.</div>' },
     },
   },
 };
