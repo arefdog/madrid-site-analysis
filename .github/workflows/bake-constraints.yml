@@ -1,0 +1,36 @@
+name: Bake Boalo protection polygons
+
+# Runs the constraint fetcher on GitHub Actions (open internet, no browser
+# CORS), fetching the official SIU + Tier-1 WFS geometry and baking the
+# protection polygons into data/planning-config.json so the pixel engine
+# carves around real protected land on the static deployed site.
+#
+# Manual trigger (or monthly) — the official cartography changes rarely.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 1 * *' # 04:00 on the 1st of each month
+
+permissions:
+  contents: write
+
+jobs:
+  bake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/fetch-constraints.mjs --apply
+      - name: Commit baked polygons
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/planning-config.json data/constraints-boalo.json
+          git diff --cached --quiet && echo "No constraint change" && exit 0
+          git commit -m "Bake Boalo protection polygons (SIU + WFS)"
+          git push
