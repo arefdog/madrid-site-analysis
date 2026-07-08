@@ -112,6 +112,54 @@ export const SOURCES = {
       attribution: 'Comunidad de Madrid — Vías Pecuarias (IDEM)',
     },
   },
+  // Tier-1 protected-land layers: viewable WMS overlays AND queryable WFS so
+  // the geometry can be carved out of the buildable footprint. Each source
+  // lists candidate WMS + WFS endpoints (naming drifts across publications);
+  // the layer probes GetCapabilities and uses whatever answers. `carve: true`
+  // means polygons that intersect the parcel feed the pixel engine's
+  // exclusion set (no development), matching the legal effect.
+  protectedLand: {
+    zfp: {
+      label: 'Zona de flujo preferente / DPH',
+      carve: true,
+      color: '#0ea5e9',
+      law: 'RDPH art. 9bis/9ter — prohibición de nueva edificación en ZFP; servidumbre 5 m + policía 100 m',
+      wms: ['https://wms.mapama.gob.es/sig/agua/snczi/wms.aspx',
+        'https://wms.mapama.gob.es/sig/Agua/ZonasInundables/wms.aspx'],
+      wfs: ['https://wfs.mapama.gob.es/sig/agua/snczi/wfs.aspx'],
+      attribution: 'MITECO — SNCZI Zona de Flujo Preferente / DPH',
+    },
+    viasPecuarias: {
+      label: 'Vías pecuarias',
+      carve: true,
+      color: '#16a34a',
+      law: 'Ley 3/1995 — dominio público, anchura legal (cañada 75 m … vereda 20 m); no edificable',
+      wms: ['https://idem.madrid.org/geosgis/services/medio_ambiente/WMS_VIAS_PECUARIAS/MapServer/WmsServer'],
+      wfs: ['https://idem.madrid.org/geosgis/services/medio_ambiente/WFS_VIAS_PECUARIAS/MapServer/WFSServer',
+        'https://idem.madrid.org/geosgis/services/planea/WFS_VIAS_PECUARIAS/MapServer/WFSServer'],
+      attribution: 'Comunidad de Madrid — Vías Pecuarias (IDEM)',
+    },
+    montesPreservados: {
+      label: 'Montes preservados',
+      carve: true,
+      color: '#4d7c0f',
+      law: 'Ley 16/1995 Forestal CM — masas de encina/dehesa del anexo; tala/edificación restringidas',
+      wms: ['https://idem.madrid.org/geosgis/services/medio_ambiente/WMS_MONTES_PRESERVADOS/MapServer/WmsServer',
+        'https://idem.madrid.org/geosgis/services/medioambiente/MONTES_PRESERVADOS/MapServer/WMSServer'],
+      wfs: ['https://idem.madrid.org/geosgis/services/medio_ambiente/WFS_MONTES_PRESERVADOS/MapServer/WFSServer'],
+      attribution: 'Comunidad de Madrid — Montes Preservados (Ley 16/1995)',
+    },
+    hic: {
+      label: 'Hábitat 6310 (dehesa)',
+      carve: false,
+      color: '#ca8a04',
+      law: 'Directiva 92/43 — hábitat prioritario; desencadena evaluación ambiental',
+      wms: ['https://wms.mapama.gob.es/sig/Biodiversidad/HIC/wms.aspx',
+        'https://wms.mapama.gob.es/sig/Biodiversidad/TipoHIC/wms.aspx'],
+      wfs: ['https://wfs.mapama.gob.es/sig/Biodiversidad/HIC/wfs.aspx'],
+      attribution: 'MITECO — Tipos de Hábitat de Interés Comunitario',
+    },
+  },
   // ArcGIS dynamic MapServers rendered via REST export tiles.
   arcgis: {
     landClass: {

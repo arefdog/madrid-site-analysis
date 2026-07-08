@@ -29,6 +29,7 @@ import sites from './sites.js';
 import masterplan from './masterplan.js';
 import microparcels from './microparcels.js';
 import constraints from './constraints.js';
+import protectedLand from './protectedLand.js';
 
 export const layers = [
   base,
@@ -36,6 +37,7 @@ export const layers = [
   masterplan,
   microparcels,
   constraints,
+  protectedLand,
   scores,
   purchasingPower,
   airbnb,

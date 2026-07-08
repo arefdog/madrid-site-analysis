@@ -3,6 +3,7 @@ import sitesData from '../../data/sites.json';
 import planning from '../../data/planning-config.json';
 import { getBoaloRings } from './masterplan.js';
 import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
+import { protectedStore } from './protectedStore.js';
 
 // Micro-parcel subdivision v5: PROGRAM-DRIVEN terrain-generative masterplan.
 //
@@ -269,22 +270,27 @@ export default {
     const group = L.layerGroup();
     const renderer = L.canvas({ padding: 0.5 });
     let control = null;
+    let buildToken = 0; // guards against overlapping async rebuilds
 
     // The whole plan generator, parameterized by an (optional) program
     // override so the brief can be edited from the map card and the plan
-    // recalculated live.
+    // recalculated live. Re-entrant: a newer build supersedes an in-flight
+    // one (each await checks it's still the latest before mutating the group).
     const build = async (progOverride) => {
+      const myToken = ++buildToken;
+      const stale = () => myToken !== buildToken;
       const PROG = progOverride ?? planning.program;
       group.clearLayers();
       if (control) { control.remove(); control = null; }
       // Exactly the same geometry the masterplan-zones layer draws (shared,
       // memoized promise) — the grid and the zones can never diverge.
       const rings = await getBoaloRings();
-      if (!rings.length) return;
+      if (stale() || !rings.length) return;
       const rcUsed = BOALO?.cadastre?.refs?.[0]?.rc ?? null;
 
       const b = bbox(rings);
       const { elevAt, source } = await terrainModel(b);
+      if (stale()) return; // a newer build started during the terrain fetch
 
       const latRef = (b.latMin + b.latMax) / 2;
       const siteArea = rings.reduce((s, ring) => s + ringAreaM2(ring, latRef), 0);
@@ -297,8 +303,14 @@ export default {
       // Verified protection polygons ([lat,lng] rings) from planning-config —
       // the constraint-check layer exports these once the official services
       // confirm PRCAM zoning / vías pecuarias / DPH corridors.
-      const protPolys = (planning.exclusions?.protectionPolygons ?? [])
-        .filter((ring) => Array.isArray(ring) && ring.length >= 3);
+      // Static (verified, from config) + live (protected-land layers via the
+      // shared store) protection polygons. Toggling a Tier-1 layer updates the
+      // store and re-fires build() below, so the plan carves around real
+      // protected land — ZFP/DPH, vías pecuarias, montes preservados.
+      const protPolys = [
+        ...(planning.exclusions?.protectionPolygons ?? []),
+        ...protectedStore.allRings(),
+      ].filter((ring) => Array.isArray(ring) && ring.length >= 3);
 
       // --- Grid: clip every cell to the footprint. -------------------------
       // grid[r][c] row 0 = south, col 0 = west.
@@ -1151,7 +1163,13 @@ export default {
         '| edif', Math.round(totalEdif), 'm² | program:', ledger.program.map((p) => `${p.name}=${p.ok ? 'ok' : 'short'}`).join(', '),
         '| checks:', ledger.checks.map((c) => `${c.label}=${c.ok}`).join(', '));
     };
-    build();
+    // 'add' fires when the layer is toggled on (main.js instantiates then
+    // addTo). Build there — one build per activation — and re-lay whenever a
+    // protected-land layer adds/retracts an exclusion while we're on the map.
+    let onMap = false;
+    protectedStore.subscribe(() => { if (onMap) build(); });
+    group.on('add', () => { onMap = true; build(); });
+    group.on('remove', () => { onMap = false; });
 
     return group;
   },
