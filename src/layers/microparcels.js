@@ -255,8 +255,15 @@ export default {
   create() {
     const group = L.layerGroup();
     const renderer = L.canvas({ padding: 0.5 });
+    let control = null;
 
-    (async () => {
+    // The whole plan generator, parameterized by an (optional) program
+    // override so the brief can be edited from the map card and the plan
+    // recalculated live.
+    const build = async (progOverride) => {
+      const PROG = progOverride ?? planning.program;
+      group.clearLayers();
+      if (control) { control.remove(); control = null; }
       // Exactly the same geometry the masterplan-zones layer draws (shared,
       // memoized promise) — the grid and the zones can never diverge.
       const rings = await getBoaloRings();
@@ -312,7 +319,7 @@ export default {
       // --- Program brief (planning-config.json → program, v0.4). ------------
       // Land claimed per item accumulates real (clipped) cell areas; achieved
       // built scales the target GFA by the land actually secured.
-      const progItem = (pid) => planning.program.items.find((p) => p.id === pid);
+      const progItem = (pid) => PROG.items.find((p) => p.id === pid);
       const claimed = { hotel: 0, spa: 0, vpp: 0, equestrian: 0, residences: 0 };
       const mix = progItem('residences').unitMix.map((m) => ({ ...m, placed: 0 }));
       const builtOf = (pid) => {
@@ -337,6 +344,7 @@ export default {
         }
       }
       const mainRoad = [];
+      let roadLenM = 0, roadMaxGrade = 0, roadAvgGrade = 0, streetMaxGrade = 0;
       if (start) {
         // West leg: march inland, each step taking the flattest neighbour.
         let { r, c } = start;
@@ -356,24 +364,47 @@ export default {
           best.cell.kind = 'road';
           mainRoad.push(best.cell);
         }
-        // North leg: climb toward the upper meadow, again hugging contours.
+        // North leg: climb toward the upper meadow with grade-aware RAMPING —
+        // when every uphill step would exceed ~10% longitudinal grade, the
+        // road traverses laterally (switchback) instead of climbing straight.
         const northLeg = [];
         const northEnd = Math.round(rows * 0.85);
-        while (r < northEnd) {
-          r++;
-          let best = null;
-          for (const cc of [c - 1, c, c + 1]) {
-            const cand = at(r, cc);
-            if (!cand) continue;
-            const prev = at(r - 1, c);
-            const cost = Math.abs(cand.elev - (prev ? prev.elev : cand.elev)) + (cc === c ? 0 : 0.15);
-            if (!best || cost < best.cost) best = { cell: cand, cost };
+        const maxRiseM = cellSideM * 0.10; // 10% target grade per step
+        let guard = rows * 4;
+        while (r < northEnd && guard-- > 0) {
+          const here = at(r, c);
+          const options = [];
+          for (const [rr, cc, lateral] of [[r + 1, c - 1, 0], [r + 1, c, 0], [r + 1, c + 1, 0], [r, c - 1, 1], [r, c + 1, 1]]) {
+            const cand = at(rr, cc);
+            if (!cand || cand.kind === 'road') continue;
+            const rise = Math.abs(cand.elev - (here ? here.elev : cand.elev));
+            const over = Math.max(0, rise - maxRiseM);
+            options.push({ cand, rr, cc, cost: rise + over * 4 + lateral * maxRiseM * 1.2 });
           }
-          if (!best) break;
-          c = best.cell.c;
-          best.cell.kind = 'road';
-          mainRoad.push(best.cell);
-          northLeg.push(best.cell);
+          if (!options.length) break;
+          options.sort((p, q) => p.cost - q.cost);
+          const best = options[0];
+          r = best.rr;
+          c = best.cc;
+          best.cand.kind = 'road';
+          mainRoad.push(best.cand);
+          northLeg.push(best.cand);
+        }
+
+        // Longitudinal grade (%) along the carriageway from real cell-centre
+        // elevations and distances — the road-engineering readout. Amber and
+        // red fills flag the segments that would need earthworks or rerouting.
+        {
+          let prev = start, gradeSum = 0;
+          for (const rc of mainRoad) {
+            const d = distM(prev.cLat, prev.cLng, rc.cLat, rc.cLng);
+            rc.grade = d > 0 ? (Math.abs(rc.elev - prev.elev) / d) * 100 : 0;
+            roadLenM += d;
+            gradeSum += rc.grade * d;
+            if (rc.grade > roadMaxGrade) roadMaxGrade = rc.grade;
+            prev = rc;
+          }
+          roadAvgGrade = roadLenM > 0 ? gradeSum / roadLenM : 0;
         }
 
         const isFree = (x) => x && !x.kind && !x.zoneId && !x.protected;
@@ -423,7 +454,7 @@ export default {
           }
         }
 
-        // --- 4. VPP village: linear piece along the entry lane\'s south
+        // --- 4. VPP village: linear piece along the entry lane's south
         // frontage — the corner most connected to the town road — sized from
         // the program target; the meadow north of the lane stays free.
         const vppProg = progItem('vpp');
@@ -441,7 +472,7 @@ export default {
         // --- 5. Equestrian BEFORE the lots (reserves its meadow window before
         // the streets nibble it). The south meadow is shallow, so rectangular
         // paddock windows are searched (deep or wide) with an eastward bias —
-        // the deck\'s "flat east meadow".
+        // the deck's "flat east meadow".
         const eq = progItem('equestrian');
         const eqCells = Math.ceil(eq.landM2 / (cellSideM * cellSideM));
         let bestWin = null;
@@ -501,7 +532,7 @@ export default {
         // Bay-walker: places typed lots along a line of cells (a street or the
         // main lane). On a long street the far end is reserved for Grand first
         // (its landscape-edge position); a dead bay slides one cell so small
-        // free pockets aren\'t skipped.
+        // free pockets aren't skipped.
         const placeBays = (line, sides, prefEcho, withPaths) => {
           const grand = mix.find((m) => m.type === 'Grand');
           let end = line.length;
@@ -579,58 +610,72 @@ export default {
         };
 
         // Junctions: greedy along each leg with a minimum gap (streets need
-        // ~5 cells of separation so facing lots don\'t collide).
-        const junctions = [];
-        let gap = 99;
-        northLeg.forEach((j) => {
-          gap++;
-          if (gap >= 5 && isFree(at(j.r, j.c + 1))) {
-            junctions.push({ j, step: [0, 1], sides: [[1, 0], [-1, 0]] });
-            gap = 0;
-          }
-        });
-        gap = 99;
+        // ~5 cells of separation so facing lots don't collide). Runs up to
+        // twice — grade caps shorten streets, so a second pass lands new
+        // junctions on the flanks the first pass left free.
         const westLeg = mainRoad.filter((rc) => !northSet.has(rc));
-        westLeg.forEach((j) => {
-          gap++;
-          if (gap < 5) return;
-          // Probe both flanks; deep on both → a crossing: streets to the
-          // meadow AND the mid band.
-          const depthOf = (dir) => {
-            let d = 0;
-            while (d < 6 && isFree(at(j.r + dir * (d + 1), j.c))) d++;
-            return d;
-          };
-          const s = depthOf(-1), n = depthOf(1);
-          if (Math.max(s, n) < 3) return;
-          if (s >= 3) junctions.push({ j, step: [-1, 0], sides: [[0, 1], [0, -1]] });
-          if (n >= 3) junctions.push({ j, step: [1, 0], sides: [[0, 1], [0, -1]] });
-          gap = 0;
-        });
-        // Upper (higher-elevation) streets are laid first; alternating streets
-        // start their bay rhythm with Echo — the outcrop-shoulder placements.
-        junctions.sort((a, b) => b.j.elev - a.j.elev);
-        junctions.forEach(({ j, step, sides }, rank) => {
+        const collectJunctions = () => {
+          const junctions = [];
+          let gap = 99;
+          northLeg.forEach((j) => {
+            gap++;
+            if (gap >= 5 && isFree(at(j.r, j.c + 1))) {
+              junctions.push({ j, step: [0, 1], sides: [[1, 0], [-1, 0]] });
+              gap = 0;
+            }
+          });
+          gap = 99;
+          westLeg.forEach((j) => {
+            gap++;
+            if (gap < 5) return;
+            // Probe both flanks; deep on both → a crossing: streets to the
+            // meadow AND the mid band.
+            const depthOf = (dir) => {
+              let d = 0;
+              while (d < 6 && isFree(at(j.r + dir * (d + 1), j.c))) d++;
+              return d;
+            };
+            const s = depthOf(-1), n = depthOf(1);
+            if (Math.max(s, n) < 3) return;
+            if (s >= 3) junctions.push({ j, step: [-1, 0], sides: [[0, 1], [0, -1]] });
+            if (n >= 3) junctions.push({ j, step: [1, 0], sides: [[0, 1], [0, -1]] });
+            gap = 0;
+          });
+          // Upper (higher-elevation) streets are laid first; alternating
+          // streets start their bay rhythm with Echo — the outcrop shoulder.
+          junctions.sort((a, b) => b.j.elev - a.j.elev);
+          return junctions;
+        };
+        const layStreets = (junctions) => junctions.forEach(({ j, step, sides }, rank) => {
           if (mixRemaining() === 0) return;
           const street = [];
+          let prev = j;
           for (let i = 1; i <= 28; i++) {
             const cand = at(j.r + step[0] * i, j.c + step[1] * i);
             if (!isFree(cand) || cand.slope > 16) break;
+            const d = distM(prev.cLat, prev.cLng, cand.cLat, cand.cLng);
+            const g = d > 0 ? (Math.abs(cand.elev - prev.elev) / d) * 100 : 0;
+            if (g > 16) break; // the street ends where it would exceed max grade
             cand.kind = 'street';
+            cand.grade = g;
+            if (g > streetMaxGrade) streetMaxGrade = g;
+            prev = cand;
             street.push(cand);
           }
           placeBays(street, sides, rank % 2 === 0, true);
         });
-        // Fallbacks: unplaced units front the main lane (either side), then —
-        // for Echo only — scatter onto free stilt patches touching circulation
-        // (deck: units reached on foot/buggy).
+        layStreets(collectJunctions());
+        if (mixRemaining() > 0) layStreets(collectJunctions());
+        // Fallbacks: unplaced units front the main lane (either side), then
+        // scatter onto free lot-sized stilt patches touching circulation
+        // (deck: units reached on foot/buggy, no fences). Largest types claim
+        // ground first.
         if (mixRemaining() > 0) {
           placeBays(westLeg, [[-1, 0]], false, false);
           if (mixRemaining() > 0) placeBays(westLeg, [[1, 0]], false, false);
           if (mixRemaining() > 0) placeBays(northLeg, [[0, 1]], true, false);
         }
-        const echoType = mix.find((m) => m.type === 'Echo');
-        if (echoType && echoType.count - echoType.placed > 0) {
+        if (mixRemaining() > 0) {
           const touchesCirc = (x) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dr, dc]) => {
             const n = at(x.r + dr, x.c + dc);
             return n && (n.kind === 'road' || n.kind === 'street' || n.kind === 'path');
@@ -638,31 +683,122 @@ export default {
           const anchors = cells
             .filter((x) => isFree(x) && x.slope < 18 && touchesCirc(x))
             .sort((p, q) => p.slope - q.slope);
-          for (const a of anchors) {
-            if (echoType.count - echoType.placed <= 0) break;
-            for (const [h, w] of [[2, 3], [3, 2]]) {
-              const patch = [];
-              for (let dr = 0; dr < h; dr++) {
-                for (let dc = 0; dc < w; dc++) {
-                  const cand = at(a.r + dr, a.c + dc);
-                  if (isFree(cand) && cand.slope < 20) patch.push(cand);
+          const bySize = [...mix].sort((p, q) => q.lotCols * q.lotDepth - p.lotCols * p.lotDepth);
+          for (const type of bySize) {
+            for (const a of anchors) {
+              if (type.count - type.placed <= 0) break;
+              let placedIt = false;
+              for (const [h, w] of [[type.lotDepth, type.lotCols], [type.lotCols, type.lotDepth]]) {
+                if (placedIt) break;
+                // Try the anchor as each corner of the patch.
+                for (const [r0, c0] of [[0, 0], [0, 1 - w], [1 - h, 0], [1 - h, 1 - w]]) {
+                  const patch = [];
+                  for (let dr = 0; dr < h; dr++) {
+                    for (let dc = 0; dc < w; dc++) {
+                      const cand = at(a.r + r0 + dr, a.c + c0 + dc);
+                      if (isFree(cand) && cand.slope < 20) patch.push(cand);
+                    }
+                  }
+                  if (patch.length >= h * w - 1) {
+                    type.placed++;
+                    placedIt = true;
+                    const lotId = `${type.type[0]}-${String(type.placed).padStart(2, '0')}`;
+                    for (const cand of patch) {
+                      cand.zoneId = 'Z2';
+                      cand.lotId = lotId;
+                      cand.lotType = type.type;
+                      claimed.residences += cand.area;
+                    }
+                    lots.push({ id: lotId, type: type.type, cells: patch });
+                    break;
+                  }
                 }
-              }
-              if (patch.length >= h * w - 1) {
-                echoType.placed++;
-                const lotId = `E-${String(echoType.placed).padStart(2, '0')}`;
-                for (const cand of patch) {
-                  cand.zoneId = 'Z2';
-                  cand.lotId = lotId;
-                  cand.lotType = 'Echo';
-                  claimed.residences += cand.area;
-                }
-                lots.push({ id: lotId, type: 'Echo', cells: patch });
-                break;
               }
             }
           }
         }
+
+        // Still-unplaced units get PATH-SERVED clusters — the deck's own
+        // access model (units reached on foot/buggy from core parking): take
+        // the flattest free pocket anywhere on the dehesa and connect it to
+        // circulation with a pedestrian spur.
+        if (mixRemaining() > 0) {
+          const bySize = [...mix].sort((p, q) => q.lotCols * q.lotDepth - p.lotCols * p.lotDepth);
+          for (const type of bySize) {
+            while (type.count - type.placed > 0) {
+              let bestWin = null;
+              for (const [h, w] of [[type.lotDepth, type.lotCols], [type.lotCols, type.lotDepth]]) {
+                for (let r0 = 0; r0 <= rows - h; r0++) {
+                  for (let c0 = 0; c0 <= cols - w; c0++) {
+                    let sum = 0;
+                    const patch = [];
+                    for (let dr = 0; dr < h; dr++) {
+                      for (let dc = 0; dc < w; dc++) {
+                        const cand = at(r0 + dr, c0 + dc);
+                        if (isFree(cand) && cand.slope < 20) { patch.push(cand); sum += cand.slope; }
+                      }
+                    }
+                    if (patch.length < h * w - 1) continue;
+                    const score = sum / patch.length;
+                    if (!bestWin || score < bestWin.score) bestWin = { patch, score };
+                  }
+                }
+              }
+              if (!bestWin) break;
+              const anchor = bestWin.patch[0];
+              let nearest = null;
+              for (const cc of cells) {
+                if (cc.kind !== 'road' && cc.kind !== 'street' && cc.kind !== 'path') continue;
+                const d = distM(anchor.cLat, anchor.cLng, cc.cLat, cc.cLng);
+                if (!nearest || d < nearest.d) nearest = { cc, d };
+              }
+              if (!nearest || nearest.d > cellSideM * 14) break; // too remote to serve
+              type.placed++;
+              const lotId = `${type.type[0]}-${String(type.placed).padStart(2, '0')}`;
+              for (const cand of bestWin.patch) {
+                cand.zoneId = 'Z2';
+                cand.lotId = lotId;
+                cand.lotType = type.type;
+                claimed.residences += cand.area;
+              }
+              lots.push({ id: lotId, type: type.type, cells: bestWin.patch });
+              // Pedestrian spur: walk toward the nearest circulation cell,
+              // marking free cells as path (crossing the buffer is allowed —
+              // green uses and circulation crossings only).
+              let pr = anchor.r, pc = anchor.c, steps = 20;
+              while (steps-- > 0 && (pr !== nearest.cc.r || pc !== nearest.cc.c)) {
+                pr += Math.sign(nearest.cc.r - pr);
+                pc += Math.sign(nearest.cc.c - pc);
+                const cand = at(pr, pc);
+                if (!cand || cand.kind) break; // reached circulation or blocked
+                if (!cand.zoneId) cand.kind = 'path';
+              }
+            }
+          }
+        }
+
+        // Prune dead pavement: a street cell with no villa lot within two
+        // cells serves nothing — return it to dehesa. This drops unused
+        // second-pass streets and the tails beyond each street's last bay,
+        // and recovers open land.
+        let prunedStreetMax = 0;
+        for (const cell of cells) {
+          if (cell.kind !== 'street') continue;
+          let serves = false;
+          for (let dr = -2; dr <= 2 && !serves; dr++) {
+            for (let dc = -2; dc <= 2 && !serves; dc++) {
+              const n = at(cell.r + dr, cell.c + dc);
+              if (n && n.lotId) serves = true;
+            }
+          }
+          if (!serves) {
+            cell.kind = null;
+            cell.grade = undefined;
+          } else if (cell.grade > prunedStreetMax) {
+            prunedStreetMax = cell.grade;
+          }
+        }
+        streetMaxGrade = prunedStreetMax;
 
         // --- 7. Parking: Ley 9/2001 standard (1.5 pl/100 m² built, 25 m²/pl).
         // Basement levels under the hotel+spa core carry the demand; only a
@@ -671,8 +807,8 @@ export default {
         {
           const law = planning.legal.cessions;
           parkingRequiredM2 = (achievedBuilt() / 100) * law.parkingSpacesPer100m2Built * law.parkingSpaceM2;
-          parkingBasementM2 = (claimed.hotel + claimed.spa) * (planning.program.parkingBasementLevels ?? 2);
-          const surfaceNeed = Math.max(0, parkingRequiredM2 - parkingBasementM2) + (planning.program.visitorPocketM2 ?? 500);
+          parkingBasementM2 = (claimed.hotel + claimed.spa) * (PROG.parkingBasementLevels ?? 2);
+          const surfaceNeed = Math.max(0, parkingRequiredM2 - parkingBasementM2) + (PROG.visitorPocketM2 ?? 500);
           const candidates = cells
             .filter(isFree)
             .sort((p, q) =>
@@ -703,6 +839,14 @@ export default {
       }
 
       // --- 8. Render cells, then lot outlines on top. -----------------------
+      // Every polygon is registered with its base style and phase so the
+      // phase buttons on the card can ghost everything outside a phase.
+      const rendered = [];
+      const phaseOf = (cell) =>
+        cell.programId ? progItem(cell.programId).phase
+          : cell.lotId ? 'P1'
+            : cell.kind ? 'P1'
+              : null;
       const counts = { road: 0, street: 0, path: 0, parking: 0 };
       const rcNote =
         `<br><span style="color:#888;font-size:11px">Parcel ${rcUsed ?? 'footprint (Catastro offline)'}` +
@@ -718,15 +862,18 @@ export default {
           (Number.isFinite(cell.roadDist) ? `<br>Road access: ${cell.roadDist.toFixed(0)} m` : '') +
           rcNote;
 
+        const gradeFill = (g, base) => (g == null ? base : g > 10 ? '#b91c1c' : g > 6 ? '#b45309' : base);
+        const gradeNote = cell.grade != null ? `<br>Grade: ${cell.grade.toFixed(1)}%${cell.grade > 10 ? ' ⚠ earthworks/reroute' : cell.grade > 6 ? ' ◐ steep' : ''}` : '';
+
         let style, popup;
         if (cell.kind === 'road') {
           counts.road++;
-          style = KIND_STYLES.road;
-          popup = `<b>${ref} · Main access road</b><br>Contour-following; enters from Calle Berrocal (E).<br>${facts}`;
+          style = { ...KIND_STYLES.road, fillColor: gradeFill(cell.grade, KIND_STYLES.road.fillColor) };
+          popup = `<b>${ref} · Main access road</b><br>Contour-following; enters from Calle Berrocal (E).${gradeNote}<br>${facts}`;
         } else if (cell.kind === 'street') {
           counts.street++;
-          style = KIND_STYLES.street;
-          popup = `<b>${ref} · Residential street</b><br>Downhill branch serving the villa lots.<br>${facts}`;
+          style = { ...KIND_STYLES.street, fillColor: gradeFill(cell.grade, KIND_STYLES.street.fillColor) };
+          popup = `<b>${ref} · Residential street</b><br>Downhill branch serving the villa lots.${gradeNote}<br>${facts}`;
         } else if (cell.kind === 'path') {
           counts.path++;
           style = KIND_STYLES.path;
@@ -760,7 +907,9 @@ export default {
             popup = `<b>${ref} · ${zone.name} (${cell.zoneId})</b><br>Green meadow / dehesa.<br>${facts}`;
           }
         }
-        group.addLayer(L.polygon(cell.poly, { renderer, ...style }).bindPopup(popup));
+        const cellLayer = L.polygon(cell.poly, { renderer, ...style }).bindPopup(popup);
+        rendered.push({ layer: cellLayer, style, phase: phaseOf(cell) });
+        group.addLayer(cellLayer);
       }
 
       // Lot outlines: heavier border around each villa lot so the "house on a
@@ -787,9 +936,10 @@ export default {
           const outline = clipRingToRect(ring, rect);
           if (!outline.length) continue;
           lotExports.push({ id: lotId, type: lotCells[0].lotType, outline, areaM2: lotCells.reduce((s, x) => s + x.area, 0) });
-          group.addLayer(L.polygon(outline, {
-            renderer, color: '#9a3412', weight: 1.6, fill: false, interactive: false,
-          }));
+          const outlineStyle = { color: '#9a3412', weight: 1.6, fill: false, opacity: 1 };
+          const outlineLayer = L.polygon(outline, { renderer, ...outlineStyle, interactive: false });
+          rendered.push({ layer: outlineLayer, style: outlineStyle, phase: 'P1' });
+          group.addLayer(outlineLayer);
         }
       }
 
@@ -821,8 +971,10 @@ export default {
       // permeable; basement parking sits under the core's footprint. Lane
       // cells count 60% sealed — an ~8 m cell carries a ~5 m carriageway,
       // the rest is verge.
-      const footprints = planning.program.items.reduce(
-        (s, item) => s + (item.id === 'residences' ? residencesBuilt() : builtOf(item.id) / item.floors), 0);
+      // Residences count HALF-sealed: single-storey units on stilts (deck:
+      // no excavation, craned modules) — the ground beneath stays permeable.
+      const footprints = PROG.items.reduce(
+        (s, item) => s + (item.id === 'residences' ? residencesBuilt() * 0.5 : builtOf(item.id) / item.floors), 0);
       const sealed = footprints + 0.6 * (areas.road + areas.street) + areas.parking;
       const openShare = 1 - sealed / siteArea;
       const hotelProg = progItem('hotel');
@@ -857,12 +1009,28 @@ export default {
           { label: `Verde ≥ ${law.greenMinM2per100m2Built} m²/100 m² edif.`, value: `${Math.round(greenProvided).toLocaleString('en')} m²`, required: `${Math.round(greenRequired).toLocaleString('en')} m²`, ok: greenProvided >= greenRequired },
           { label: `VPP ≥ ${law.vppMinShareOfResidentialEdif * 100}% edif. residencial`, value: `${(vppShare * 100).toFixed(0)}%`, required: `${law.vppMinShareOfResidentialEdif * 100}%`, ok: vppShare >= law.vppMinShareOfResidentialEdif },
           { label: `Aparcamiento ≥ ${law.parkingSpacesPer100m2Built} pl/100 m² (sót.+sup.)`, value: `${Math.round(parkingProvided)} pl`, required: `${Math.round(parkingRequired)} pl`, ok: parkingProvided >= parkingRequired },
-          { label: `Suelo abierto ≥ ${planning.program.openShareMin * 100}%`, value: `${(openShare * 100).toFixed(0)}%`, required: `${planning.program.openShareMin * 100}%`, ok: openShare >= planning.program.openShareMin },
+          { label: `Suelo abierto ≥ ${PROG.openShareMin * 100}%`, value: `${(openShare * 100).toFixed(0)}%`, required: `${PROG.openShareMin * 100}%`, ok: openShare >= PROG.openShareMin },
+          { label: 'Pendiente vial ppal. ≤ 10%', value: `máx ${roadMaxGrade.toFixed(1)}%`, required: '10%', ok: roadMaxGrade <= 10 },
+          { label: 'Pendiente calles ≤ 16%', value: `máx ${streetMaxGrade.toFixed(1)}%`, required: '16%', ok: streetMaxGrade <= 16 },
         ],
+        viario: { roadLenM, roadAvgGrade, roadMaxGrade, streetMaxGrade },
+      };
+
+      // Phase filter: show one phase full-strength, dim the landscape, ghost
+      // the rest. 'all' restores every base style.
+      const setPhase = (p) => {
+        for (const e of rendered) {
+          if (p === 'all' || e.phase === p) e.layer.setStyle(e.style);
+          else if (e.phase === null) {
+            e.layer.setStyle({ ...e.style, fillOpacity: (e.style.fillOpacity ?? 0.2) * 0.5, opacity: 0.4 });
+          } else {
+            e.layer.setStyle({ ...e.style, fillOpacity: 0.05, opacity: 0.1 });
+          }
+        }
       };
 
       // --- 10. On-map summary control: cuadro, checks, export buttons. ------
-      const control = L.control({ position: 'bottomleft' });
+      control = L.control({ position: 'bottomleft' });
       control.onAdd = () => {
         const el = L.DomUtil.create('div', 'mp-summary');
         el.style.cssText = 'background:rgba(17,24,39,.92);color:#e5e7eb;padding:10px 12px;border-radius:8px;font:11px/1.5 system-ui;max-width:260px;box-shadow:0 2px 10px rgba(0,0,0,.4)';
@@ -876,12 +1044,33 @@ export default {
             : `${Math.round(p.achievedM2).toLocaleString('en')}/${Math.round(p.targetM2).toLocaleString('en')} m²`;
           return `<div>${p.ok ? '✅' : '◐'} ${p.name} <span style="color:#9ca3af">(${p.phase})</span>: <b>${val}</b></div>`;
         }).join('');
+        const v = ledger.viario;
+        const inp = (f, val, w = 44) =>
+          `<input data-f="${f}" type="number" value="${val}" min="0" style="width:${w}px;background:#111827;color:#e5e7eb;border:1px solid #4b5563;border-radius:4px;padding:1px 3px">`;
+        const baseIt = (id) => planning.program.items.find((x) => x.id === id);
+        const curMix = Object.fromEntries(mix.map((m) => [m.type, m.count]));
         el.innerHTML =
           `<b>Cuadro de superficies</b> · ${Math.round(siteArea).toLocaleString('en')} m²` +
           `<table style="border-collapse:collapse;width:100%;margin:4px 0">${rows}</table>` +
           `<div style="margin:4px 0">Edificabilidad total: <b>${Math.round(totalEdif).toLocaleString('en')} m²</b></div>` +
-          `<div style="margin:4px 0;border-top:1px solid #374151;padding-top:4px"><b>Programa v0.4 — objetivo → logrado</b>${programRows}</div>` +
+          `<div style="margin:2px 0;color:#9ca3af">Vial ppal. ${Math.round(v.roadLenM)} m · pdte. media ${v.roadAvgGrade.toFixed(1)}% · máx ${v.roadMaxGrade.toFixed(1)}% · calles máx ${v.streetMaxGrade.toFixed(1)}%</div>` +
+          `<div style="margin:4px 0;border-top:1px solid #374151;padding-top:4px"><b>Programa ${progOverride ? '(editado)' : 'v0.4'} — objetivo → logrado</b>${programRows}</div>` +
           `${checks}` +
+          `<div style="margin-top:6px"><b>Fase:</b> ` +
+          ['all', 'P1', 'P2', 'P3'].map((p) =>
+            `<button data-ph="${p}" style="margin-right:4px">${p === 'all' ? 'Todo' : p}</button>`).join('') +
+          `</div>` +
+          `<details style="margin-top:6px"><summary style="cursor:pointer"><b>Editar programa</b></summary>` +
+          `<div style="display:grid;grid-template-columns:auto auto;gap:3px 6px;margin:6px 0;align-items:center">` +
+          `<span>Hotel (keys)</span>${inp('keys', PROG.items.find((x) => x.id === 'hotel').keys)}` +
+          `<span>Spa+rest. (m²)</span>${inp('spa', Math.round(PROG.items.find((x) => x.id === 'spa').builtM2), 56)}` +
+          `<span>Echo (uds)</span>${inp('echo', curMix.Echo)}` +
+          `<span>Duo (uds)</span>${inp('duo', curMix.Duo)}` +
+          `<span>Grand (uds)</span>${inp('grand', curMix.Grand)}` +
+          `<span>VPP (m²)</span>${inp('vpp', Math.round(PROG.items.find((x) => x.id === 'vpp').builtM2), 56)}` +
+          `</div>` +
+          `<button data-x="rebuild">Recalcular plan</button> <button data-x="reset">Base v0.4</button>` +
+          `</details>` +
           `<div style="margin-top:6px;display:flex;gap:6px">` +
           `<button data-x="geojson">GeoJSON</button><button data-x="dxf">DXF (UTM30)</button><button data-x="csv">Cuadro CSV</button></div>` +
           `<div style="color:#9ca3af;margin-top:4px">Parámetros: ${planning.legal.cessions.source}. Zonas: hipótesis de trabajo.</div>`;
@@ -891,6 +1080,37 @@ export default {
           if (kind === 'geojson') download('boalo-masterplan.geojson', 'application/geo+json', cellsToGeoJSON(cells, rings, { rc: rcUsed, site_m2: Math.round(siteArea) }));
           if (kind === 'dxf') download('boalo-masterplan-utm30.dxf', 'application/dxf', cellsToDXF(cells, lotExports, rings));
           if (kind === 'csv') download('boalo-cuadro-superficies.csv', 'text/csv', ledgerToCSV(ledger));
+          if (kind === 'reset') build();
+          if (kind === 'rebuild') {
+            // Clone the BASE brief and patch it from the form; derived land
+            // needs scale at the base built:land ratios.
+            const val = (f) => Math.max(0, parseFloat(el.querySelector(`input[data-f="${f}"]`)?.value) || 0);
+            const ov = JSON.parse(JSON.stringify(planning.program));
+            const it = (id) => ov.items.find((x) => x.id === id);
+            const keys = Math.max(1, Math.round(val('keys')));
+            const hb = baseIt('hotel');
+            it('hotel').keys = keys;
+            it('hotel').builtM2 = Math.round(keys * (hb.builtM2 / hb.keys));
+            it('hotel').landM2 = Math.round(keys * (hb.landM2 / hb.keys));
+            const sb = baseIt('spa');
+            it('spa').builtM2 = val('spa');
+            it('spa').landM2 = Math.max(200, Math.round(val('spa') * (sb.landM2 / sb.builtM2)));
+            const vb = baseIt('vpp');
+            it('vpp').builtM2 = val('vpp');
+            it('vpp').landM2 = Math.max(200, Math.round(val('vpp') * (vb.landM2 / vb.builtM2)));
+            const m = (t) => it('residences').unitMix.find((x) => x.type === t);
+            m('Echo').count = Math.round(val('echo'));
+            m('Duo').count = Math.round(val('duo'));
+            m('Grand').count = Math.round(val('grand'));
+            build(ov);
+          }
+          const ph = ev.target?.dataset?.ph;
+          if (ph) {
+            setPhase(ph);
+            el.querySelectorAll('button[data-ph]').forEach((btn) => {
+              btn.style.fontWeight = btn.dataset.ph === ph ? '700' : '400';
+            });
+          }
         });
         return el;
       };
@@ -904,7 +1124,8 @@ export default {
         '| terrain:', source, '| parcel:', rcUsed ?? 'footprint', `| site ${Math.round(siteArea)} m²`,
         '| edif', Math.round(totalEdif), 'm² | program:', ledger.program.map((p) => `${p.name}=${p.ok ? 'ok' : 'short'}`).join(', '),
         '| checks:', ledger.checks.map((c) => `${c.label}=${c.ok}`).join(', '));
-    })();
+    };
+    build();
 
     return group;
   },
