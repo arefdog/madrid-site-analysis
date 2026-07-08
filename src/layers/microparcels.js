@@ -300,17 +300,18 @@ export default {
       const rows = Math.ceil((b.latMax - b.latMin) / dLat);
       const cols = Math.ceil((b.lngMax - b.lngMin) / dLng);
 
-      // Verified protection polygons ([lat,lng] rings) from planning-config —
-      // the constraint-check layer exports these once the official services
-      // confirm PRCAM zoning / vías pecuarias / DPH corridors.
-      // Static (verified, from config) + live (protected-land layers via the
-      // shared store) protection polygons. Toggling a Tier-1 layer updates the
-      // store and re-fires build() below, so the plan carves around real
-      // protected land — ZFP/DPH, vías pecuarias, montes preservados.
-      const protPolys = [
-        ...(planning.exclusions?.protectionPolygons ?? []),
-        ...protectedStore.allRings(),
-      ].filter((ring) => Array.isArray(ring) && ring.length >= 3);
+      // Protection polygons, two sources:
+      //  • planning-config exclusions — verified/baked polygons. Two accepted
+      //    shapes: a plain [lat,lng] ring, or a tagged { source, ring } object
+      //    (written by scripts/fetch-constraints.mjs --apply so each polygon
+      //    knows which dataset it came from).
+      //  • the live protected-land layers via the shared store (toggling one
+      //    re-fires build() below, so the plan carves around it live).
+      const configPolys = (planning.exclusions?.protectionPolygons ?? [])
+        .map((p) => (Array.isArray(p) ? p : p?.ring))
+        .filter((ring) => Array.isArray(ring) && ring.length >= 3);
+      const protPolys = [...configPolys, ...protectedStore.allRings()]
+        .filter((ring) => Array.isArray(ring) && ring.length >= 3);
 
       // --- Grid: clip every cell to the footprint. -------------------------
       // grid[r][c] row 0 = south, col 0 = west.

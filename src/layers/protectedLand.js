@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import { SOURCES } from '../config.js';
+import planning from '../../data/planning-config.json';
 import { getBoaloRings } from './masterplan.js';
 import { protectedStore } from './protectedStore.js';
 
@@ -131,15 +132,20 @@ function makeLayer(id, cfg) {
     create() {
       const group = L.layerGroup();
       const badge = L.control({ position: 'topright' });
-      let badgeText = `${cfg.label}: cargando…`;
+      // Two independent states so the badge never says "WMS activa" when the
+      // WMS view actually failed too.
+      const state = { view: '…', carve: '…' };
       badge.onAdd = () => {
         const el = L.DomUtil.create('div', 'prot-badge');
-        el.style.cssText = `background:${cfg.color};color:#fff;padding:3px 8px;border-radius:6px;font:11px/1.4 system-ui;box-shadow:0 1px 4px rgba(0,0,0,.35);max-width:240px`;
-        badge.refresh = () => { el.innerHTML = badgeText; };
+        el.style.cssText = `background:${cfg.color};color:#fff;padding:3px 8px;border-radius:6px;font:11px/1.4 system-ui;box-shadow:0 1px 4px rgba(0,0,0,.35);max-width:250px`;
+        badge.refresh = () => {
+          el.innerHTML = `<b>${cfg.label}</b><br>vista: ${state.view} · ${cfg.carve ? 'recorte' : 'aviso'}: ${state.carve}`;
+        };
         badge.refresh();
         return el;
       };
-      const setBadge = (t) => { badgeText = t; if (badge.refresh) badge.refresh(); };
+      const setView = (t) => { state.view = t; if (badge.refresh) badge.refresh(); };
+      const setCarve = (t) => { state.carve = t; if (badge.refresh) badge.refresh(); };
       const attachBadge = () => { if (group._map) badge.addTo(group._map); };
       group.on('add', attachBadge);
       group.on('remove', () => {
@@ -148,7 +154,7 @@ function makeLayer(id, cfg) {
         if (cfg.carve) protectedStore.clear(id);
       });
 
-      // 1. WMS view overlay (works wherever the service does).
+      // 1. WMS view overlay (image tiles — no CORS constraint).
       (async () => {
         for (const url of cfg.wms || []) {
           try {
@@ -163,40 +169,60 @@ function makeLayer(id, cfg) {
               format: 'image/png', transparent: true, version: '1.1.1',
               opacity: 0.45, attribution: cfg.attribution,
             }));
-            break;
+            setView('✅ activa');
+            return;
           } catch { /* next wms candidate */ }
         }
+        setView('❌ no disponible');
       })();
 
-      // 2. WFS carve: draw the intersecting polygons and feed the engine.
+      // 2. Carve. Priority order:
+      //    a) baked polygons in planning-config (server-side, reliable) — the
+      //       engine already carves these; the layer just reports it.
+      //    b) live WFS (best-effort; often CORS-blocked from the browser).
       (async () => {
         try {
           const parcelRings = await getBoaloRings();
           if (!parcelRings.length) throw new Error('sin parcela');
           const bbox = bboxOf(parcelRings);
+
+          // (a) Baked polygons tagged with this source id in planning-config.
+          const baked = (planning.exclusions?.protectionPolygons ?? [])
+            .filter((p) => p && p.source === id && Array.isArray(p.ring));
+          if (baked.length) {
+            const rings = baked.map((p) => p.ring);
+            drawAndCarve(rings, ' (config)');
+            return;
+          }
+
+          // (b) Live WFS.
           const rings = await fetchCarveRings(cfg, parcelRings, bbox);
           if (!rings.length) {
-            setBadge(`${cfg.label}: ✳️ sin afección en la parcela`);
+            setCarve('✳️ sin afección');
             if (cfg.carve) protectedStore.clear(id);
             return;
           }
-          for (const ring of rings) {
-            group.addLayer(L.polygon(ring, {
-              color: cfg.color, weight: 2, fillColor: cfg.color, fillOpacity: 0.3,
-              dashArray: cfg.carve ? null : '4 3',
-            }).bindPopup(`<b>${cfg.label}</b><br>${cfg.law}${cfg.carve ? '<br><b>Recortado del plan.</b>' : '<br>Marcado (sin recorte automático).'}`));
-          }
-          if (cfg.carve) {
-            protectedStore.set(id, rings, cfg.label);
-            setBadge(`${cfg.label}: ⚠️ ${rings.length} polígono(s) — recortado del plan`);
-          } else {
-            setBadge(`${cfg.label}: ⚠️ ${rings.length} polígono(s) — marcado (aviso)`);
-          }
+          drawAndCarve(rings, ' (WFS en vivo)');
         } catch (e) {
-          setBadge(`${cfg.label}: ❌ WFS no disponible (vista WMS activa)`);
+          setCarve('❌ WFS no disponible — usa `npm run data:constraints -- --apply`');
           console.warn(`[protectedLand:${id}]`, e.message);
         }
       })();
+
+      function drawAndCarve(rings, srcNote) {
+        for (const ring of rings) {
+          group.addLayer(L.polygon(ring, {
+            color: cfg.color, weight: 2, fillColor: cfg.color, fillOpacity: 0.3,
+            dashArray: cfg.carve ? null : '4 3',
+          }).bindPopup(`<b>${cfg.label}</b><br>${cfg.law}${cfg.carve ? '<br><b>Recortado del plan.</b>' : '<br>Marcado (sin recorte automático).'}`));
+        }
+        if (cfg.carve) {
+          protectedStore.set(id, rings, cfg.label);
+          setCarve(`⚠️ ${rings.length} polígono(s) — recortado${srcNote}`);
+        } else {
+          setCarve(`⚠️ ${rings.length} polígono(s) — marcado${srcNote}`);
+        }
+      }
 
       return group;
     },

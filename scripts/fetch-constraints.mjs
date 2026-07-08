@@ -15,6 +15,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { SOURCES } from '../src/config.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const sites = JSON.parse(readFileSync(join(root, 'data/sites.json'), 'utf8'));
@@ -113,8 +114,90 @@ const report = {
   parcel: boalo.cadastre.refs[0].rc,
   samples: samples.length,
   sources: {},
+  // Tagged carve polygons: { source, ring:[[lat,lng],…] }. The pixel engine
+  // accepts this shape (and plain rings) in exclusions.protectionPolygons.
   protectionPolygons: [],
 };
+
+// Dedup by source + first vertex; overlap-with-parcel is enforced by callers.
+function pushPoly(source, ring) {
+  if (!Array.isArray(ring) || ring.length < 3) return;
+  const key = `${source}:${ring[0][0].toFixed(5)},${ring[0][1].toFixed(5)}:${ring.length}`;
+  if (report.protectionPolygons.some((p) => p._k === key)) return;
+  report.protectionPolygons.push({ source, ring, _k: key });
+}
+
+function ringsOverlap(a, b) {
+  const inside = (lat, lng, ring) => {
+    let r = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const yi = ring[i][0], xi = ring[i][1], yj = ring[j][0], xj = ring[j][1];
+      if (((yi > lat) !== (yj > lat)) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) r = !r;
+    }
+    return r;
+  };
+  return a.some(([lat, lng]) => inside(lat, lng, b)) || b.some(([lat, lng]) => inside(lat, lng, a));
+}
+
+// GML ring parser tolerant of posList / coordinates / pos encodings.
+function parseWfsRings(gml) {
+  const rings = [];
+  const push = (nums) => {
+    if (nums.length < 6) return;
+    const latFirst = Math.abs(nums[0]) <= 90 && Math.abs(nums[1]) > 90 ? true
+      : Math.abs(nums[1]) <= 90 && Math.abs(nums[0]) > 90 ? false
+        : Math.abs(nums[0]) <= Math.abs(nums[1]);
+    const ring = [];
+    for (let i = 0; i + 1 < nums.length; i += 2) ring.push(latFirst ? [nums[i], nums[i + 1]] : [nums[i + 1], nums[i]]);
+    if (ring.length >= 3) rings.push(ring);
+  };
+  for (const m of gml.matchAll(/<gml:posList[^>]*>([\s\S]*?)<\/gml:posList>/g)) {
+    push(m[1].trim().split(/\s+/).map(Number).filter((n) => !Number.isNaN(n)));
+  }
+  for (const m of gml.matchAll(/<gml:coordinates[^>]*>([\s\S]*?)<\/gml:coordinates>/g)) {
+    push(m[1].trim().split(/[\s,]+/).map(Number).filter((n) => !Number.isNaN(n)));
+  }
+  return rings;
+}
+
+async function wfsResolve(candidates) {
+  for (const url of candidates) {
+    try {
+      const res = await fetch(`${url}?service=WFS&request=GetCapabilities`);
+      if (!res.ok) continue;
+      const text = await res.text();
+      const types = [...text.matchAll(/<(?:wfs:)?Name>([^<]+)<\/(?:wfs:)?Name>/g)]
+        .map((m) => m[1].trim()).filter((n) => n && !/^[A-Z]{3,4}$/.test(n));
+      if (types.length) return { url, types: [...new Set(types)] };
+    } catch { /* next */ }
+  }
+  return null;
+}
+
+async function fetchWfsRings(candidates, bb) {
+  const svc = await wfsResolve(candidates);
+  if (!svc) throw new Error('no WFS candidate answered');
+  const found = [];
+  for (const typeName of svc.types.slice(0, 4)) {
+    for (const [ver, box] of [
+      ['2.0.0', `${bb.latMin},${bb.lngMin},${bb.latMax},${bb.lngMax},urn:ogc:def:crs:EPSG::4326`],
+      ['1.1.0', `${bb.lngMin},${bb.latMin},${bb.lngMax},${bb.latMax},EPSG:4326`],
+    ]) {
+      try {
+        const p = new URLSearchParams({
+          service: 'WFS', version: ver, request: 'GetFeature',
+          [ver.startsWith('2') ? 'typeNames' : 'typeName']: typeName,
+          srsName: 'EPSG:4326', bbox: box, count: '200', maxFeatures: '200',
+        });
+        const res = await fetch(`${svc.url}?${p}`);
+        if (!res.ok) continue;
+        const rings = parseWfsRings(await res.text());
+        if (rings.length) { found.push(...rings); break; }
+      } catch { /* next version */ }
+    }
+  }
+  return found;
+}
 
 // SIU
 try {
@@ -128,9 +211,7 @@ try {
     if (hit?.geometry?.rings && /NO URBANIZABLE|PROTE/i.test(cls)) {
       for (const ring of hit.geometry.rings) {
         const latlng = ring.map(([x, y]) => [y, x]);
-        if (!report.protectionPolygons.some((p) => p.length === latlng.length && p[0][0] === latlng[0][0])) {
-          report.protectionPolygons.push(latlng);
-        }
+        pushPoly('siu', latlng);
       }
     }
   }
@@ -155,19 +236,42 @@ for (const [id, candidates] of Object.entries(WMS_SOURCES)) {
   }
 }
 
+// WFS geometry — the reliable carve. Runs server-side (no CORS), fetches the
+// Tier-1 protected polygons intersecting the parcel and bakes them into
+// report.protectionPolygons tagged with their source. This is what makes the
+// carve work on the static deployed site for every visitor.
+for (const [id, cfg] of Object.entries(SOURCES.protectedLand)) {
+  if (!cfg.carve) continue;
+  try {
+    const rings = (await fetchWfsRings(cfg.wfs || [], bbox))
+      .filter((ring) => ringsOverlap(ring, boalo.footprint));
+    for (const ring of rings) pushPoly(id, ring);
+    report.sources[`wfs_${id}`] = { count: rings.length };
+    console.log(`wfs ${id}: ${rings.length} polígono(s) que tocan la parcela`);
+  } catch (e) {
+    report.sources[`wfs_${id}`] = { error: String(e.message || e) };
+    console.warn(`wfs ${id} failed:`, e.message);
+  }
+}
+
+// Strip the internal dedup key before writing anything out.
+const cleanPolys = report.protectionPolygons.map(({ source, ring }) => ({ source, ring }));
+report.protectionPolygons = cleanPolys;
+
 const out = join(root, 'data/constraints-boalo.json');
 writeFileSync(out, JSON.stringify(report, null, 2));
 console.log('wrote', out);
 
-if (APPLY && report.protectionPolygons.length) {
+if (APPLY && cleanPolys.length) {
   const cfgPath = join(root, 'data/planning-config.json');
   const cfg = JSON.parse(readFileSync(cfgPath, 'utf8'));
-  cfg.exclusions.protectionPolygons = report.protectionPolygons;
+  cfg.exclusions.protectionPolygons = cleanPolys;
+  const bySrc = cleanPolys.reduce((m, p) => ({ ...m, [p.source]: (m[p.source] || 0) + 1 }), {});
   cfg.exclusions.protectionPolygonsNote =
-    `Polígonos SNU/protección del SIU (identify, ${report.generated.slice(0, 10)}) — vía scripts/fetch-constraints.mjs --apply. Contrastar con la ficha NNSS.`;
+    `Polígonos de protección oficiales (SIU + WFS ${report.generated.slice(0, 10)}): ${Object.entries(bySrc).map(([s, n]) => `${s}×${n}`).join(', ')} — vía scripts/fetch-constraints.mjs --apply. El motor de píxeles los excluye. Contrastar con la ficha NNSS.`;
   cfg.exclusions.status = 'verified-service';
   writeFileSync(cfgPath, JSON.stringify(cfg, null, 2));
-  console.log(`applied ${report.protectionPolygons.length} protection polygons to planning-config.json`);
+  console.log(`applied ${cleanPolys.length} protection polygons to planning-config.json (${JSON.stringify(bySrc)})`);
 } else if (APPLY) {
   console.log('nothing to apply (no protected/SNU polygons returned)');
 }
