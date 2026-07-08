@@ -229,4 +229,9 @@ function makeLayer(id, cfg) {
   };
 }
 
-export default Object.entries(SOURCES.protectedLand).map(([id, cfg]) => makeLayer(id, cfg));
+// Only sources whose map view is reliable become panel toggles. Sources with
+// mapLayer:false (WMS view flaky from the browser) are still fetched by the
+// bake workflow as carve sources — they shape the plan without a dead toggle.
+export default Object.entries(SOURCES.protectedLand)
+  .filter(([, cfg]) => cfg.mapLayer !== false)
+  .map(([id, cfg]) => makeLayer(id, cfg));
