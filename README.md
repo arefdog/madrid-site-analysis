@@ -80,6 +80,7 @@ authoritative sources:
 | Land classification (urbano/urbanizable/rústico) | **live** | SIU *Clases de Suelo* (Min. Vivienda) — ArcGIS export tiles |
 | Transport access | rail tiles only | CRTM stations + walk/drive isochrones (OpenRouteService) |
 | Slope classes | not started | Derive classified slope bands from EU-DEM |
+| Constraint check (SIU class, PRCAM/ENP, Red Natura, vías pecuarias, DPH) | **live** | Live browser queries + `npm run data:constraints` (Node twin; `--apply` feeds verified protection polygons into the pixel engine) |
 
 ### Language toggle
 

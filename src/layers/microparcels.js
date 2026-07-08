@@ -130,6 +130,19 @@ function ringAreaM2(ring, latRef) {
   return Math.abs(sum) / 2;
 }
 
+// Ray-casting point-in-ring test (ring = [[lat,lng], …]).
+function pointInRing(lat, lng, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const yi = ring[i][0], xi = ring[i][1];
+    const yj = ring[j][0], xj = ring[j][1];
+    if (((yi > lat) !== (yj > lat)) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
 function distM(aLat, aLng, bLat, bLng) {
   const dLat = (aLat - bLat) * M_PER_DEG_LAT;
   const dLng = (aLng - bLng) * M_PER_DEG_LAT * Math.cos((aLat * Math.PI) / 180);
@@ -281,6 +294,12 @@ export default {
       const rows = Math.ceil((b.latMax - b.latMin) / dLat);
       const cols = Math.ceil((b.lngMax - b.lngMin) / dLng);
 
+      // Verified protection polygons ([lat,lng] rings) from planning-config —
+      // the constraint-check layer exports these once the official services
+      // confirm PRCAM zoning / vías pecuarias / DPH corridors.
+      const protPolys = (planning.exclusions?.protectionPolygons ?? [])
+        .filter((ring) => Array.isArray(ring) && ring.length >= 3);
+
       // --- Grid: clip every cell to the footprint. -------------------------
       // grid[r][c] row 0 = south, col 0 = west.
       const grid = Array.from({ length: rows }, () => Array(cols).fill(null));
@@ -300,14 +319,19 @@ export default {
             if (area < 2) continue;
             const cLat = (rect.latMin + rect.latMax) / 2;
             const cLng = (rect.lngMin + rect.lngMax) / 2;
+            // Two protection tests: the perimeter buffer (fire strip +
+            // road setback) and any VERIFIED protection polygons from
+            // planning-config (PRCAM zoning, vías pecuarias, DPH — filled by
+            // the constraint-check layer's export). Both exclude development.
+            const inBuffer = boundaryDistM(cLat, cLng, rings, latRef) < (planning.exclusions?.perimeterBufferM ?? 0);
+            const inProtPoly = !inBuffer && protPolys.some((ring) => pointInRing(cLat, cLng, ring));
             const cell = {
               r, c, poly: clipped, area, cLat, cLng,
               elev: elevAt(cLat, cLng),
               slope: slopeDegAt(elevAt, cLat, cLng),
               kind: null, zoneId: null, lotId: null,
-              // Perimeter buffer (fire self-protection strip + road setback):
-              // no development, only green uses and circulation crossings.
-              protected: boundaryDistM(cLat, cLng, rings, latRef) < (planning.exclusions?.perimeterBufferM ?? 0),
+              protected: inBuffer || inProtPoly,
+              protReason: inProtPoly ? 'polygon' : inBuffer ? 'buffer' : null,
             };
             grid[r][c] = cell;
             cells.push(cell);
@@ -885,7 +909,9 @@ export default {
         } else if (cell.protected) {
           counts.protected = (counts.protected || 0) + 1;
           style = KIND_STYLES.protected;
-          popup = `<b>${ref} · Perimeter buffer</b><br>${planning.exclusions.perimeterBufferNote}<br>${facts}`;
+          popup = cell.protReason === 'polygon'
+            ? `<b>${ref} · Protección verificada</b><br>Dentro de un polígono de protección de planning-config (PRCAM / vía pecuaria / DPH). Sin desarrollo.<br>${facts}`
+            : `<b>${ref} · Perimeter buffer</b><br>${planning.exclusions.perimeterBufferNote}<br>${facts}`;
         } else {
           const zone = ZONES[cell.zoneId];
           counts[cell.zoneId] = (counts[cell.zoneId] || 0) + 1;

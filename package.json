@@ -2,7 +2,7 @@
   "name": "madrid-site-analysis",
   "version": "0.1.0",
   "private": true,
-  "description": "BYLD — interactive map to screen plots and areas across the Comunidad de Madrid (purchasing power, transport, roads, topography, zoning).",
+  "description": "BYLD \u2014 interactive map to screen plots and areas across the Comunidad de Madrid (purchasing power, transport, roads, topography, zoning).",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,8 @@
     "data:airbnb": "node scripts/build-airbnb.mjs",
     "data:hotels": "node scripts/build-hotels.mjs",
     "data:scores": "node scripts/build-scores.mjs",
-    "data:terrain": "node scripts/bake-terrain.mjs"
+    "data:terrain": "node scripts/bake-terrain.mjs",
+    "data:constraints": "node scripts/fetch-constraints.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

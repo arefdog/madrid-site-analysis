@@ -78,6 +78,40 @@ export const SOURCES = {
       attribution: 'MITECO — SNCZI zonas inundables',
     },
   },
+  // Constraint-verification services (live queries from the browser). Layer
+  // names are NOT hardcoded — the constraints layer reads each service's
+  // GetCapabilities and uses whatever layers it advertises, so exact layer
+  // naming drift on the server side degrades gracefully. Each source lists
+  // candidate endpoints; the first one whose capabilities parse wins.
+  constraints: {
+    // Espacios Naturales Protegidos (incl. Parque Regional Cuenca Alta del
+    // Manzanares — the PRCAM overlay that likely covers the Boalo parcel).
+    enp: {
+      candidates: [
+        'https://wms.mapama.gob.es/sig/Biodiversidad/ENP/wms.aspx',
+      ],
+      attribution: 'MITECO — Espacios Naturales Protegidos',
+    },
+    // Red Natura 2000 (ZEC/LIC + ZEPA) — the EU-level protection overlay.
+    redNatura: {
+      candidates: [
+        'https://wms.mapama.gob.es/sig/Biodiversidad/RedNatura/wms.aspx',
+        'https://wms.mapama.gob.es/sig/Biodiversidad/RedNaturaLIC/wms.aspx',
+        'https://wms.mapama.gob.es/sig/Biodiversidad/RedNaturaZEPA/wms.aspx',
+      ],
+      attribution: 'MITECO — Red Natura 2000',
+    },
+    // Vías pecuarias (Comunidad de Madrid, IDEM/PLANEA) — endpoint naming on
+    // idem.madrid.org shifts between publications, hence several candidates.
+    viasPecuarias: {
+      candidates: [
+        'https://idem.madrid.org/geosgis/services/medio_ambiente/WMS_VIAS_PECUARIAS/MapServer/WmsServer',
+        'https://idem.madrid.org/geosgis/services/planea/WMS_VIAS_PECUARIAS/MapServer/WmsServer',
+        'https://idem.madrid.org/geosgis/services/medioambiente/VIAS_PECUARIAS/MapServer/WMSServer',
+      ],
+      attribution: 'Comunidad de Madrid — Vías Pecuarias (IDEM)',
+    },
+  },
   // ArcGIS dynamic MapServers rendered via REST export tiles.
   arcgis: {
     landClass: {
