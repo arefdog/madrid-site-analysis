@@ -98,7 +98,7 @@
         "capacity": "Branded residences 5,392 m² · hotel 5,286 m² (44 keys) · spa + restaurant 5,110 m² · VPP 3,524 m² · parking 1,762 m²",
         "density": "25% buildable ratio · 75% (52,863 m²) held as dehesa & trails",
         "cessions": null,
-        "path": "Deck assumes modular permitting, subject to municipal approval — but the 25% / 17,621 m² buildability has no identified basis in any planning instrument (promoter aspiration, not entitlement). VPP flag: 3,524 m² ≈ 20% of total vs Madrid statutory 30% of residential buildability (Ley 9/2001).",
+        "path": "Deck assumes modular permitting, subject to municipal approval — but the 25% / 17,621 m² buildability has no identified basis in any planning instrument (promoter aspiration, not entitlement). VPP flag: the deck's 3,524 m² = ~40% of the 8,916 m² residential component — right at the line, but the statutory floor ROSE from 30% to 40% of residential edificability for nueva urbanización (Ley 12/2023 estatal, art. 20.1.b TRLSRU), so there is now zero margin; any terrain shortfall on the VPP parcel (as the engine shows) pushes it non-compliant.",
         "constraints": "PRIMARY: likely PRCAM (parque regional) protected zoning — urbanization precluded in the A.2/B1 zones around El Boalo. Also: P.N. Guadarrama ZPP/PRUG buffer; Ley 7/2024 extends infraction/restoration window on protected land to 15 years; active local opposition (Ecologistas en Acción) with CM escalation track record against NNSS upzonings (Miragallos case, 2025)."
       },
       "market": {
@@ -199,7 +199,7 @@
         ],
         "codeBasis": [
           "Entitlement instrument TBD (gating P0): no urbanizable sector exists today — schema is drawn to Ley 9/2001 sector standards so it survives whichever instrument is secured (Plan Parcial after reclassification, or convenio)",
-          "Ley 9/2001 del Suelo CM (as amended by Ley 7/2024): VPP reserve ≥30% of RESIDENTIAL edificability — deck VPP 3,524 m² = 39.5% of the 8,916 m² residential component (residences + VPP), compliant IF branded residences classify as vivienda; if keyed as hospitality the calc changes. Plus: 10% aprovechamiento cession to the ayuntamiento; redes locales ~30 m²/100 m² built; parking ≥1.5 plazas/100 m² (met subterranean at core)",
+          "VPP reserve ≥40% of RESIDENTIAL edificability for nueva urbanización — the Ley 12/2023 estatal (por el derecho a la vivienda) raised the art. 20.1.b TRLSRU floor from 30% to 40% (20% in suelo urbano no consolidado); the CM (Ley 9/2001, mod. Ley 3/2024) sits on top of that floor. Deck VPP 3,524 m² = 39.5% of the 8,916 m² residential component (residences + VPP) — essentially at, not above, the new line, and only IF branded residences classify as vivienda (if keyed as hospitality the calc changes). Plus: 10% aprovechamiento cession to the ayuntamiento; redes locales ~30 m²/100 m² built; parking ≥1.5 plazas/100 m² (met subterranean at core)",
           "NNSS El Boalo 1997/98 height culture: B+1 / ~6.5–7 m in unifamiliar zones — Echo/Duo/Grand (single storey on stilts) comply by design; the 44-key hotel volume needs its own sector ordinance",
           "Overlays prevail over municipal code: PRCAM PORN zoning + P.N. Guadarrama PRUG/ZPP; Ley 7/2024 15-year infraction window on protected land",
           "CTE all DBs + wildland-urban interface fire criteria (DB-SI + Plan INFOMA): defensible-space strip around each unit in the dehesa, water reserve for hydrants at the core"

@@ -5,10 +5,11 @@
     "cessions": {
       "redesLocalesM2per100m2Built": 30,
       "greenMinM2per100m2Built": 15,
-      "vppMinShareOfResidentialEdif": 0.30,
+      "vppMinShareOfResidentialEdif": 0.40,
+      "vppMinShareUrbanoNoConsolidado": 0.20,
       "parkingSpacesPer100m2Built": 1.5,
       "parkingSpaceM2": 25,
-      "source": "Ley 9/2001 del Suelo CM, art. 36.6 (redes locales, zonas verdes, aparcamiento); reserva 30% VPP en suelo urbanizable (redacción vigente)",
+      "source": "Ley 9/2001 del Suelo CM, art. 36.6 (redes locales, zonas verdes, aparcamiento). Reserva VPP: la Ley 12/2023, de 24 de mayo, por el derecho a la vivienda, elevó el mínimo estatal del art. 20.1.b TRLSRU (RDL 7/2015) del 30% al 40% de la edificabilidad residencial en actuaciones de NUEVA URBANIZACIÓN (suelo urbanizable) — el caso Boalo — y 20% en suelo urbano no consolidado. Suelo estatal mínimo; la CM (Ley 9/2001, mod. Ley 3/2024) no puede bajar de ahí.",
       "status": "verified-law"
     },
     "classification": {
@@ -20,10 +21,50 @@
   },
 
   "zoning": {
-    "Z1": { "edifM2PerM2": 1.0, "floors": 2, "use": "hotelero", "status": "working-assumption" },
+    "Z1": { "edifM2PerM2": 2.0, "floors": 2, "use": "hotelero", "note": "Compact 2-storey volumes on a tight strip — GFA ≈ 2× su banda de suelo; el resto del programa de llegada queda en Z5", "status": "working-assumption" },
     "Z2": { "edifM2PerM2": 0.35, "floors": 2, "minLotM2": 300, "use": "residencial unifamiliar", "status": "working-assumption" },
     "Z3": { "edifM2PerM2": 0.6, "floors": 2, "use": "residencial VPP", "status": "working-assumption" },
     "Z4": { "edifM2PerM2": 0.05, "floors": 1, "use": "ecuestre / dotacional privado", "status": "working-assumption" }
+  },
+
+  "program": {
+    "_comment": "BYLD program brief v0.4 — refined from the deck v0.3 envelope recorded in sites.json (boalo-estate.masterplan). These targets DRIVE the micro-parcel engine; the on-map ledger reconciles achieved vs target so any shortfall is visible, not hidden. builtM2 = designed gross floor area; landM2 = ground the engine reserves for the item; footprint (builtM2/floors) feeds the open-land check.",
+    "openShareMin": 0.75,
+    "parkingBasementLevels": 2,
+    "visitorPocketM2": 500,
+    "items": [
+      {
+        "id": "hotel", "zone": "Z1", "name": "Landscape hotel", "phase": "P2",
+        "keys": 44, "builtM2": 5286, "floors": 2, "landM2": 2680, "form": "linear-contour",
+        "note": "Linear building three cells deep on the uphill side of the upper road, looking E/SE over the lane to the valley. Conditional amenity — underwrite €130–200 ADR / <50% occupancy per the commercial thesis; not the exit."
+      },
+      {
+        "id": "spa", "zone": "Z1", "name": "Spa & farm-to-table restaurant", "phase": "P2",
+        "builtM2": 5110, "floors": 3, "landM2": 2000, "form": "cluster-at-bend",
+        "note": "Compact cluster terraced into the slope over three levels where the access road bends uphill — shares the arrival core and the basement parking with the hotel. Deck value carried as an envelope CEILING: over-scaled vs boutique comps, right-size at proyecto básico."
+      },
+      {
+        "id": "residences", "zone": "Z2", "name": "Branded residences", "phase": "P1",
+        "floors": 1, "form": "lots-on-streets",
+        "note": "27 units on residential streets branching downhill from both road legs. Lot sizes derive from unit GFA / 0.35 edif. Counts and mix from deck v0.3 (5,392 m² residential ⇒ Echo 140 + Duo 220 + Grand 350 ≈ 5,340 m²).",
+        "unitMix": [
+          { "type": "Echo",  "count": 14, "builtM2": 140, "lotCols": 3, "lotDepth": 2, "siting": "upper streets — outcrop shoulder" },
+          { "type": "Duo",   "count": 9,  "builtM2": 220, "lotCols": 5, "lotDepth": 2, "siting": "oak line, mid-slope — long bar along the street" },
+          { "type": "Grand", "count": 4,  "builtM2": 350, "lotCols": 5, "lotDepth": 3, "siting": "landscape edge — street ends" }
+        ]
+      },
+      {
+        "id": "vpp", "zone": "Z3", "name": "VPP village", "phase": "P3",
+        "builtM2": 3524, "floors": 2, "landM2": 5900, "form": "compact-entry",
+        "note": "Linear village along the entry lane\u2019s south frontage \u2014 the corner most connected to the town road. Land sized from 3,524 m² / 0.6 edif. Keeps the residential VPP share ≈ 40% ≥ statutory 30% (Ley 9/2001)."
+      },
+      {
+        "id": "equestrian", "zone": "Z4", "name": "Equestrian & farm", "phase": "P3",
+        "builtM2": 300, "floors": 1, "landM2": 6000, "form": "flattest-window",
+        "note": "Rectangular paddock on the flattest contiguous meadow window, biased to the east meadow; light timber structures only."
+      }
+    ],
+    "status": "working-assumption"
   },
 
   "exclusions": {

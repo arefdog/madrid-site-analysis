@@ -47,11 +47,14 @@ export function cellsToGeoJSON(cells, rings, meta) {
       ref: `MP-${String(i + 1).padStart(4, '0')}`,
       kind: cell.kind || 'parcel',
       zone: cell.zoneId,
+      program: cell.programId || null,
       lot: cell.lotId,
+      unit_type: cell.lotType || null,
       protected: !!cell.protected,
       area_m2: Math.round(cell.area),
       elev_m: cell.elev != null ? Math.round(cell.elev) : null,
       slope_deg: cell.slope != null ? Math.round(cell.slope * 10) / 10 : null,
+      grade_pct: cell.grade != null ? Math.round(cell.grade * 10) / 10 : null,
       buildability: cell.score != null ? Math.round(cell.score) : null,
     },
     geometry: { type: 'Polygon', coordinates: [cell.poly.map(([lat, lng]) => [lng, lat])] },
@@ -83,7 +86,8 @@ export function cellsToDXF(cells, lots, rings) {
     lines.push(...dxfPolyline(layer, cell.poly.map(([lat, lng]) => toUtm30(lat, lng))));
   }
   for (const lot of lots) {
-    lines.push(...dxfPolyline('LOTS', lot.outline.map(([lat, lng]) => toUtm30(lat, lng))));
+    const layer = lot.type ? `LOTS_${lot.type.toUpperCase()}` : 'LOTS';
+    lines.push(...dxfPolyline(layer, lot.outline.map(([lat, lng]) => toUtm30(lat, lng))));
   }
   lines.push('0', 'ENDSEC', '0', 'EOF');
   return lines.join('\n');
@@ -98,6 +102,21 @@ export function ledgerToCSV(ledger) {
   }
   rows.push([]);
   rows.push(['total suelo', Math.round(ledger.siteArea), '100%', Math.round(ledger.totalEdif)]);
+  if (ledger.viario) {
+    rows.push(['vial principal', `${Math.round(ledger.viario.roadLenM)} m`,
+      `pdte media ${ledger.viario.roadAvgGrade.toFixed(1)}%`, `max ${ledger.viario.roadMaxGrade.toFixed(1)}%`]);
+    rows.push(['calles residenciales', '', '', `max ${ledger.viario.streetMaxGrade.toFixed(1)}%`]);
+  }
+  if (ledger.program?.length) {
+    rows.push([]);
+    rows.push(['programa v0.4', 'fase', 'objetivo', 'logrado', 'estado']);
+    for (const p of ledger.program) {
+      const target = p.targetUnits != null ? `${p.targetUnits} uds / ${Math.round(p.targetM2)} m2` : `${Math.round(p.targetM2)} m2`;
+      const achieved = p.targetUnits != null ? `${p.achievedUnits} uds / ${Math.round(p.achievedM2)} m2` : `${Math.round(p.achievedM2)} m2`;
+      rows.push([p.name, p.phase, target, achieved, p.ok ? 'CUMPLE' : 'PARCIAL']);
+    }
+  }
+  rows.push([]);
   for (const check of ledger.checks) {
     rows.push([check.label, check.value, check.required, check.ok ? 'CUMPLE' : 'NO CUMPLE']);
   }
