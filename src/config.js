@@ -135,6 +135,7 @@ export const SOURCES = {
     viasPecuarias: {
       label: 'Vías pecuarias',
       carve: true,
+      mapLayer: false, // WMS view unreliable from browser; still baked as a carve source
       color: '#16a34a',
       law: 'Ley 3/1995 — dominio público, anchura legal (cañada 75 m … vereda 20 m); no edificable',
       // MITECO national service (confirmed) + CM IDEM (host moved to
@@ -163,6 +164,7 @@ export const SOURCES = {
     hic: {
       label: 'Hábitat 6310 (dehesa)',
       carve: false,
+      mapLayer: false, // WMS view unreliable from browser; informational only
       color: '#ca8a04',
       law: 'Directiva 92/43 — hábitat prioritario; desencadena evaluación ambiental',
       wms: ['https://wms.mapama.gob.es/sig/Biodiversidad/HIC/wms.aspx',
