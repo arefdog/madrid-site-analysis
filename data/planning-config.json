@@ -5,10 +5,11 @@
     "cessions": {
       "redesLocalesM2per100m2Built": 30,
       "greenMinM2per100m2Built": 15,
-      "vppMinShareOfResidentialEdif": 0.30,
+      "vppMinShareOfResidentialEdif": 0.40,
+      "vppMinShareUrbanoNoConsolidado": 0.20,
       "parkingSpacesPer100m2Built": 1.5,
       "parkingSpaceM2": 25,
-      "source": "Ley 9/2001 del Suelo CM, art. 36.6 (redes locales, zonas verdes, aparcamiento); reserva 30% VPP en suelo urbanizable (redacción vigente)",
+      "source": "Ley 9/2001 del Suelo CM, art. 36.6 (redes locales, zonas verdes, aparcamiento). Reserva VPP: la Ley 12/2023, de 24 de mayo, por el derecho a la vivienda, elevó el mínimo estatal del art. 20.1.b TRLSRU (RDL 7/2015) del 30% al 40% de la edificabilidad residencial en actuaciones de NUEVA URBANIZACIÓN (suelo urbanizable) — el caso Boalo — y 20% en suelo urbano no consolidado. Suelo estatal mínimo; la CM (Ley 9/2001, mod. Ley 3/2024) no puede bajar de ahí.",
       "status": "verified-law"
     },
     "classification": {
