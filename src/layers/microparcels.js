@@ -1,24 +1,18 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
 import planning from '../../data/planning-config.json';
-import { siteFeatures as features } from './siteFeaturesData.js';
+import { resolveFeatures } from './siteFeaturesData.js';
 import { getBoaloRings } from './masterplan.js';
 import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
 import { protectedStore } from './protectedStore.js';
 
-// Existing site features (trees & rock outcrops) → [lat,lng] rings by role.
+// Existing site features (trees & rock outcrops). Stored as fractional
+// positions within the parcel and resolved to [lat,lng] against the real
+// bbox at build time (see below) — so they follow the true Catastro parcel.
 // Interior of an 'avoid'/'both' feature is no-build (the plan routes around
 // the oak stands and outcrops); cells just outside an 'anchor'/'both' feature
 // get a buildability premium (deck: Echo on the granite shoulder, Duo along
-// the oak line). GeoJSON is [lng,lat]; flip to [lat,lng] here.
-const FEATURES = (features.features ?? []).map((f) => ({
-  kind: f.properties?.kind ?? 'tree',
-  role: f.properties?.role ?? 'avoid',
-  name: f.properties?.name ?? '',
-  ring: (f.geometry?.coordinates?.[0] ?? []).map(([lng, lat]) => [lat, lng]),
-})).filter((f) => f.ring.length >= 3);
-const FEATURE_AVOID = FEATURES.filter((f) => f.role === 'avoid' || f.role === 'both');
-const FEATURE_ANCHOR = FEATURES.filter((f) => f.role === 'anchor' || f.role === 'both');
+// the oak line).
 const ANCHOR_RADIUS_M = 30; // premium band around a kept tree/outcrop
 
 // Micro-parcel subdivision v5: PROGRAM-DRIVEN terrain-generative masterplan.
@@ -330,6 +324,12 @@ export default {
         .filter((ring) => Array.isArray(ring) && ring.length >= 3);
       const protPolys = [...configPolys, ...protectedStore.allRings()]
         .filter((ring) => Array.isArray(ring) && ring.length >= 3);
+
+      // Site features resolved against the REAL parcel bbox (b) so trees &
+      // outcrops land on the true Catastro geometry, not a hardcoded footprint.
+      const siteFeats = resolveFeatures(b);
+      const FEATURE_AVOID = siteFeats.filter((f) => f.role === 'avoid' || f.role === 'both');
+      const FEATURE_ANCHOR = siteFeats.filter((f) => f.role === 'anchor' || f.role === 'both');
 
       // --- Grid: clip every cell to the footprint. -------------------------
       // grid[r][c] row 0 = south, col 0 = west.
