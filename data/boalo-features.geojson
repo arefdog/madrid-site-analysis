@@ -1,0 +1,36 @@
+{
+  "type": "FeatureCollection",
+  "_note": "Site features (existing trees & rock) for the Boalo parcel. SOURCE = 'visual-estimate': hand-digitized from a satellite/aerial screenshot, georeferenced approximately against the parcel bbox. NOT survey-grade — replace with the LiDAR CHM + PNOA-ortho fusion (scripts/bake-features, to come) and the field inventario de arbolado. role: 'avoid' = no build on it; 'anchor' = premium siting adjacent; 'both' = keep the stand/outcrop AND site villas at its edge (deck: Echo on the granite shoulder, Duo along the oak line).",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "kind": "tree", "role": "both", "source": "visual-estimate", "name": "North-centre encina stand", "note": "Densest holm-oak cluster; keep as green, site Duos along its south edge (oak line)." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.90040, 40.71767], [-3.89972, 40.71767], [-3.89972, 40.71727], [-3.90040, 40.71727], [-3.90040, 40.71767]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "tree", "role": "both", "source": "visual-estimate", "name": "West oak clump", "note": "Mid-slope holm-oak clump; anchor Duos on its lee." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.901430, 40.717229], [-3.900784, 40.717229], [-3.900784, 40.716832], [-3.901430, 40.716832], [-3.901430, 40.717229]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "tree", "role": "anchor", "source": "visual-estimate", "name": "Central oak scatter", "note": "Scattered oaks along the central band; premium siting between them." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.900508, 40.71714], [-3.900100, 40.71714], [-3.900100, 40.716832], [-3.900508, 40.716832], [-3.900508, 40.71714]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "outcrop", "role": "both", "source": "visual-estimate", "name": "Central granite outcrop", "note": "Main berrocal; no excavation. Echo units on the granite shoulder beside it for the view." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.900328, 40.717052], [-3.899568, 40.717052], [-3.899568, 40.716612], [-3.900328, 40.716612], [-3.900328, 40.717052]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "outcrop", "role": "avoid", "source": "visual-estimate", "name": "Lower-centre outcrops", "note": "Rock exposure on the lower slope; build-around." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.901088, 40.716524], [-3.900252, 40.716524], [-3.900252, 40.716084], [-3.901088, 40.716084], [-3.901088, 40.716524]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "kind": "watercourse", "role": "avoid", "source": "visual-estimate", "name": "East vaguada (green finger)", "note": "Damper hollow with richer vegetation — possible watercourse/DPH setback; keep as green corridor, verify on the ground." },
+      "geometry": { "type": "Polygon", "coordinates": [[[-3.899340, 40.716832], [-3.898580, 40.716744], [-3.898656, 40.716524], [-3.899416, 40.716612], [-3.899340, 40.716832]]] }
+    }
+  ]
+}
