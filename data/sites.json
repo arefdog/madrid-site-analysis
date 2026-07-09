@@ -32,9 +32,9 @@
         }
       ],
       "land": {
-        "grossM2": 70484,
+        "grossM2": 68938,
         "parcelCount": 1,
-        "landClass": "Catastro: urbana register",
+        "landClass": "Catastro (verified 09-Jul-2026): parcela 1683501VL2018S, «PL SECTOR 1 B 1», El Boalo — 68,938 m². The «SECTOR» descriptor corroborates the SIU 'urbanizable delimitado/sectorizado' reading.",
         "features": "Meadow and dehesa giving way to pine and granite outcrops; stone walls; Torre del Parro on the horizon",
         "orientation": "S/SE",
         "elevationM": 920
@@ -82,15 +82,15 @@
           "category": "unverified",
           "detail": [
             {
-              "class": "SUELO NO URBANIZABLE",
-              "scope": "Likely — the coordinates sit ~1.3 km E/SE of the village in dehesa covered by the Parque Regional Cuenca Alta del Manzanares (PRCAM, added to El Boalo by Ley 7/1991); NNSS classify such land as SNU de especial protección. Not confirmed for the exact parcel."
+              "class": "SUELO URBANIZABLE (probable, delimitado/sectorizado)",
+              "scope": "STRONGEST signal: SIU returned 'SUELO URBANIZABLE DELIMITADO O SECTORIZADO' at 10/10 sample points, and Catastro (verified 09-Jul-2026) labels the parcel «PL SECTOR 1 B 1» — a SECTOR. Both point to a delimited urbanizable sector, for which a Plan Parcial is the correct instrument."
             },
             {
-              "class": null,
-              "scope": "Counter-signal: Catastro urbana-format ref (1683501VL2018S) — an anomaly to reconcile; the ref itself has no public trace and is unverified."
+              "class": "SUELO NO URBANIZABLE",
+              "scope": "Counter-signal / to reconcile: the parcel sits in dehesa near the PRCAM; prior desk research expected SNU de especial protección. ENP/PRCAM + Red Natura services were down in-browser so protection overlays were NOT cross-checked. A protected overlay could still coexist with / override the sector."
             }
           ],
-          "basis": "Research 05-Jul-2026: NNSS 1997/98 in force, no PGOU (2018 avance stalled; CM territorial reports push zero growth and downzoning). No urbanizable sector matching a 70,484 m² program exists in public records. Verify: sedecatastro + SIU click on the parcel."
+          "basis": "Updated 09-Jul-2026: RC 1683501VL2018S is REAL and resolvable at sedecatastro (68,938 m², «PL SECTOR 1 B 1», El Boalo) — not the 'no public trace' our 05-Jul desk research feared. Combined with the SIU urbanizable-sectorizado read, the entitlement picture shifted materially toward Plan Parcial viability. STILL VERIFY: the exact sector ficha in the NNSS + cross-check PRCAM/Red Natura (services were offline). NNSS 1997/98 in force, no PGOU."
         },
         "instrument": null,
         "unit": null,

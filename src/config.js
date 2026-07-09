@@ -192,7 +192,7 @@ export const SOURCES = {
   // Catastro INSPIRE WFS: exact parcel polygon (GML) for a cadastral reference.
   // Same host as cadastreByCoord, CORS-enabled.
   cadastreParcelWfs:
-    'https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx?service=wfs&version=2&request=getfeature&STOREDQUERIE_ID=GetParcel&srsname=EPSG::4326&refcat={rc}',
+    'https://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx?service=WFS&version=2.0.0&request=GetFeature&STOREDQUERY_ID=GetParcel&srsName=EPSG::4326&refcat={rc}',
   // Municipality boundaries are vendored in /data/madrid-municipios.geojson and
   // imported directly by the purchasing-power layer (no external runtime fetch).
 };
