@@ -82,6 +82,7 @@ authoritative sources:
 | Slope classes | not started | Derive classified slope bands from EU-DEM |
 | Constraint check (SIU class, PRCAM/ENP, Red Natura, vías pecuarias, DPH) | **live** | Live browser queries + `npm run data:constraints` (Node twin; `--apply` feeds verified protection polygons into the pixel engine) |
 | Protected-land carves (ZFP/DPH, vías pecuarias, montes preservados, HIC 6310) | **live** | Toggleable WMS overlays + WFS geometry; intersecting polygons feed the pixel engine's exclusion set live (Tier-1 sources carve, HIC flags) |
+| Site features — existing trees & rock outcrops | **live (visual estimate)** | `data/boalo-features.geojson` hand-read from aerial imagery; the engine avoids stands/outcrops and gives villas a siting premium at their edges. To be replaced by a LiDAR CHM + PNOA-ortho `bake-features` fusion + field tree inventory |
 
 ### Language toggle
 

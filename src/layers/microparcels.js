@@ -1,9 +1,25 @@
 import L from 'leaflet';
 import sitesData from '../../data/sites.json';
 import planning from '../../data/planning-config.json';
+import { siteFeatures as features } from './siteFeaturesData.js';
 import { getBoaloRings } from './masterplan.js';
 import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
 import { protectedStore } from './protectedStore.js';
+
+// Existing site features (trees & rock outcrops) → [lat,lng] rings by role.
+// Interior of an 'avoid'/'both' feature is no-build (the plan routes around
+// the oak stands and outcrops); cells just outside an 'anchor'/'both' feature
+// get a buildability premium (deck: Echo on the granite shoulder, Duo along
+// the oak line). GeoJSON is [lng,lat]; flip to [lat,lng] here.
+const FEATURES = (features.features ?? []).map((f) => ({
+  kind: f.properties?.kind ?? 'tree',
+  role: f.properties?.role ?? 'avoid',
+  name: f.properties?.name ?? '',
+  ring: (f.geometry?.coordinates?.[0] ?? []).map(([lng, lat]) => [lat, lng]),
+})).filter((f) => f.ring.length >= 3);
+const FEATURE_AVOID = FEATURES.filter((f) => f.role === 'avoid' || f.role === 'both');
+const FEATURE_ANCHOR = FEATURES.filter((f) => f.role === 'anchor' || f.role === 'both');
+const ANCHOR_RADIUS_M = 30; // premium band around a kept tree/outcrop
 
 // Micro-parcel subdivision v5: PROGRAM-DRIVEN terrain-generative masterplan.
 //
@@ -258,6 +274,8 @@ function buildabilityScore(cell, zoneId) {
   if (zoneId === 'Z1') score += 10;      // hotel line sits directly on the road
   else if (zoneId === 'Z3') score -= 5;  // VPP regulatory envelope
   else if (zoneId === 'Z4') score -= 10; // stables want dead-flat ground
+  // Premium siting next to a kept tree / granite outcrop (deck's own logic).
+  if (cell.anchor) score += 15;
   return Math.max(0, Math.min(100, score));
 }
 
@@ -332,19 +350,32 @@ export default {
             if (area < 2) continue;
             const cLat = (rect.latMin + rect.latMax) / 2;
             const cLng = (rect.lngMin + rect.lngMax) / 2;
-            // Two protection tests: the perimeter buffer (fire strip +
-            // road setback) and any VERIFIED protection polygons from
-            // planning-config (PRCAM zoning, vías pecuarias, DPH — filled by
-            // the constraint-check layer's export). Both exclude development.
+            // Protection tests, in priority order:
+            //  1. perimeter buffer (fire strip + road setback),
+            //  2. verified protection polygons from planning-config,
+            //  3. existing site features to keep — tree stands / outcrops /
+            //     watercourse (data/boalo-features.geojson). All no-build.
             const inBuffer = boundaryDistM(cLat, cLng, rings, latRef) < (planning.exclusions?.perimeterBufferM ?? 0);
             const inProtPoly = !inBuffer && protPolys.some((ring) => pointInRing(cLat, cLng, ring));
+            const feat = (!inBuffer && !inProtPoly)
+              ? FEATURE_AVOID.find((f) => pointInRing(cLat, cLng, f.ring)) : null;
+            // Anchor: within ANCHOR_RADIUS_M of a kept feature but not inside
+            // one — the premium siting band along the oak line / granite shoulder.
+            let anchor = null;
+            if (!inBuffer && !inProtPoly && !feat) {
+              for (const f of FEATURE_ANCHOR) {
+                if (boundaryDistM(cLat, cLng, [f.ring], latRef) <= ANCHOR_RADIUS_M) { anchor = f.kind; break; }
+              }
+            }
             const cell = {
               r, c, poly: clipped, area, cLat, cLng,
               elev: elevAt(cLat, cLng),
               slope: slopeDegAt(elevAt, cLat, cLng),
               kind: null, zoneId: null, lotId: null,
-              protected: inBuffer || inProtPoly,
-              protReason: inProtPoly ? 'polygon' : inBuffer ? 'buffer' : null,
+              protected: inBuffer || inProtPoly || !!feat,
+              protReason: feat ? feat.kind : inProtPoly ? 'polygon' : inBuffer ? 'buffer' : null,
+              featureName: feat?.name ?? null,
+              anchor, // 'tree' | 'outcrop' | null — premium siting band
             };
             grid[r][c] = cell;
             cells.push(cell);
@@ -921,25 +952,39 @@ export default {
           popup = `<b>${ref} · Visitor parking (surface)</b><br>Entry pocket for the law-required remainder — the core's demand parks in the basement under hotel + spa (~${Math.round(parkingBasementM2).toLocaleString('en')} m²).<br>${facts}`;
         } else if (cell.protected) {
           counts.protected = (counts.protected || 0) + 1;
-          style = KIND_STYLES.protected;
-          popup = cell.protReason === 'polygon'
-            ? `<b>${ref} · Protección verificada</b><br>Dentro de un polígono de protección de planning-config (PRCAM / vía pecuaria / DPH). Sin desarrollo.<br>${facts}`
-            : `<b>${ref} · Perimeter buffer</b><br>${planning.exclusions.perimeterBufferNote}<br>${facts}`;
+          const featStyle = { tree: '#166534', outcrop: '#78716c', watercourse: '#0369a1' };
+          if (featStyle[cell.protReason]) {
+            counts[`feat_${cell.protReason}`] = (counts[`feat_${cell.protReason}`] || 0) + 1;
+            style = { color: featStyle[cell.protReason], weight: 0.5, fillColor: featStyle[cell.protReason], fillOpacity: 0.5 };
+            const label = cell.protReason === 'tree' ? 'Arbolado existente (conservar)'
+              : cell.protReason === 'outcrop' ? 'Afloramiento granítico (sin excavación)'
+                : 'Vaguada / posible cauce (verde)';
+            popup = `<b>${ref} · ${label}</b><br><span style="font-size:11px;color:#555">${cell.featureName || ''} — leído de imagen aérea (estimación visual; sustituir por LiDAR + inventario de arbolado).</span><br>Sin desarrollo; el plan se traza alrededor.<br>${facts}`;
+          } else {
+            style = KIND_STYLES.protected;
+            popup = cell.protReason === 'polygon'
+              ? `<b>${ref} · Protección verificada</b><br>Dentro de un polígono de protección de planning-config (PRCAM / vía pecuaria / DPH). Sin desarrollo.<br>${facts}`
+              : `<b>${ref} · Perimeter buffer</b><br>${planning.exclusions.perimeterBufferNote}<br>${facts}`;
+          }
         } else {
           const zone = ZONES[cell.zoneId];
           counts[cell.zoneId] = (counts[cell.zoneId] || 0) + 1;
           if (cell.score != null) {
             const bright = 0.15 + (cell.score / 100) * 0.45;
             const color = cell.programId === 'spa' ? SPA_COLOR : zone.color;
-            style = { color, weight: 0.5, fillColor: color, fillOpacity: bright };
+            style = { color, weight: cell.anchor ? 0.9 : 0.5, fillColor: color, fillOpacity: bright };
             const verdict = cell.score > 70 ? '✓ Optimal' : cell.score > 50 ? '◐ Acceptable' : '✗ Constrained';
             const prog = cell.programId ? progItem(cell.programId) : null;
             const unitType = cell.lotType ? mix.find((m) => m.type === cell.lotType) : null;
             const title = prog ? `${prog.name} · ${prog.phase}` : `${zone.name} (${cell.zoneId})`;
+            const anchorNote = cell.anchor
+              ? `<br><b>${cell.anchor === 'tree' ? '🌳 Junto a arbolado' : '🪨 Junto a afloramiento'}</b> — emplazamiento premium (+15).`
+              : '';
             popup =
               `<b>${ref} · ${title}</b>` +
               (prog?.note ? `<br><span style="font-size:11px;color:#555">${prog.note}</span>` : '') +
               (cell.lotId ? `<br>Lot <b>${cell.lotId}</b> · <b>${cell.lotType}</b>${unitType ? ` — ${unitType.builtM2} m² unit, ${unitType.siting}` : ''}<br>Combine/split freely at cell resolution.` : '') +
+              anchorNote +
               `<br>${facts}<br><b>Buildability: ${cell.score.toFixed(0)}/100</b> ${verdict}`;
           } else {
             style = { color: '#65a30d', weight: 0.4, fillColor: zone.color, fillOpacity: 0.2 };
