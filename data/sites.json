@@ -450,6 +450,99 @@
           "exit": "Base: execute unit + sell 3 serviced plots + 1 modular show villa. Upside: build all 4 (scarcity supports it — only promotion-grade supply is 3 small co-op schemes from €368k). Data gap: per-municipality MIVAU transaction counts need a manual XLS pull; plot days-on-market unpublished."
         }
       }
+    },
+    {
+      "id": "tamariu-plot",
+      "name": "Tamariu — Costa Brava plot",
+      "municipality": "Palafrugell",
+      "muniCode": "17124",
+      "status": "On market · idealista · €1.30M (exclusive)",
+      "sources": [
+        {
+          "label": "idealista listing 109756498",
+          "url": "https://www.idealista.com/inmueble/109756498/"
+        }
+      ],
+      "land": {
+        "grossM2": 11147,
+        "parcelCount": 1,
+        "landClass": "Suelo urbanizable — residencial unifamiliar (chalets) + terciario hotelero",
+        "features": "Wooded hillside plot in the Riera de Tamariu valley, ~1.5 km inland from Tamariu cove; pine cover, sea-facing slope",
+        "orientation": "SE (toward the cove)",
+        "elevationM": null
+      },
+      "location": {
+        "marker": [
+          41.9185,
+          3.1935
+        ],
+        "accessNote": "Road access (Riera la s/n, off GIV-6542); 1.5 km from Tamariu beach & town centre. Marker approximate — pending cadastral reference / exact pin.",
+        "distances": [
+          {
+            "label": "Tamariu beach",
+            "km": 1.5,
+            "time": "20 min walk"
+          },
+          {
+            "label": "Pals — beaches",
+            "km": 10,
+            "time": "15 min"
+          },
+          {
+            "label": "Palamós — marina",
+            "km": 20,
+            "time": "25 min"
+          },
+          {
+            "label": "Platja d'Aro",
+            "km": 28,
+            "time": "30 min"
+          },
+          {
+            "label": "Girona — AVE & airport",
+            "km": 48,
+            "time": "45 min"
+          },
+          {
+            "label": "Figueres — AVE",
+            "km": 52,
+            "time": "50 min"
+          },
+          {
+            "label": "Barcelona — AVE & airport",
+            "km": 124,
+            "time": "1 h 30"
+          }
+        ]
+      },
+      "cadastre": {
+        "refs": []
+      },
+      "planning": {
+        "classification": {
+          "category": "listing-stated",
+          "detail": [
+            {
+              "class": "SUELO URBANIZABLE",
+              "scope": "Listing: urbanizable, calificado para residencial unifamiliar (chalets) y terciario (hoteles); 2 plantas edificables. Verify against the Palafrugell POUM ficha."
+            }
+          ],
+          "basis": "idealista listing; aparthotel project reportedly approved by the Ajuntament de Palafrugell. Not yet cross-checked against the POUM."
+        },
+        "instrument": "Approved project (Ajuntament de Palafrugell) — per listing",
+        "buildableM2": 2000,
+        "capacity": "Aparthotel: 37 rooms (1,500 m² planta baja + 500 m² sótano garaje/técnico); OR 3 detached villas on ~3,700 m² plots each",
+        "constraints": "2 buildable floors; verify Riera (watercourse/DPH) setback, Costas coastal-influence zone, and POUM sector conditions",
+        "path": "Aparthotel (approved) or the alternative villa scheme allowed by zoning"
+      },
+      "market": {
+        "price": 1300000,
+        "pricePerM2": 117,
+        "terms": "Exclusive listing",
+        "comps": "≈ €650 per buildable m² (2,000 m² edificable)",
+        "listingUrl": "https://www.idealista.com/inmueble/109756498/"
+      },
+      "fit": "Costa Brava wellness/hospitality play: an approved 37-key aparthotel envelope 1.5 km from a top-tier cove, with a fallback 3-villa scheme — dual exit (operate vs. parcel-and-sell)."
     }
   ]
 }
