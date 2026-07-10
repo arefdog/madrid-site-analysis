@@ -466,7 +466,7 @@
       "land": {
         "grossM2": 11147,
         "parcelCount": 1,
-        "landClass": "Suelo urbanizable — residencial unifamiliar (chalets) + terciario hotelero",
+        "landClass": "Catastro: urbano + rústico (parcela mixta) · planeamiento urbanizable",
         "features": "Wooded hillside plot in the Riera de Tamariu valley, ~1.5 km inland from Tamariu cove; pine cover, sea-facing slope",
         "orientation": "SE (toward the cove)",
         "elevationM": null
@@ -476,7 +476,7 @@
           41.9185,
           3.1935
         ],
-        "accessNote": "Riera de Tamariu valley, ~1.5 km from Tamariu beach & town. Overlay shows candidate Catastro parcels (políg. 8) — exact plot pending confirmation of the parcela number(s).",
+        "accessNote": "CL Aigua Blava / CL Salvador, Tamariu (Palafrugell); ~1.5 km from the cove. Overlay = the 3 real Catastro parcels; confirm the exact combination (core 8,326 m² + 2,052 or 4,246 ≈ listing 11,147 m²).",
         "distances": [
           {
             "label": "Tamariu beach",
@@ -518,24 +518,19 @@
       "cadastre": {
         "refs": [
           {
-            "rc": "17124A00800017",
-            "label": "Parcela 17 · políg. 8 — candidate"
+            "rc": "7112106EG1471S",
+            "label": "CL Aigua Blava 17 · urbano+rústico",
+            "areaM2": 8326
           },
           {
-            "rc": "17124A00800026",
-            "label": "Parcela 26 · políg. 8 — candidate"
+            "rc": "7112105EG1471S",
+            "label": "CL Salvador 26",
+            "areaM2": 4246
           },
           {
-            "rc": "17124A00800019",
-            "label": "Parcela 19 · políg. 8 — candidate"
-          },
-          {
-            "rc": "17124A00800020",
-            "label": "Parcela 20 · políg. 8 — candidate"
-          },
-          {
-            "rc": "17124A00800222",
-            "label": "Parcela 222 · políg. 8 — candidate"
+            "rc": "7112110EG1471S",
+            "label": "CL Salvador",
+            "areaM2": 2052
           }
         ]
       },
