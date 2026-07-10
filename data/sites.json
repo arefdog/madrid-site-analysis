@@ -464,8 +464,8 @@
         }
       ],
       "land": {
-        "grossM2": 11147,
-        "parcelCount": 1,
+        "grossM2": 10378,
+        "parcelCount": 2,
         "landClass": "Catastro: urbano + rústico (parcela mixta) · planeamiento urbanizable",
         "features": "Wooded hillside plot in the Riera de Tamariu valley, ~1.5 km inland from Tamariu cove; pine cover, sea-facing slope",
         "orientation": "SE (toward the cove)",
@@ -476,7 +476,7 @@
           41.9185,
           3.1935
         ],
-        "accessNote": "CL Aigua Blava / CL Salvador, Tamariu (Palafrugell); ~1.5 km from the cove. Overlay = the 3 real Catastro parcels; confirm the exact combination (core 8,326 m² + 2,052 or 4,246 ≈ listing 11,147 m²).",
+        "accessNote": "CL Aigua Blava 17 / CL Salvador, Tamariu (Palafrugell); ~1.5 km from the cove. Plot = 2 Catastro parcels (7112106 core 8,326 m² + 7112110 access 2,052 m² = 10,378 m²; listing 11,147 m²).",
         "distances": [
           {
             "label": "Tamariu beach",
@@ -523,13 +523,8 @@
             "areaM2": 8326
           },
           {
-            "rc": "7112105EG1471S",
-            "label": "CL Salvador 26",
-            "areaM2": 4246
-          },
-          {
             "rc": "7112110EG1471S",
-            "label": "CL Salvador",
+            "label": "CL Salvador · acceso",
             "areaM2": 2052
           }
         ]
