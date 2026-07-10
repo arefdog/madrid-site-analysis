@@ -476,7 +476,7 @@
           41.9185,
           3.1935
         ],
-        "accessNote": "Road access (Riera la s/n, off GIV-6542); 1.5 km from Tamariu beach & town centre. Marker approximate — pending cadastral reference / exact pin.",
+        "accessNote": "Riera de Tamariu valley, ~1.5 km from Tamariu beach & town. Overlay shows candidate Catastro parcels (políg. 8) — exact plot pending confirmation of the parcela number(s).",
         "distances": [
           {
             "label": "Tamariu beach",
@@ -516,7 +516,28 @@
         ]
       },
       "cadastre": {
-        "refs": []
+        "refs": [
+          {
+            "rc": "17124A00800017",
+            "label": "Parcela 17 · políg. 8 — candidate"
+          },
+          {
+            "rc": "17124A00800026",
+            "label": "Parcela 26 · políg. 8 — candidate"
+          },
+          {
+            "rc": "17124A00800019",
+            "label": "Parcela 19 · políg. 8 — candidate"
+          },
+          {
+            "rc": "17124A00800020",
+            "label": "Parcela 20 · políg. 8 — candidate"
+          },
+          {
+            "rc": "17124A00800222",
+            "label": "Parcela 222 · políg. 8 — candidate"
+          }
+        ]
       },
       "planning": {
         "classification": {
