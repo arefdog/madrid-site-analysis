@@ -31,9 +31,11 @@ import microparcels from './microparcels.js';
 import constraints from './constraints.js';
 import protectedLand from './protectedLand.js';
 import siteFeatures from './siteFeatures.js';
+import possibilities from './possibilities.js';
 
 export const layers = [
   base,
+  possibilities,
   sites,
   masterplan,
   microparcels,

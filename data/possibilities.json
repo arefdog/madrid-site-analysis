@@ -1,0 +1,61 @@
+{
+  "meta": {
+    "note": "Public-records parcel-possibilities dossiers, keyed by Catastro cadastral reference (RC). Every display row carries a `confidence`: verified | medium | weak | pending. Private / scheme / deck intel is intentionally EXCLUDED — this is the objective public baseline (see VISION.md: the public-dossier layer). `signals` drive computeVerdict(); the row arrays are for display only.",
+    "confidenceLevels": ["verified", "medium", "weak", "pending"]
+  },
+  "parcels": {
+    "1683501VL2018S": {
+      "identity": {
+        "municipality": "El Boalo",
+        "muniCode": "28023",
+        "areaM2": 68938,
+        "haM2": 6.89,
+        "coords": [40.7167, -3.9],
+        "elevM": 920,
+        "classification": "Suelo urbanizable · Sector 1B · NNSS-97 · no PGOU"
+      },
+      "signals": {
+        "landClass": "urbanizable-sector",
+        "instrumentApproved": null,
+        "entitlementTrend": "contested",
+        "overridesConfirmed": 1,
+        "overridesOpen": 2
+      },
+      "canIBuild": [
+        { "label": "Land class", "value": "Suelo urbanizable — Sector 1B", "note": "Residential sector, 78-dwelling envelope (NNSS-97 inventory). Catastro descriptor «PL SECTOR 1 B 1».", "confidence": "medium" },
+        { "label": "Instrument", "value": "NNSS-97 · no PGOU", "note": "UE-1B urbanization project reportedly approved 3 Aug 2023 — confirm it covers this RC.", "confidence": "medium", "flag": "Verify" },
+        { "label": "PRCAM overlay", "value": "Protection band required", "note": "Sectors abutting the park cede an ecological-corridor buffer (verified from the Sector 10C plan parcial). Parcel zone A/B/P still to confirm.", "confidence": "verified", "flag": "Rule verified" },
+        { "label": "Red Natura 2000", "value": "Query pending", "note": "The exact trigger that reclassified part of Sector 7C. Live WFS check queued.", "confidence": "pending", "pending": true },
+        { "label": "Vías pecuarias · DPH", "value": "Query pending", "note": "Cattle-trail & watercourse setbacks → no-build exclusions for the engine.", "confidence": "pending", "pending": true }
+      ],
+      "howMuch": [
+        { "label": "Edificabilidad", "value": "Pending — Sector 1B ficha", "note": "The buildable coefficient (m²/m²) is set in the sector ficha; not yet in public reach. It unlocks the whole feasibility.", "confidence": "pending", "pending": true, "flag": "Blocker" },
+        { "label": "Dwelling cap", "value": "≈ 78 units", "note": "Maximum residential units the sector is dimensioned for (NNSS-97 inventory).", "confidence": "medium" },
+        { "label": "Height culture", "value": "2 floors + attic · ≈ 9 m", "note": "Town-wide massing verified from the Sector 10C ordinance; applies to any building in the sector.", "confidence": "verified" },
+        { "label": "Cession", "value": "10% aprovechamiento", "note": "Ceded to the ayuntamiento (Ley 9/2001), confirmed against a live El Boalo ficha. Plus redes locales + VPP reserve.", "confidence": "verified" }
+      ],
+      "whatPermitted": {
+        "rows": [
+          { "label": "Permitted uses", "value": "Pending — Sector 1B ficha", "note": "Residential is implied by the 78-dwelling sector. Whether terciario / hotelero is also permitted is the decisive line, still in the ficha.", "confidence": "pending", "pending": true, "flag": "Decisive" },
+          { "label": "Residential capacity", "value": "up to ≈ 78 dwellings", "note": "The maximum the sector is dimensioned for (NNSS-97), before cessions and the buildable coefficient.", "confidence": "medium" },
+          { "label": "Development path", "value": "Plan parcial + compensación", "note": "Urbanizable land is not buildable until a plan parcial is approved and executed via sistema de compensación (single owner ⇒ convenio de gestión).", "confidence": "verified", "flag": "Public law" },
+          { "label": "Advancement", "value": "UE-1B project approved Aug 2023", "note": "A related unit reached proyecto de urbanización (BOCM) — signals the sector may be advancing, not declassifying. Confirm the scope covers this RC.", "confidence": "medium", "flag": "Verify" }
+        ],
+        "callout": "The permitted-use line is decisive. A residential sector cap does not by itself grant terciario / hotelero use — any hospitality or commercial program depends on the ficha's uses table or a modificación. Residential capacity up to the dwelling cap is the safe public baseline."
+      },
+      "market": {
+        "stats": [
+          { "k": "Parcel price", "v": "Not on record", "s": "No public transaction for this RC", "pending": true },
+          { "k": "Area new-build", "v": "€3.2–3.6k", "s": "/m² · public listings" },
+          { "k": "GDV / residual", "v": "Pending", "s": "Needs edificabilidad (§02)", "pending": true }
+        ],
+        "rows": [
+          { "label": "Area demand", "value": "New-build & resale rising", "note": "Corridor: new-build €3,200–3,580/m², resale €2,060–2,680/m², +8–19% YoY (public listings / registry).", "confidence": "verified", "flag": "Comps" },
+          { "label": "Hospitality benchmark", "value": "Thin / absent market", "note": "Zero sierra hotel transactions 2020–26; the one comparable sierra hotel (Rascafría) closed 11+ yrs, tender drew no bids; boutique ADR €121–188 (public sources).", "confidence": "weak" },
+          { "label": "Value driver", "value": "Entitlement-dependent", "note": "Urbanizable value hinges on the coefficient (§02) and reclassification risk; rústic dehesa in the region trades far lower per m².", "confidence": "medium" }
+        ]
+      },
+      "sources": "NNSS-97 El Boalo-Cerceda-Mataelpino · Plan Parcial Sector 10C, Normas Urbanísticas (comunidad.madrid, ene 2022) · Catastro INSPIRE · SIU land classification · Ley 9/2001 del Suelo CM · Ley 1/1985 PRCAM · public area listings (idealista) · INE renta · Inside Airbnb / OSM. Full trace in docs/boalo-planning-research.md."
+    }
+  }
+}
