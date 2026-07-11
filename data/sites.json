@@ -554,6 +554,39 @@
         "listingUrl": "https://www.idealista.com/inmueble/109756498/"
       },
       "fit": "Costa Brava wellness/hospitality play: an approved 37-key aparthotel envelope 1.5 km from a top-tier cove, with a fallback 3-villa scheme — dual exit (operate vs. parcel-and-sell)."
+    },
+    {
+      "id": "parcela-6673003uf1367s",
+      "name": "Parcela 6673003UF1367S",
+      "municipality": null,
+      "muniCode": null,
+      "status": "Added — awaiting name / context",
+      "sources": [],
+      "land": {
+        "grossM2": null,
+        "parcelCount": 1,
+        "landClass": "Catastro (INSPIRE)",
+        "features": null,
+        "orientation": null,
+        "elevationM": null
+      },
+      "location": {
+        "marker": [
+          40,
+          -3.7
+        ],
+        "accessNote": "Outline and position load from Catastro (INSPIRE) by cadastral reference; the pin self-centres on the parcel once it fetches.",
+        "distances": []
+      },
+      "cadastre": {
+        "refs": [
+          {
+            "rc": "6673003UF1367S",
+            "label": "Parcela catastral",
+            "areaM2": null
+          }
+        ]
+      }
     }
   ]
 }
