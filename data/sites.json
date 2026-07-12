@@ -556,8 +556,8 @@
       "fit": "Costa Brava wellness/hospitality play: an approved 37-key aparthotel envelope 1.5 km from a top-tier cove, with a fallback 3-villa scheme — dual exit (operate vs. parcel-and-sell)."
     },
     {
-      "id": "parcela-6573201uf1367s",
-      "name": "Parcela 6573201UF1367S",
+      "id": "parcela-6673003uf1367s",
+      "name": "Parcela 6673003UF1367S",
       "municipality": null,
       "muniCode": null,
       "status": "Added — awaiting name / context",
@@ -581,7 +581,7 @@
       "cadastre": {
         "refs": [
           {
-            "rc": "6573201UF1367S",
+            "rc": "6673003UF1367S",
             "label": "Parcela catastral",
             "areaM2": null
           }
