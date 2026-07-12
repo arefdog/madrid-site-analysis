@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>El Boalo — Sector 1B · Parcel Dossier (public records)</title>
+<style>
+  :root {
+    --ground: #eef0ec; --surface: #ffffff; --surface-2: #f6f7f4;
+    --ink: #1a1e1b; --muted: #626c64; --faint: #8b948b; --line: #dbe0d8; --line-strong: #c4cbc1;
+    --accent: #8a5a24; --accent-soft: #f0e6d8;
+    --go: #2f7a4e; --go-bg: #e4f0e7; --caution: #9c6a15; --caution-bg: #f6ecd6;
+    --nogo: #a8403a; --nogo-bg: #f5e0dd; --pending: #6a6f86; --pending-bg: #e8e9f1;
+    --shadow: 0 1px 2px rgba(26,30,27,.05), 0 8px 24px -12px rgba(26,30,27,.14);
+    --display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #12140f; --surface: #1b1e18; --surface-2: #20241d;
+      --ink: #edefe8; --muted: #a1aaa0; --faint: #7a8278; --line: #2c3129; --line-strong: #3a4034;
+      --accent: #cf9a54; --accent-soft: #34291a;
+      --go: #63c48c; --go-bg: #16281d; --caution: #d6a640; --caution-bg: #2c2413;
+      --nogo: #e0776e; --nogo-bg: #2e1917; --pending: #a2a7c2; --pending-bg: #1e2030;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.6);
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 940px; margin: 0 auto; padding: 0 20px 72px; }
+
+  header { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); background: var(--surface); }
+  #contours { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .5; }
+  @media (prefers-color-scheme: dark){ #contours{ opacity:.35; } }
+  .head-inner { position: relative; max-width: 940px; margin: 0 auto; padding: 34px 20px 30px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::after { content:""; flex:1; height:1px; background: var(--line); }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 6vw, 46px); line-height: 1.04; margin: 0 0 6px; letter-spacing: -.01em; text-wrap: balance; }
+  .subtitle { color: var(--muted); font-size: 15px; margin: 0 0 20px; max-width: 62ch; }
+  .idline { font-family: var(--mono); font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+  .idline b { color: var(--ink); font-weight: 600; }
+  .status-pill { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--muted); margin-top: 18px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--caution); }
+
+  .verdict { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 26px 0 8px; }
+  @media (max-width: 680px){ .verdict { grid-template-columns: 1fr; } }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .tile::before { content:""; position:absolute; left:0; top:0; bottom:0; width:4px; }
+  .tile.t-caution::before { background: var(--caution); } .tile.t-nogo::before { background: var(--nogo); } .tile.t-go::before { background: var(--go); }
+  .tile .k { font-family: var(--mono); font-size: 11px; letter-spacing:.12em; text-transform: uppercase; color: var(--faint); margin: 0 0 9px; }
+  .tile .v { font-family: var(--display); font-size: 25px; font-weight: 600; line-height: 1.05; margin: 0 0 6px; }
+  .tile.t-caution .v { color: var(--caution); } .tile.t-nogo .v { color: var(--nogo); } .tile.t-go .v { color: var(--go); }
+  .tile .n { font-size: 13px; color: var(--muted); margin: 0; }
+
+  section.block { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px 26px 24px; margin-top: 16px; box-shadow: var(--shadow); }
+  @media (max-width: 560px){ section.block { padding: 20px 18px; } }
+  .block-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  .num { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 600; letter-spacing: .05em; }
+  .block h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .block .lead { color: var(--muted); font-size: 14px; margin: 4px 0 20px; }
+
+  .row { display: grid; grid-template-columns: 190px 1fr auto; gap: 16px; align-items: start; padding: 13px 0; border-top: 1px solid var(--line); }
+  .row:first-of-type { border-top: 0; }
+  @media (max-width: 560px){ .row { grid-template-columns: 1fr; gap: 5px; } }
+  .row .label { font-family: var(--mono); font-size: 11.5px; letter-spacing:.06em; text-transform: uppercase; color: var(--faint); padding-top: 2px; }
+  .row .val { font-size: 14.5px; }
+  .row .val .big { font-family: var(--mono); font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .row .val .note { color: var(--muted); font-size: 13px; display: block; margin-top: 3px; }
+  .pending-val { color: var(--pending); font-style: italic; }
+
+  .flag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .f-verified { color: var(--go); background: var(--go-bg); }
+  .f-caution  { color: var(--caution); background: var(--caution-bg); }
+  .f-risk     { color: var(--nogo); background: var(--nogo-bg); }
+  .f-pending  { color: var(--pending); background: var(--pending-bg); }
+
+  .callout { margin-top: 18px; border: 1px solid var(--caution); background: var(--caution-bg); border-radius: 12px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .callout .ci { font-family: var(--mono); font-weight: 700; color: var(--caution); font-size: 13px; flex-shrink: 0; padding-top: 1px; }
+  .callout p { margin: 0; font-size: 13.5px; color: var(--ink); }
+  .callout b { color: var(--caution); }
+
+  .econ { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media (max-width: 560px){ .econ { grid-template-columns: 1fr 1fr; } }
+  .stat .sk { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); margin: 0 0 5px; }
+  .stat .sv { font-family: var(--mono); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0; letter-spacing: -.01em; }
+  .stat .ss { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+
+  table.envs { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  table.envs th, table.envs td { text-align: right; padding: 8px 10px; font-size: 13px; border-top: 1px solid var(--line); }
+  table.envs th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); font-weight: 600; border-top: 0; }
+  table.envs th:first-child, table.envs td:first-child { text-align: left; }
+  table.envs td { font-family: var(--mono); }
+  table.envs .capped { color: var(--caution); }
+  .tbl-note { font-size: 12px; color: var(--faint); margin: 10px 0 0; }
+
+  footer.legend { margin-top: 26px; padding: 22px 24px; border: 1px dashed var(--line-strong); border-radius: 14px; }
+  .legend h3 { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 14px; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 10px 20px; margin-bottom: 16px; }
+  .legend-row .item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .srcs { font-size: 12px; color: var(--faint); line-height: 1.7; }
+  .genline { font-family: var(--mono); font-size: 11px; color: var(--faint); margin-top: 18px; text-align: center; letter-spacing: .03em; }
+</style>
+</head>
+<body>
+
+<header>
+  <canvas id="contours"></canvas>
+  <div class="head-inner">
+    <p class="eyebrow">Parcel Possibilities · Public-records dossier</p>
+    <h1>El Boalo — urbanizable Sector 1B</h1>
+    <p class="subtitle">Automated buildability &amp; feasibility read for a single cadastral parcel, drawn only from public cadastral, planning, environmental and market records. No private or promoter inputs.</p>
+    <div class="idline">
+      <span><b>RC</b> 1683501VL2018S</span>
+      <span><b>68,938 m²</b> · 6.89 ha</span>
+      <span>40.7167, −3.9000</span>
+      <span>elev 905–938 m · 33 m relief</span>
+      <span>muni 28023</span>
+    </div>
+    <span class="status-pill"><span class="dot"></span> Suelo urbanizable · Sector 1B · NNSS-97 · no PGOU</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="tile t-caution">
+      <p class="k">Buildability</p>
+      <p class="v">Caution</p>
+      <p class="n">Nominally urbanizable (Sector 1B), but no approved plan parcial confirmed for this parcel — development rights exist on paper, not yet in execution.</p>
+    </div>
+    <div class="tile t-nogo">
+      <p class="k">Entitlement risk</p>
+      <p class="v">High · two-sided</p>
+      <p class="n">Binding regional reports push zero-growth &amp; declassification; yet neighbouring sectors (10C, UE-1B, UE-4C) are actively advancing through approval.</p>
+    </div>
+    <div class="tile t-caution">
+      <p class="k">Hard overrides</p>
+      <p class="v">1 confirmed · 2 open</p>
+      <p class="n">PRCAM protection band confirmed as a municipal pattern. Red Natura 2000 &amp; vías pecuarias not yet resolved for this parcel.</p>
+    </div>
+  </div>
+
+  <!-- 01 -->
+  <section class="block">
+    <div class="block-head"><span class="num">01</span><h2>Can I build here?</h2></div>
+    <p class="lead">Classification, the governing instrument, and the overlays that can veto everything.</p>
+    <div class="row">
+      <div class="label">Land class</div>
+      <div class="val"><span class="big">Suelo urbanizable — Sector 1B</span><span class="note">Residential sector dimensioned at 78 dwellings (11.79% of the El Boalo nucleus's urbanizable surface, NNSS-97 inventory). Catastro descriptor «PL SECTOR 1 B 1»; SIU sampled 'urbanizable delimitado/sectorizado' at 10/10 points.</span></div>
+      <div><span class="flag f-caution">Medium conf.</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Instrument</div>
+      <div class="val"><span class="big">NNSS-97 · no PGOU</span><span class="note">Normas Subsidiarias (revision BOCM 28-Aug-2001) patched by point modifications; the municipality abandoned drafting a Plan General after the region's 2018 Territorial Impact Report found fundamental defects.</span></div>
+      <div><span class="flag f-verified">Public record</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Advancement</div>
+      <div class="val"><span class="big">UE-1B urbanization project — approved Aug 2023</span><span class="note">Initial 25-Apr-2023, definitive 3-Aug-2023 (BOCM 21-Aug-2023). Signals development units are advancing, not being declassified. Whether UE-1B covers this exact RC remains to be confirmed against the approval plano.</span></div>
+      <div><span class="flag f-caution">Verify scope</span></div>
+    </div>
+    <div class="row">
+      <div class="label">PRCAM overlay</div>
+      <div class="val"><span class="big">Protection band required at park edge</span><span class="note">Municipality sits inside the Parque Regional de la Cuenca Alta del Manzanares (Ley 1/1985). Verified municipal pattern (Sector 10C plan parcial): sectors abutting the park cede an ecological-corridor band. This parcel's PRCAM zone (A/B/P) is unconfirmed — Zona A/B would preclude urbanization regardless of the NNSS.</span></div>
+      <div><span class="flag f-verified">Rule verified</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Red Natura 2000</div>
+      <div class="val"><span class="pending-val">Query pending</span><span class="note">The exact trigger that reclassified part of Sector 7C (Cerceda) to protected non-urbanizable in the 2025 UE-4C modification. Must be resolved for this parcel before any envelope is bankable.</span></div>
+      <div><span class="flag f-pending">Pending</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Vías pecuarias · DPH</div>
+      <div class="val"><span class="pending-val">Query pending</span><span class="note">Cattle-trail corridors and watercourse (dominio público hidráulico) setbacks. Public aerial imagery suggests a possible vaguada on the east of the parcel — a candidate DPH setback to verify on the ground.</span></div>
+      <div><span class="flag f-pending">Pending</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Terrain</div>
+      <div class="val"><span class="big">905–938 m · 33 m relief · S/SE slope</span><span class="note">IGN PNOA-LiDAR MDT05 (5 m). Granite-dehesa slope with oak stands and rock outcrops readable on public orthophoto — buildable land is materially less than gross area once slopes and features are respected.</span></div>
+      <div><span class="flag f-verified">IGN LiDAR</span></div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="block">
+    <div class="block-head"><span class="num">02</span><h2>How much can I build?</h2></div>
+    <p class="lead">The buildable envelope under the public instrument. The coefficient is the one number still locked in the sector ficha.</p>
+    <div class="row">
+      <div class="label">Edificabilidad</div>
+      <div class="val"><span class="pending-val">Pending — Sector 1B ficha</span><span class="note">The buildable coefficient (m²/m²) is set in the NNSS ficha for Sector 1B; not yet retrieved from public sources. Illustrative envelopes below.</span></div>
+      <div><span class="flag f-pending">Blocker</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Dwelling cap</div>
+      <div class="val"><span class="big">≈ 78 units</span><span class="note">Maximum residential units the sector is dimensioned for (NNSS-97 inventory). At typical unit sizes this cap binds before floor area does — see the table.</span></div>
+      <div><span class="flag f-caution">Medium conf.</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Height culture</div>
+      <div class="val"><span class="big">2 floors + attic · ≈ 9 m</span><span class="note">Verified from the Sector 10C plan parcial ordinance (máx. 9.00 m, cumbrera 12 m); consistent town-wide massing pattern.</span></div>
+      <div><span class="flag f-verified">Verified</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Plot pattern</div>
+      <div class="val"><span class="big">Min parcel 1,000 m² · setback 3 m</span><span class="note">Values from the Sector 10C ordinance — a productive-use sector, so treated as the municipal pattern, not Sector 1B's own numbers.</span></div>
+      <div><span class="flag f-caution">Pattern</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Cessions</div>
+      <div class="val"><span class="big">10% aprovechamiento + redes + VPP</span><span class="note">10% of buildable value ceded to the ayuntamiento (Ley 9/2001, confirmed against a live El Boalo ficha); plus redes locales and the state-law VPP reserve (40% of residential edificability in new-urbanization sectors, Ley 12/2023).</span></div>
+      <div><span class="flag f-verified">Verified</span></div>
+    </div>
+
+    <h2 style="font-size:17px;margin:22px 0 2px;font-family:var(--display)">Illustrative envelopes — pending the ficha</h2>
+    <table class="envs">
+      <thead><tr><th>If edificabilidad is…</th><th>Max GFA</th><th>GFA ÷ 150 m²</th><th>Effective homes</th></tr></thead>
+      <tbody>
+        <tr><td>0.20 m²/m²</td><td>13,788 m²</td><td>92</td><td class="capped">78 (cap binds)</td></tr>
+        <tr><td>0.25 m²/m²</td><td>17,235 m²</td><td>115</td><td class="capped">78 (cap binds)</td></tr>
+        <tr><td>0.30 m²/m²</td><td>20,681 m²</td><td>138</td><td class="capped">78 (cap binds)</td></tr>
+        <tr><td>0.35 m²/m²</td><td>24,128 m²</td><td>161</td><td class="capped">78 (cap binds)</td></tr>
+      </tbody>
+    </table>
+    <p class="tbl-note">Gross parcel area × coefficient, before cessions and site exclusions. Key public-data insight: <b>at every plausible coefficient, the 78-dwelling sector cap — not floor area — is the binding constraint for pure residential.</b> Larger unit sizes or non-residential uses change the calculus, which is why the ficha's uses table is decisive.</p>
+  </section>
+
+  <!-- 03 -->
+  <section class="block">
+    <div class="block-head"><span class="num">03</span><h2>What does the zoning permit?</h2></div>
+    <p class="lead">The objective envelope the public instrument allows — uses and development path, before any scheme.</p>
+    <div class="row">
+      <div class="label">Permitted uses</div>
+      <div class="val"><span class="pending-val">Pending — Sector 1B ficha</span><span class="note">Residential is implied by the 78-dwelling dimensioning. Whether <b>terciario / hotelero</b> or other uses are also permitted is the decisive line, still in the ficha.</span></div>
+      <div><span class="flag f-pending">Decisive</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Residential capacity</div>
+      <div class="val"><span class="big">up to ≈ 78 dwellings</span><span class="note">The sector's NNSS-97 dimensioning, before cessions and coefficient. The implied sector surface (~5 ha at 11.79%) is smaller than this 6.9 ha parcel — the holding likely spans the sector plus adjoining land, to be resolved against the classification plano.</span></div>
+      <div><span class="flag f-caution">Medium conf.</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Development path</div>
+      <div class="val"><span class="big">Plan parcial + compensación</span><span class="note">Urbanizable land is not buildable until a plan parcial is approved and executed via sistema de compensación; a single owner may substitute a convenio de gestión (Ley 9/2001 art. 106, pattern verified in the 10C plan parcial).</span></div>
+      <div><span class="flag f-verified">Public law</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Context precedents</div>
+      <div class="val"><span class="big">10C approved · 7C partly declassified</span><span class="note">Sector 10C's plan parcial advanced (initial approval Jul-2022) while 1,637 m² of Sector 7C was moved to protected non-urbanizable for Red Natura (2025). Both outcomes are live possibilities for any El Boalo sector — this is the two-sided entitlement picture in one municipality.</span></div>
+      <div><span class="flag f-verified">Public record</span></div>
+    </div>
+    <div class="callout">
+      <span class="ci">▲ RISK</span>
+      <p>The <b>permitted-use line is decisive.</b> A residential sector cap does not by itself grant <b>terciario / hotelero</b> use — any hospitality or commercial program depends on the ficha's uses table or a modificación. Residential capacity up to the dwelling cap is the safe public baseline.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="block">
+    <div class="block-head"><span class="num">04</span><h2>What's the market context?</h2></div>
+    <p class="lead">Area-level public transaction comps only. No price is tied to this parcel in any public record; residual value resolves once the coefficient lands.</p>
+    <div class="econ">
+      <div class="stat"><p class="sk">Parcel price</p><p class="sv pending-val">Not on record</p><p class="ss">No public transaction for this RC</p></div>
+      <div class="stat"><p class="sk">Area new-build</p><p class="sv">€3.2–3.6k</p><p class="ss">/m² · public listings</p></div>
+      <div class="stat"><p class="sk">GDV / residual</p><p class="sv pending-val">Pending</p><p class="ss">Needs edificabilidad (§02)</p></div>
+    </div>
+    <div class="row">
+      <div class="label">Area demand</div>
+      <div class="val"><span class="big">New-build &amp; resale rising</span><span class="note">Corridor: new-build €3,200–3,580/m², resale €2,060–2,680/m², +8–19% YoY (public listings / registry).</span></div>
+      <div><span class="flag f-verified">Comps</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Hospitality benchmark</div>
+      <div class="val"><span class="big">Thin / absent market</span><span class="note">Zero sierra hotel transactions 2020–26; the one comparable sierra hotel (Rascafría) closed 11+ yrs, its operating tender drew no bids; boutique ADR €121–188 (public sources).</span></div>
+      <div><span class="flag f-risk">Weak</span></div>
+    </div>
+    <div class="row">
+      <div class="label">Value driver</div>
+      <div class="val"><span class="big">Entitlement-dependent</span><span class="note">Urbanizable value hinges on the coefficient (§02) and reclassification risk; rústic dehesa in the region trades far lower per m². The two-sided entitlement picture (§03) is the dominant risk factor in any valuation.</span></div>
+      <div><span class="flag f-caution">Caution</span></div>
+    </div>
+  </section>
+
+  <footer class="legend">
+    <h3>Confidence &amp; sources</h3>
+    <div class="legend-row">
+      <span class="item"><span class="flag f-verified">Verified</span> read from an official document</span>
+      <span class="item"><span class="flag f-caution">Medium</span> multi-source, unconfirmed</span>
+      <span class="item"><span class="flag f-risk">Weak</span> evidence against</span>
+      <span class="item"><span class="flag f-pending">Pending</span> awaiting fetch/query</span>
+    </div>
+    <p class="srcs">
+      NNSS-97 El Boalo–Cerceda–Mataelpino (revision BOCM 28-Aug-2001) · Plan Parcial Sector 10C, Normas Urbanísticas (comunidad.madrid, ene-2022 — parsed) · Catastro INSPIRE (RC 1683501VL2018S) · SIU land classification · Ley 9/2001 del Suelo CM · Ley 12/2023 (VPP reserve) · Ley 1/1985 PRCAM · BOCM approvals (UE-1B Aug-2023; UE-4C Mar-2025) · IGN PNOA-LiDAR MDT05 · public area listings &amp; registry · INE renta. Working trace: docs/boalo-planning-research.md in the project repository.
+    </p>
+    <p class="genline">PUBLIC RECORDS ONLY · confidence-flagged · one coefficient (Sector 1B ficha) from complete</p>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var c = document.getElementById('contours');
+    if (!c) return;
+    var ctx = c.getContext('2d');
+    function draw() {
+      var host = c.parentElement, w = host.offsetWidth, h = host.offsetHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      c.width = w * dpr; c.height = h * dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,w,h);
+      var dark = matchMedia('(prefers-color-scheme: dark)').matches;
+      ctx.strokeStyle = dark ? 'rgba(207,154,84,0.16)' : 'rgba(138,90,36,0.15)';
+      ctx.lineWidth = 1;
+      var cx = w * 0.82, cy = h * 0.5;
+      for (var r = 18; r < Math.max(w,h) * 1.15; r += 26) {
+        ctx.beginPath();
+        for (var a = 0; a <= Math.PI * 2 + 0.05; a += 0.08) {
+          var wob = 1 + 0.14 * Math.sin(a * 3 + r * 0.05) + 0.06 * Math.cos(a * 5 - r * 0.03);
+          var rx = r * wob, ry = r * wob * 0.66;
+          var x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry;
+          a === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+    }
+    draw();
+    var t; addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(draw, 120); });
+    var mq = matchMedia('(prefers-color-scheme: dark)');
+    mq.addEventListener && mq.addEventListener('change', draw);
+  })();
+</script>
+</body>
+</html>
