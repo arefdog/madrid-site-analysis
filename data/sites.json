@@ -11,7 +11,8 @@
       "market: price, terms, pricePerM2, comps, listingUrl — model readout joins from scores.json via muniCode",
       "fit: one-line BYLD product fit",
       "footprint: fallback polygon if Catastro is unreachable",
-      "masterplan: version, assumptions, zones[{id,name,areaM2,builtM2,program}], unitMix[{type,count,note}], principles[], phasing[] — BYLD design suggestion, indicative"
+      "masterplan: version, assumptions, zones[{id,name,areaM2,builtM2,program}], unitMix[{type,count,note}], principles[], phasing[] — BYLD design suggestion, indicative",
+      "publicRecord: asOf, title, sections[{title, rows[{label, value, url?, rc?}], note?, cadastre?}] — the second report tab. STRICT RULE: only facts a third party can verify in public sources (Catastro, SIU, BOCM, published instruments, open listings), source named per section. Nothing BYLD- or owner-sourced: no deck figures, no private terms, no fit/masterplan, no engine score. A section with cadastre:true reuses the live Catastro rows. Include a closing 'Not in the public record' section — verifiable absences are part of the record."
     ]
   },
   "sites": [
@@ -79,26 +80,26 @@
       },
       "planning": {
         "classification": {
-          "category": "unverified",
+          "category": "urbanizable sectorizado (ficha)",
           "detail": [
             {
-              "class": "SUELO URBANIZABLE (probable, delimitado/sectorizado)",
-              "scope": "STRONGEST signal: SIU returned 'SUELO URBANIZABLE DELIMITADO O SECTORIZADO' at 10/10 sample points, and Catastro (verified 09-Jul-2026) labels the parcel «PL SECTOR 1 B 1» — a SECTOR. Both point to a delimited urbanizable sector, for which a Plan Parcial is the correct instrument."
+              "class": "SUELO URBANIZABLE DELIMITADO O SECTORIZADO",
+              "scope": "CONFIRMED by the NNSS ficha urbanística «Sector 1B» (BOCM nº 174, 25-Jul-2011, pp. 232–233; copy in repo docs/el-boalo/legal): 70,484 m², suelo urbanizable, ordenación a definir por Plan Parcial. Concordant: SIU 'urbanizable delimitado o sectorizado' at 10/10 sample points; Catastro labels the parcel «PL SECTOR 1 B 1»."
             },
             {
               "class": "SUELO NO URBANIZABLE",
-              "scope": "Counter-signal / to reconcile: the parcel sits in dehesa near the PRCAM; prior desk research expected SNU de especial protección. ENP/PRCAM + Red Natura services were down in-browser so protection overlays were NOT cross-checked. A protected overlay could still coexist with / override the sector."
+              "scope": "Residual counter-signal: the parcel sits in dehesa near the PRCAM and prior desk research expected SNU de especial protección. ENP/PRCAM + Red Natura services were down in-browser so protection overlays were NOT cross-checked. A protected overlay could still coexist with / override the sector."
             }
           ],
-          "basis": "Updated 09-Jul-2026: RC 1683501VL2018S is REAL and resolvable at sedecatastro (68,938 m², «PL SECTOR 1 B 1», El Boalo) — not the 'no public trace' our 05-Jul desk research feared. Combined with the SIU urbanizable-sectorizado read, the entitlement picture shifted materially toward Plan Parcial viability. STILL VERIFY: the exact sector ficha in the NNSS + cross-check PRCAM/Red Natura (services were offline). NNSS 1997/98 in force, no PGOU."
+          "basis": "Updated 12-Jul-2026: the Sector 1B ficha WAS located — in the NNSS text republished in BOCM nº 174 (25-Jul-2011), closing the 09-Jul open point. It confirms urbanizable sectorizado, Plan Parcial as instrument, execution by convenio + compensación. STILL VERIFY: PRCAM/Red Natura overlays (services were offline). Caveat from the same document: NNSS §9.1 lets the ayuntamiento re-system or desclassify sectors that breached their development program — Sector 1B's deadlines (PP 2 yrs, urbanización 8 yrs) expired decades ago. NNSS Dec-1996, no PGOU."
         },
-        "instrument": null,
-        "unit": null,
+        "instrument": "NNSS El Boalo 1996 · ficha Sector 1B — desarrollo por Plan Parcial; ejecución por convenio con la propiedad + compensación (BOCM nº 174, 25-Jul-2011)",
+        "unit": "Sector 1B · 70,484 m² (ficha, = INSPIRE surface; sedecatastro prints 68,938 m²)",
         "buildableM2": 17621,
         "capacity": "Branded residences 5,392 m² · hotel 5,286 m² (44 keys) · spa + restaurant 5,110 m² · VPP 3,524 m² · parking 1,762 m²",
         "density": "25% buildable ratio · 75% (52,863 m²) held as dehesa & trails",
-        "cessions": null,
-        "path": "Deck assumes modular permitting, subject to municipal approval — but the 25% / 17,621 m² buildability has no identified basis in any planning instrument (promoter aspiration, not entitlement). VPP flag: the deck's 3,524 m² = ~40% of the 8,916 m² residential component — right at the line, but the statutory floor ROSE from 30% to 40% of residential edificability for nueva urbanización (Ley 12/2023 estatal, art. 20.1.b TRLSRU), so there is now zero margin; any terrain shortfall on the VPP parcel (as the engine shows) pushes it non-compliant.",
+        "cessions": "Ficha: net private residential land ≤50% of gross (35,242 m²), rest ceded to the Ayto with use fixed by the Plan Parcial (viario incl. Ronda Este section + ≥6 m green walk, parks, equipment); municipal residential inside the cession capped at 10% of the sector's aprovechamiento lucrativo — apropiable 90%, i.e. 1,762 m² of the 17,621 m² roof to the Ayto",
+        "path": "Deck assumes modular permitting, subject to municipal approval. The 25% / 17,621 m² buildability DOES have a basis: it equals exactly the ficha's 0.25 m²/m² × 70,484 m² — what is missing is the Plan Parcial that distributes it (never approved; ficha deadlines long expired, desclassification power in NNSS §9.1). VPP flag: the deck's 3,524 m² = ~40% of the 8,916 m² residential component — right at the line, but the statutory floor ROSE from 30% to 40% of residential edificability for nueva urbanización (Ley 12/2023 estatal, art. 20.1.b TRLSRU), so there is now zero margin; any terrain shortfall on the VPP parcel (as the engine shows) pushes it non-compliant.",
         "constraints": "PRIMARY: likely PRCAM (parque regional) protected zoning — urbanization precluded in the A.2/B1 zones around El Boalo. Also: P.N. Guadarrama ZPP/PRUG buffer; Ley 7/2024 extends infraction/restoration window on protected land to 15 years; active local opposition (Ecologistas en Acción) with CM escalation track record against NNSS upzonings (Miragallos case, 2025)."
       },
       "market": {
@@ -198,7 +199,7 @@
           "P3 — VPP delivery per instrument conditions; equestrian + farm meadow activation"
         ],
         "codeBasis": [
-          "Entitlement instrument TBD (gating P0): no urbanizable sector exists today — schema is drawn to Ley 9/2001 sector standards so it survives whichever instrument is secured (Plan Parcial after reclassification, or convenio)",
+          "Entitlement instrument: Plan Parcial per the ficha Sector 1B (NNSS 1996, BOCM 2011) — the sector exists on paper with expired program deadlines (gating P0: revalidate or renew the convenio before relying on it); schema drawn to Ley 9/2001 sector standards so it survives a fresh Plan Parcial or renewed convenio",
           "VPP reserve ≥40% of RESIDENTIAL edificability for nueva urbanización — the Ley 12/2023 estatal (por el derecho a la vivienda) raised the art. 20.1.b TRLSRU floor from 30% to 40% (20% in suelo urbano no consolidado); the CM (Ley 9/2001, mod. Ley 3/2024) sits on top of that floor. Deck VPP 3,524 m² = 39.5% of the 8,916 m² residential component (residences + VPP) — essentially at, not above, the new line, and only IF branded residences classify as vivienda (if keyed as hospitality the calc changes). Plus: 10% aprovechamiento cession to the ayuntamiento; redes locales ~30 m²/100 m² built; parking ≥1.5 plazas/100 m² (met subterranean at core)",
           "NNSS El Boalo 1997/98 height culture: B+1 / ~6.5–7 m in unifamiliar zones — Echo/Duo/Grand (single storey on stilts) comply by design; the 44-key hotel volume needs its own sector ordinance",
           "Overlays prevail over municipal code: PRCAM PORN zoning + P.N. Guadarrama PRUG/ZPP; Ley 7/2024 15-year infraction window on protected land",
@@ -209,6 +210,131 @@
           "valueLadder": "Proven product in Market B: 170–215 m² pareados at €550–645k (€3,200–3,580/m² — Moralzarzal phase II implies phase I absorbed); resale €2,060–2,680/m², riding +8–19% YoY. Phase-1 at precedent scale (15–25 residences × ~150–200 m²) ≈ €8–14M gross revenue potential IF entitled. Land at €56.7/m² remains entitlement-hope pricing; stage payments to milestones.",
           "exit": "Sell residences unit-by-unit (transaction-proven). Hotel/spa core stays conditional and small (amenity economics); consider operator-light models (villas + services) that the villa-rental comps (€240–378/night) actually support."
         }
+      },
+      "publicRecord": {
+        "asOf": "09-Jul-2026",
+        "title": "Parcela 1683501VL2018S · El Boalo (Madrid)",
+        "sections": [
+          {
+            "title": "1 · Cadastre — Sede Electrónica del Catastro",
+            "cadastre": true,
+            "rows": [],
+            "note": "Sedecatastro consultation 09-Jul-2026: RC 1683501VL2018S resolves as «PL SECTOR 1 B 1», El Boalo, 68,938 m². The INSPIRE register carries 70,484 m² for the same parcel: the two official surfaces differ by ~1,546 m²."
+          },
+          {
+            "title": "2 · Land classification — official viewers",
+            "rows": [
+              {
+                "label": "SIU (MIVAU)",
+                "value": "«SUELO URBANIZABLE DELIMITADO O SECTORIZADO» at 10 of 10 points sampled inside the parcel (consulted Jul-2026)",
+                "url": "https://www.mivau.gob.es/urbanismo-y-suelo/suelo/sistema-de-informacion-urbana"
+              },
+              {
+                "label": "Catastro descriptor",
+                "value": "«PL SECTOR 1 B 1» — a named SECTOR, consistent with the SIU urbanizable-sectorizado reading"
+              },
+              {
+                "label": "Municipal planning",
+                "value": "NNSS de El Boalo 1996 in force; no PGOU. Full NNSS text republished in BOCM nº 174 of 25-Jul-2011; the ficha urbanística «Sector 1B» is at pp. 232–233: suelo urbanizable (ámbito no consolidado), ordenación to be defined by Plan Parcial",
+                "url": "https://www.bocm.es/boletin/CM_Orden_BOCM/2011/07/25/BOCM-20110725-6.PDF"
+              }
+            ]
+          },
+          {
+            "title": "3 · Edificabilidad — ficha Sector 1B, NNSS 1996 (BOCM nº 174, 25-Jul-2011)",
+            "rows": [
+              {
+                "label": "Buildable ceiling",
+                "value": "17,621 m² max roof — edificabilidad máxima 0.25 m²/m² × 70,484 m² sector surface (ficha prints the ratio and the surface; the product follows)",
+                "url": "https://www.bocm.es/boletin/CM_Orden_BOCM/2011/07/25/BOCM-20110725-6.PDF"
+              },
+              {
+                "label": "Sellable (private)",
+                "value": "15,859 m² — aprovechamiento apropiable 90% per ficha; the other 10% (1,762 m² of roof) belongs to the ayuntamiento"
+              },
+              {
+                "label": "Homes",
+                "value": "78 viviendas max — densidad bruta máxima 11 viv/Ha over 7.05 ha"
+              },
+              {
+                "label": "VPP to create",
+                "value": "7,048 m² if the whole ceiling stays residential (ficha uso principal: Residencial) — statutory floor ≥40% of residential edificability for nueva urbanización, art. 20.1.b TRLSRU as raised by Ley 12/2023; it shrinks to 40% of whatever the Plan Parcial keeps residential. How transitional rules treat a 1996-delimited sector: legal confirmation pending"
+              },
+              {
+                "label": "Private land",
+                "value": "35,242 m² max — the ficha caps the net residential land of private appropriation at 50% of the gross sector (obs. vinculante 1)"
+              },
+              {
+                "label": "Public roads & cessions",
+                "value": "35,242 m² min of land to the ayuntamiento — roads (including a main-road section reserved for the future Ronda Este with a green walkway of at least 6 m alongside), parks and equipment; the exact split is fixed by the Plan Parcial, interior dotaciones per the Reglamento de Planeamiento annex (obs. vinculantes 1–2)"
+              },
+              {
+                "label": "Plot rules",
+                "value": "240 m² min parcel · 2 floors / 6.5 m max height · typology «AB-as.pa» · occupation and setbacks: según Plan Parcial"
+              },
+              {
+                "label": "Instrument & deadlines",
+                "value": "Plan Parcial (2-year filing deadline) + proyecto de urbanización (1 year) + complete urbanization in 8 years; execution by convenio with the owners + compensación. All deadlines expired decades ago — NNSS §9.1 empowers the ayuntamiento to switch to public management or desclassify a sector that breached its development program"
+              }
+            ]
+          },
+          {
+            "title": "4 · Protection overlays — published instruments",
+            "rows": [
+              {
+                "label": "PRCAM",
+                "value": "The Parque Regional de la Cuenca Alta del Manzanares (Ley 1/1985, PORN published) covers much of the El Boalo area; in its A.2/B1 zones urbanization is precluded. Whether THIS parcel falls inside was NOT verified: the CM ENP and Red Natura viewers were offline at consultation"
+              },
+              {
+                "label": "P.N. Guadarrama",
+                "value": "Parcel sits against the buffer of the Parque Nacional Sierra de Guadarrama (PRUG/ZPP published)"
+              },
+              {
+                "label": "Ley 7/2024 CM",
+                "value": "Extends the infraction/restoration window on protected land to 15 years (BOCM)"
+              },
+              {
+                "label": "Local context",
+                "value": "Public opposition track record: Ecologistas en Acción challenges to sierra NNSS upzonings, with CM escalation precedent (Miragallos, 2025 — press and BOCM record)"
+              }
+            ]
+          },
+          {
+            "title": "5 · Market — open listings and portal data",
+            "rows": [
+              {
+                "label": "Listing",
+                "value": "idealista: 68,938 m² «urbanizable» land in El Boalo asking €3,950,000 (€57/m²). The advertised surface matches the sedecatastro surface of this parcel exactly",
+                "url": "https://www.idealista.com/venta-terrenos/el-boalo-madrid/"
+              },
+              {
+                "label": "Residential comps",
+                "value": "New pareados in the corridor €550–645k (€3,200–3,580/m² built); resale €2,060–2,680/m², +8–19% YoY (portal asking data)"
+              },
+              {
+                "label": "Hospitality comps",
+                "value": "No sierra hotel transactions on public record 2020–2026; Santa María de El Paular (44 keys, Rascafría) closed 11+ years and its operating tender drew zero bids; boutique ADR €121–188 published; villa rentals €240–378/night; rural occupancy ~22% (INE)"
+              }
+            ]
+          },
+          {
+            "title": "6 · Not in the public record",
+            "rows": [
+              {
+                "label": "Entitlement",
+                "value": "No APPROVED Plan Parcial, no convenio filing and no proyecto de urbanización for Sector 1B appears in BOCM or municipal records — the ficha fixes the ceilings in section 3, but the distribution (ordenanza, occupation, setbacks, VPP siting) only exists once a Plan Parcial is approved"
+              },
+              {
+                "label": "Transaction",
+                "value": "No sale, reservation or option on the parcel has any public trace"
+              },
+              {
+                "label": "Overlay check",
+                "value": "PRCAM / Red Natura parcel-level cross-check pending (official viewers offline at consultation)"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -449,6 +575,108 @@
           "valueLadder": "Exit plots: ~3–4 lots ≈ €0.7–1.0M gross. Costs: €245k land + urbanisation 5,251 m² × €60–120 (LINE-ITEM COSTING REQUIRED — CAM Base de Datos de la Construcción / Ayto. Madrid cuadro de precios) + carry. Villa route: 4 × 290 m² × €2,850–3,200 ≈ €3.3–3.7M revenue vs ~€3.0–3.6M all-in cost. KILL CRITERION: if the costed urbanisation exceeds ~€120/m² of land, flip-only or pass.",
           "exit": "Base: execute unit + sell 3 serviced plots + 1 modular show villa. Upside: build all 4 (scarcity supports it — only promotion-grade supply is 3 small co-op schemes from €368k). Data gap: per-municipality MIVAU transaction counts need a manual XLS pull; plot days-on-market unpublished."
         }
+      },
+      "publicRecord": {
+        "asOf": "05-Jul-2026",
+        "title": "U.E. 18 «Colonia de Santiago» · Colmenarejo (Madrid)",
+        "sections": [
+          {
+            "title": "1 · Cadastre — Sede Electrónica del Catastro",
+            "cadastre": true,
+            "rows": [],
+            "note": "12 parcels on the urbana register (1,002–1,554 m² each) plus edge parcel 28061A02200075 on the rústica register (polígono 22)."
+          },
+          {
+            "title": "2 · Planning — NNSS de Colmenarejo 1996 (published instrument)",
+            "rows": [
+              {
+                "label": "Unit",
+                "value": "Ficha «Desarrollo de Unidad de Ejecución en S.U.» — U.E. 18 «Colonia de Santiago», 27,122 m² delimited; suelo urbano no consolidado. Ficha and plan P.3a «Calificación del suelo urbano» are reproduced in the listing photos; originals at the ayuntamiento"
+              },
+              {
+                "label": "Capacity",
+                "value": "Max 18 homes unit-wide; cessions 3,948 m² zona verde («entre calles») plus road network"
+              },
+              {
+                "label": "Ordinance",
+                "value": "Zona SU-UE 18 Grado 3º: min parcel 1,000 m² · 20 m frontage · occupation 25% · 0.25 m²/m² net · 2 floors + bajo cubierta · 6.50 m eaves / 8.50 m ridge · setbacks 4/4/3 m"
+              },
+              {
+                "label": "Execution status",
+                "value": "No Estudio de Detalle and no proyecto de urbanización for U.E. 18 found in any public record in ~30 years; the only visible execution is a sewer main in Calle Cerca del Pino"
+              },
+              {
+                "label": "Litigation",
+                "value": "PLANEA lists a TSJ Madrid sentencia touching Colmenarejo planning (expte. 61657) — online retrieval bot-blocked, manual pull required. Modificaciones list at transparencia.ayto-colmenarejo.org"
+              },
+              {
+                "label": "Precedent nearby",
+                "value": "Galapagar U.E.-7 «Fuente Elvira», across the boundary, stalled 15+ years since the Martinsa-Fadesa bankruptcy (public insolvency record), with distressed plot valuations"
+              }
+            ]
+          },
+          {
+            "title": "3 · Edificabilidad — U.E. 18 ficha & ordinance, in meters",
+            "rows": [
+              {
+                "label": "Unit total",
+                "value": "27,122 m² gross unit · 18 homes max unit-wide (ficha)"
+              },
+              {
+                "label": "Sale portion buildable",
+                "value": "≈1,313 m² sellable roof — 0.25 m²/m² net × the 5,251 m² advertised; ground coverage capped at the same ≈1,313 m² (25% occupation)"
+              },
+              {
+                "label": "Per plot",
+                "value": "~250–310 m² built per plot — 4–5 plots possible at the 1,000 m² minimum, each independently meeting the 20 m frontage and Ø20 m inscribed-circle rules"
+              },
+              {
+                "label": "Public roads & cessions",
+                "value": "3,948 m² zona verde to the municipality («entre calles») + the unit's internal road network; the viario surface is not quantified in the public ficha. Urbanisation costs are shared pro-rata among unit owners (sistema de compensación)"
+              },
+              {
+                "label": "Volume",
+                "value": "2 floors + bajo cubierta · 6.50 m eaves / 8.50 m ridge · setbacks 4 m street / 4 m rear / 3 m sides"
+              },
+              {
+                "label": "Statutory overlays",
+                "value": "10% aprovechamiento cession (Ley 9/2001, suelo urbano no consolidado) and a 20% VPP floor on residential edificability for reform actuations (art. 20.1.b TRLSRU per Ley 12/2023) ≈ up to 263 m² of the 1,313 m² — whether either binds execution of a unit delimited in 1996 without new ordenación needs legal confirmation"
+              }
+            ],
+            "note": "Parameters as printed in the ficha/ordinance reproduced in the listing photos; nearby listings quote 0.20 m²/m² and 15% occupation — confirm against the NNSS original before relying on these meters."
+          },
+          {
+            "title": "4 · Market — open listings and portal data",
+            "rows": [
+              {
+                "label": "Listing",
+                "value": "idealista 111936104 (TEAM COMPASS): €244,900 for 5,251 m² (€46.6/m²). Vendor claims, unverified: segregable into 3 parcels of 1,000 m² min; a plan in the ad shows a 5,932.78 m² «resultado de segregación»",
+                "url": "https://www.idealista.com/inmueble/111936104/"
+              },
+              {
+                "label": "Comps",
+                "value": "Houses Colmenarejo €2,423–2,597/m² asking (+20–26% YoY); Galapagar registered new-build €2,410/m², second-hand €1,910/m²; new promotions €2,850–3,580/m²; finished plots ask €185–196/m² (portal and registry data)"
+              }
+            ]
+          },
+          {
+            "title": "5 · Not in the public record",
+            "rows": [
+              {
+                "label": "Ownership",
+                "value": "Ownership structure of the unit and the segregation licence behind the advertised split: Registro de la Propiedad nota simple required (on-request, not open)"
+              },
+              {
+                "label": "Heritage",
+                "value": "«Colonia de Santiago» is a 1929 summer colony with traditional houses; whether any are catalogued needs the municipal heritage catalog"
+              },
+              {
+                "label": "Ordinance check",
+                "value": "Nearby listings quote 0.20 m²/m² and 15% ocupación for comparable parcels — the exact parameters need confirming against the NNSS original"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -553,37 +781,264 @@
         "comps": "≈ €650 per buildable m² (2,000 m² edificable)",
         "listingUrl": "https://www.idealista.com/inmueble/109756498/"
       },
-      "fit": "Costa Brava wellness/hospitality play: an approved 37-key aparthotel envelope 1.5 km from a top-tier cove, with a fallback 3-villa scheme — dual exit (operate vs. parcel-and-sell)."
+      "fit": "Costa Brava wellness/hospitality play: an approved 37-key aparthotel envelope 1.5 km from a top-tier cove, with a fallback 3-villa scheme — dual exit (operate vs. parcel-and-sell).",
+      "publicRecord": {
+        "asOf": "Jul-2026",
+        "title": "Parcelas 7112106/7112110EG1471S · Tamariu, Palafrugell (Girona)",
+        "sections": [
+          {
+            "title": "1 · Cadastre — Sede Electrónica del Catastro",
+            "cadastre": true,
+            "rows": [],
+            "note": "Two parcels: 7112106 (CL Aigua Blava 17, urbano + rústico, 8,326 m²) and 7112110 (CL Salvador access strip, 2,052 m²) — register total 10,378 m². The listing advertises 11,147 m²: a 769 m² gap against the register."
+          },
+          {
+            "title": "2 · Planning — public instruments",
+            "rows": [
+              {
+                "label": "POUM Palafrugell",
+                "value": "The applicable instrument; its ficha for this land is consultable in the Registre de planejament urbanístic de Catalunya (public). Not yet cross-checked against the listing claims",
+                "url": "https://dtes.gencat.cat/rpucportal/"
+              },
+              {
+                "label": "Listing claims",
+                "value": "Vendor-stated, unverified: urbanizable; residential unifamiliar + terciario (hotels); 2 buildable floors; an aparthotel project (37 rooms, 1,500 m² planta baja + 500 m² sótano) «approved by the Ajuntament de Palafrugell». No expedient or approval was located in public records"
+              },
+              {
+                "label": "Overlays to verify",
+                "value": "Riera de Tamariu watercourse (DPH setback, ACA) and coastal-influence conditions (Costas) — both published regimes, parcel-level check pending"
+              }
+            ]
+          },
+          {
+            "title": "3 · Edificabilidad — what is public, in meters",
+            "rows": [
+              {
+                "label": "Public figure",
+                "value": "None retrieved yet — the buildable meters, use split and cessions for these parcels are fixed by the POUM de Palafrugell ficha, consultable in the RPUC (pending pull)",
+                "url": "https://dtes.gencat.cat/rpucportal/"
+              },
+              {
+                "label": "Vendor claim",
+                "value": "2,000 m² buildable — 1,500 m² planta baja + 500 m² sótano (37-room aparthotel), or alternatively 3 villas on ~3,700 m² plots; 2 floors. Unverified against the POUM"
+              },
+              {
+                "label": "Municipal share",
+                "value": "In Catalan delimited urbanizable the municipality takes a share of the aprofitament urbanístic (TRLUC) — meters computable only once the POUM ficha yields the ceiling"
+              },
+              {
+                "label": "Housing reserve",
+                "value": "Applies only to newly created RESIDENTIAL ceiling (the villas route): state floor 40% of residential edificability for nueva urbanización (art. 20.1.b TRLSRU per Ley 12/2023), on top of the TRLUC reserve regime — exact applicable % to confirm on the POUM ficha and transitional rules. The aparthotel route (terciario/hotel) carries no housing reserve"
+              }
+            ]
+          },
+          {
+            "title": "4 · Market — open listing",
+            "rows": [
+              {
+                "label": "Listing",
+                "value": "idealista 109756498: €1,300,000, exclusive (€117/m² on register surface; ≈€650 per buildable m² on the listing's 2,000 m² claim)",
+                "url": "https://www.idealista.com/inmueble/109756498/"
+              }
+            ]
+          },
+          {
+            "title": "5 · Not in the public record",
+            "rows": [
+              {
+                "label": "The approval",
+                "value": "The claimed aparthotel approval: no licencia, expedient number or municipal acord located online — request it from the vendor or the Ajuntament"
+              },
+              {
+                "label": "POUM ficha",
+                "value": "Zoning class, edificability and sector conditions for these parcels: pending retrieval from the RPUC"
+              }
+            ]
+          }
+        ]
+      }
     },
     {
-      "id": "parcela-6573201uf1367s",
-      "name": "Parcela 6573201UF1367S",
-      "municipality": null,
-      "muniCode": null,
-      "status": "Added — awaiting name / context",
-      "sources": [],
+      "id": "estepona-riviera",
+      "name": "Estepona — Riviera Beach enclave, Cancelada",
+      "municipality": "Estepona",
+      "muniCode": "29051",
+      "status": "Under evaluation · BYLD · Jul 2026",
+      "sources": [
+        {
+          "label": "Catastro OVC + INSPIRE, parcel records & geometry (12-Jul-2026)",
+          "url": null
+        },
+        {
+          "label": "SITUA/VITUA (Junta de Andalucía) — instrument in force & protections queries (12-Jul-2026)",
+          "url": "https://www.juntadeandalucia.es/organismos/fomentoarticulaciondelterritorioyvivienda/areas/urbanismo/situa.html"
+        },
+        {
+          "label": "Source dossier: docs/estepona/ in the feasibility-engine repo (LISTA, POT drafts, SUNP-E1, Catastro XML/GML)",
+          "url": null
+        }
+      ],
       "land": {
-        "grossM2": null,
-        "parcelCount": 1,
-        "landClass": "Catastro (INSPIRE)",
-        "features": null,
-        "orientation": null,
+        "grossM2": 17746,
+        "parcelCount": 2,
+        "landClass": "Catastro register: URBANA (both parcels) — an urban enclave surrounded by rústico (polígono 5 of Cancelada). Indicative only: the binding classification sits in the PGOU 1994 / Adaptación planos, not yet retrieved",
+        "features": "Coastal-plain enclave in Urbanización Riviera Beach, immediately south of the A-7, 450–500 m from the Saladillo shoreline; an unfinished 1987 commercial shell (7,120 m² built) stands on the small parcel, the rest is vacant",
+        "orientation": "S (coastal plain)",
         "elevationM": null
       },
       "location": {
         "marker": [
-          40,
-          -3.7
+          36.4617931,
+          -5.0485248
         ],
-        "accessNote": "Outline and position load from Catastro (INSPIRE) by cadastral reference; the pin self-centres on the parcel once it fetches.",
-        "distances": []
+        "accessNote": "Access road between the two parcels off the Riviera Beach urbanization grid; A-7 frontage on the northern edge",
+        "distances": [
+          {
+            "label": "Saladillo beach",
+            "km": 0.5,
+            "time": "6 min walk"
+          },
+          {
+            "label": "Puerto Banús",
+            "km": 10,
+            "time": "~10 min"
+          },
+          {
+            "label": "Estepona centro",
+            "km": 11,
+            "time": "~12 min"
+          },
+          {
+            "label": "Marbella",
+            "km": 16,
+            "time": "~15 min"
+          },
+          {
+            "label": "Málaga — AGP airport",
+            "km": 65,
+            "time": "~45 min"
+          }
+        ]
       },
       "cadastre": {
         "refs": [
           {
             "rc": "6573201UF1367S",
-            "label": "Parcela catastral",
-            "areaM2": null
+            "label": "«Riviera Beach 100» · industrial register, mostly vacant",
+            "areaM2": 14658
+          },
+          {
+            "rc": "6573214UF1367S",
+            "label": "«Riviera Beach 100(M)» · commercial shell 7,120 m² built (1987)",
+            "areaM2": 3088
+          }
+        ]
+      },
+      "planning": {
+        "classification": {
+          "category": "urbana (register) — PGOU planos pending",
+          "detail": [
+            {
+              "class": "SUELO URBANO",
+              "scope": "Catastro registers both parcels as clase UR (urbana), an enclave surrounded by rústico. The binding classification and ordinance sit in the PGOU 1994 + Adaptación Parcial planos («6.1 Clasificación adaptado», «6.4 Usos globales adaptado») — behind the town hall's session-gated transparency viewer, manual pull pending."
+            }
+          ],
+          "basis": "SITUA registry (12-Jul-2026): Estepona's general instrument in force = PGOU 1994 (CPOTU 27-Apr-1994) + Adaptación Parcial a la LOUA (Pleno 22-Dec-2010; BOP Málaga nº 115, 17-Jun-2011), still governing under the LISTA transitional regime — no PGOM tender or avance found. Regional frame: Ley 7/2021 (LISTA) + Reglamento General (Decreto 550/2022). Subregional: NONE in force — the 2006 POT Costa del Sol Occidental was annulled by the Tribunal Supremo on 6-Oct-2015; its replacement is only en tramitación (información pública Mar-2023)."
+        },
+        "instrument": "PGOU Estepona 1994 + Adaptación Parcial a la LOUA (BOP Málaga nº 115, 17-Jun-2011) · governing under the LISTA transitional regime",
+        "unit": null,
+        "buildableM2": null,
+        "capacity": "7,193 m² already on the register — the 7,120 m² commercial shell (1987) + a 73 m² almacén; whether the shell keeps its edificability or sits fuera de ordenación is unresolved",
+        "density": null,
+        "cessions": null,
+        "path": "Close the gap with a cédula urbanística from the Ayuntamiento — it settles the parcel ordinance, the shell's fuera de ordenación status and the urbanization reception in one document. Meanwhile the Adaptación's 13 texts + 37 planos are downloadable manually from the transparency portal (session-gated viewer).",
+        "constraints": "To verify at parcel level: Ley de Costas 500 m zona de influencia (the plot sits near its edge) and A-7 servidumbres on the northern frontage. SITUA WFS (12-Jul-2026): no vigente territorial protections intersect the plot; with no POT in force there are no subregional protections either. Context: the SUNP-E1 «Arroyo del Saladillo» sectorization (BOJA nº 106, 2022) put ~610,458 m² of planned growth around Cancelada — up to 1,712 homes pending Plan Parcial."
+      },
+      "market": {
+        "price": null,
+        "pricePerM2": null,
+        "listingUrl": null,
+        "terms": null,
+        "comps": null
+      },
+      "fit": "Costa del Sol enclave: 17,746 m² of urban-register land with a 7,120 m² unfinished commercial shell, 500 m from the beach and ringed by the SUNP-E1 growth zone (1,712 homes planned) — value hinges on the PGOU ordinance and the shell's status, both one cédula urbanística away.",
+      "publicRecord": {
+        "asOf": "12-Jul-2026",
+        "title": "Parcelas 6573201/6573214UF1367S · Riviera Beach, Cancelada (Estepona, Málaga)",
+        "sections": [
+          {
+            "title": "1 · Cadastre — Sede Electrónica del Catastro",
+            "cadastre": true,
+            "rows": [],
+            "note": "OVC consultation 12-Jul-2026: «Riviera Beach 100» — 14,658 m² land, industrial register, 73 m² almacén (1987), otherwise vacant; «Riviera Beach 100(M)» — 3,088 m² land carrying a 7,120 m² commercial building (1987), the unfinished shell. Combined 17,746 m²: an urban-register enclave surrounded by rústico polígono 5 of Cancelada, immediately south of the A-7 and 450–500 m from the Saladillo shoreline."
+          },
+          {
+            "title": "2 · Planning — public instruments",
+            "rows": [
+              {
+                "label": "Regional",
+                "value": "Ley 7/2021 (LISTA) + Reglamento General (Decreto 550/2022), in force since 5-Jan-2023 — the LOUA is repealed",
+                "url": "https://www.boe.es/buscar/act.php?id=BOE-A-2021-20916"
+              },
+              {
+                "label": "Subregional",
+                "value": "NONE in force — the POT Costa del Sol Occidental 2006 was annulled by the Tribunal Supremo (judgment of 6-Oct-2015); the replacement POT is formulado y en tramitación only (información pública Mar-2023; unapproved per SITUA query of 12-Jul-2026), so it binds nothing",
+                "url": "https://www.juntadeandalucia.es/organismos/fomentoarticulaciondelterritorioyvivienda/areas/ordenacion/planes-subregionales/paginas/costa-sol-occidental.html"
+              },
+              {
+                "label": "Municipal",
+                "value": "PGOU de Estepona 1994 (CPOTU 27-Apr-1994) + Adaptación Parcial a la LOUA (Pleno 22-Dec-2010; BOP Málaga nº 115, 17-Jun-2011) — the instrument in force per SITUA, governing under LISTA transitional provisions; no PGOM tender or avance found as of Jul-2026",
+                "url": "https://ayuntamiento.estepona.es/ayuntamiento/documentos/pgou"
+              },
+              {
+                "label": "Protections",
+                "value": "SITUA/VITUA GeoServer WFS (12-Jul-2026): no vigente territorial protections intersect the plot; with no POT in force there are no subregional protections. Pending parcel-level checks: Ley de Costas 500 m zona de influencia and A-7 servidumbres on the north frontage"
+              },
+              {
+                "label": "Adjacent growth",
+                "value": "Plan de Sectorización SUNP-E1 «Arroyo del Saladillo» (CTOTU Málaga 18-Mar-2022; BOJA nº 106): SUS-E1-A «Este» 526,605 m² max 1,477 homes + SUS-E1-B «Oeste» 83,853 m² max 235 homes — residencial turístico, IE 0.30 m²t/m²s, AM 0.268, 30% protected housing, each pending its own Plan Parcial",
+                "url": "https://www.juntadeandalucia.es/boja/2022/106/56"
+              }
+            ]
+          },
+          {
+            "title": "3 · Edificabilidad — what is public, in meters",
+            "rows": [
+              {
+                "label": "Public figure",
+                "value": "None retrieved — the buildable rights, ordinance and any ficha for these parcels sit in the PGOU 1994 normas particulares and the Adaptación planimetry (13 documents + 37 planos, incl. «6.1 Clasificación adaptado» and «6.4 Usos globales adaptado»), published behind the town hall's session-gated transparency viewer; manual download pending",
+                "url": "https://estepona.sedelectronica.es/transparency/91db2349-8f7e-47b7-a429-81192079f13a/"
+              },
+              {
+                "label": "Built today",
+                "value": "7,193 m² already stand on the register — the 7,120 m² commercial shell (1987) plus a 73 m² almacén. Whether the shell retains its edificability or sits fuera de ordenación cannot be determined from public records"
+              },
+              {
+                "label": "Nearest benchmark",
+                "value": "IE 0.30 m²t/m²s with 30% protected housing — the SUNP-E1 sectorization next door; that arithmetic applied to the 17,746 m² enclave would give ~5,324 m²t, but it is strictly indicative: SUNP-E1 does not govern this urban-register enclave"
+              },
+              {
+                "label": "Roads & urbanization",
+                "value": "The Riviera Beach urbanization grid already exists on the ground; whether the Ayuntamiento has received the urbanization (and so who maintains the roads) is unverified"
+              }
+            ]
+          },
+          {
+            "title": "4 · Not in the public record",
+            "rows": [
+              {
+                "label": "Ordinance & meters",
+                "value": "Exact zoning, edificability and the shell's fuera de ordenación status — a cédula urbanística from the Ayuntamiento settles all three definitively"
+              },
+              {
+                "label": "Transaction",
+                "value": "No public listing, sale or reservation matched to these two cadastral references (searched 12-Jul-2026)"
+              },
+              {
+                "label": "Costas / A-7",
+                "value": "Parcel-level check of the 500 m coastal influence zone and the highway servidumbres pending"
+              }
+            ]
           }
         ]
       }

@@ -55,6 +55,16 @@ function catastroLink(rc) {
   return `<a href="${SOURCES.cadastreSheet.replace('{rc}', rc)}" target="_blank" rel="noopener"><code>${rc}</code></a>`;
 }
 
+// Cadastre section body — Catastro-sourced, so it is shared verbatim between
+// the BYLD report and the public-records report.
+function cadastreRows(site) {
+  const refs = site.cadastre?.refs || [];
+  return refs.length
+    ? refs.map((r) => `${r.label} · ${catastroLink(r.rc)} · ${r.areaM2 ? `${num(r.areaM2)} m²` : '—'}`).join('<br>') +
+      `<div class="sr-note">Outlines on the map are official Catastro geometry (INSPIRE).</div>`
+    : '— <div class="sr-note">No cadastral reference yet — map outline is indicative.</div>';
+}
+
 // The standardized report: identical sections and rows for every site, in the
 // same order. Missing data renders as an em-dash so gaps stay visible.
 export function reportHtml(site) {
@@ -62,7 +72,6 @@ export function reportHtml(site) {
   const loc = site.location || {};
   const plan = site.planning || {};
   const market = site.market || {};
-  const refs = site.cadastre?.refs || [];
 
   const sources = (site.sources || [])
     .map((s) => (s.url ? `<a href="${s.url}" target="_blank" rel="noopener">${s.label} ↗</a>` : s.label))
@@ -72,10 +81,7 @@ export function reportHtml(site) {
     .map((d) => `${d.label} — ${d.km} km · ${d.time}`)
     .join('<br>') || '—';
 
-  const refRows = refs.length
-    ? refs.map((r) => `${r.label} · ${catastroLink(r.rc)} · ${r.areaM2 ? `${num(r.areaM2)} m²` : '—'}`).join('<br>') +
-      `<div class="sr-note">Outlines on the map are official Catastro geometry (INSPIRE).</div>`
-    : '— <div class="sr-note">No cadastral reference yet — map outline is indicative.</div>';
+  const refRows = cadastreRows(site);
 
   return `
     <div class="sr-head">
@@ -139,23 +145,78 @@ function masterplanHtml(mp) {
     ${row('Phasing', list(mp.phasing) || '—')}`;
 }
 
-function openReport(site) {
+// Public-records report: only facts traceable to sources any third party can
+// check — official registries (Catastro, SIU, BOCM), published planning
+// instruments and open listings — with the source named on every section.
+// Nothing from BYLD or the owner: no deck figures, no private terms, no fit,
+// no masterplan, no engine score. Authored per site in data/sites.json under
+// `publicRecord`; a section with `"cadastre": true` reuses the live Catastro
+// rows above.
+export function publicReportHtml(site) {
+  const pr = site.publicRecord;
+  const head = (title, sub) => `
+    <div class="sr-head">
+      <h3>${title}</h3>
+      <div class="sr-sub">${sub}</div>
+      <div class="sr-badge">Public sources only · registries, official viewers, open listings · no BYLD or owner input</div>
+    </div>`;
+
+  if (!pr) {
+    return head(site.name, dash(site.municipality)) +
+      section('Cadastre — Catastro (INSPIRE)', cadastreRows(site)) +
+      section('Public record', 'No further public-record research on file for this site yet.');
+  }
+
+  const value = (r) => {
+    if (r.rc) return catastroLink(r.rc);
+    if (r.url) return `${r.value} <a href="${r.url}" target="_blank" rel="noopener">↗</a>`;
+    return dash(r.value);
+  };
+  const sections = (pr.sections || []).map((s) => {
+    const body = s.cadastre
+      ? cadastreRows(site)
+      : (s.rows || []).map((r) => row(r.label, value(r))).join('');
+    return section(s.title, body + (s.note ? `<div class="sr-note">${s.note}</div>` : ''));
+  }).join('');
+
+  return head(pr.title || site.name,
+    `${dash(site.municipality)} · public record as consulted ${dash(pr.asOf)}`) + sections;
+}
+
+function openReport(site, view = 'byld') {
   closeReport();
   const overlay = document.createElement('div');
   overlay.className = 'sr-overlay';
-  overlay.innerHTML = `<div class="sr-card"><button class="sr-close" title="Close">×</button>${reportHtml(site)}</div>`;
+  overlay.innerHTML = `
+    <div class="sr-card">
+      <button class="sr-close" title="Close">×</button>
+      <div class="sr-tabs">
+        <button class="sr-tab" data-view="byld">BYLD report</button>
+        <button class="sr-tab" data-view="public">Public record</button>
+      </div>
+      <div class="sr-body"></div>
+    </div>`;
+  const card = overlay.querySelector('.sr-card');
+  const body = overlay.querySelector('.sr-body');
+  const render = (v) => {
+    body.innerHTML = v === 'public' ? publicReportHtml(site) : reportHtml(site);
+    overlay.querySelectorAll('.sr-tab').forEach((t) => t.classList.toggle('active', t.dataset.view === v));
+    card.scrollTop = 0;
+  };
+  overlay.querySelectorAll('.sr-tab').forEach((t) => t.addEventListener('click', () => render(t.dataset.view)));
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeReport(); });
   overlay.querySelector('.sr-close').addEventListener('click', closeReport);
   document.body.appendChild(overlay);
+  render(view);
 }
 
 function closeReport() {
   document.querySelector('.sr-overlay')?.remove();
 }
 
-window.__byldReport = (id) => {
+window.__byldReport = (id, view) => {
   const site = SITES.find((s) => s.id === id);
-  if (site) openReport(site);
+  if (site) openReport(site, view);
 };
 
 function compactPopup(site, parcelLine) {
@@ -168,7 +229,8 @@ function compactPopup(site, parcelLine) {
     Score ${v ? `<b>${v.score}/100</b>` : '—'} · ${land.elevationM ? `${land.elevationM} m` : '—'}
     ${parcelLine ? `<hr style="margin:6px 0;border:0;border-top:1px solid #ccc">${parcelLine}` : ''}
     <div style="margin-top:8px">
-      <button class="sr-open" onclick="__byldReport('${site.id}')">Full report</button>
+      <button class="sr-open" onclick="__byldReport('${site.id}')">BYLD report</button>
+      <button class="sr-open sr-open--alt" onclick="__byldReport('${site.id}','public')">Public record</button>
       ${site.market?.listingUrl
         ? ` <a href="${site.market.listingUrl}" target="_blank" rel="noopener">listing ↗</a>` : ''}
     </div>`;

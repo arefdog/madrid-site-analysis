@@ -133,3 +133,21 @@ label.row .status { margin-left: auto; font-size: 10px; color: var(--muted); }
   background: var(--accent); color: #0b0d10; border: none; border-radius: 6px;
   padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer;
 }
+.sr-open--alt {
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--accent); padding: 4px 9px;
+}
+.sr-tabs { display: flex; gap: 6px; margin: 0 34px 4px 0; }
+.sr-tab {
+  background: transparent; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 999px;
+  padding: 4px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.sr-tab:hover { color: var(--panel-fg); }
+.sr-tab.active { background: var(--accent); border-color: var(--accent); color: #0b0d10; }
+.sr-body { margin-top: 10px; }
+.sr-badge {
+  display: inline-block; margin-top: 6px; padding: 2px 9px;
+  border: 1px solid var(--border); border-radius: 999px;
+  font-size: 11px; color: var(--muted);
+}
