@@ -229,14 +229,10 @@ function compactPopup(site, parcelLine) {
     Score ${v ? `<b>${v.score}/100</b>` : '—'} · ${land.elevationM ? `${land.elevationM} m` : '—'}
     ${parcelLine ? `<hr style="margin:6px 0;border:0;border-top:1px solid #ccc">${parcelLine}` : ''}
     <div style="margin-top:8px">
-<<<<<<< Updated upstream
       <button class="sr-open" onclick="__byldReport('${site.id}')">BYLD report</button>
       <button class="sr-open sr-open--alt" onclick="__byldReport('${site.id}','public')">Public record</button>
-=======
-      <button class="sr-open" onclick="__byldReport('${site.id}')">Full report</button>
       ${site.detailsUrl
         ? ` <a href="${site.detailsUrl}" target="_blank" rel="noopener">details ↗</a>` : ''}
->>>>>>> Stashed changes
       ${site.market?.listingUrl
         ? ` <a href="${site.market.listingUrl}" target="_blank" rel="noopener">listing ↗</a>` : ''}
     </div>`;
