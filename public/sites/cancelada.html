@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cancelada — Estepona plot · site details</title>
+<style>
+  :root {
+    --bg: #14171d; --panel: #1c1f26; --fg: #e8eaed; --muted: #9aa0aa;
+    --accent: #4da3ff; --border: #2c313b; --ok: #6fbf73; --warn: #e0a84f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 40px 20px 90px; }
+  .brand { font-weight: 700; letter-spacing: .32em; font-size: 12px; color: var(--muted); }
+  h1 { font-size: clamp(26px, 5vw, 38px); margin: 10px 0 6px; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin-bottom: 8px; }
+  .status { display: inline-block; font-size: 12px; font-weight: 600; color: #0b0d10;
+    background: var(--accent); border-radius: 999px; padding: 3px 12px; margin: 10px 0 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 8px; }
+  .fact { flex: 1 1 140px; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; }
+  .fact .k { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .fact .v { font-size: 19px; font-weight: 650; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .fact .v small { font-size: 12px; color: var(--muted); font-weight: 500; }
+  h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    margin: 44px 0 14px; padding-top: 22px; border-top: 1px solid var(--border); }
+  h2 b { color: var(--accent); margin-right: 8px; }
+  p { color: #c7ccd4; max-width: 70ch; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--panel);
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: rgba(0,0,0,.15); }
+  tr:last-child td { border-bottom: none; }
+  .flag { font-size: 12px; font-weight: 600; }
+  .flag.ok { color: var(--ok); } .flag.warn { color: var(--warn); }
+  .note { color: var(--muted); font-size: 13px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back { font-size: 13px; }
+  .pending { background: var(--panel); border: 1px dashed var(--border); border-radius: 10px;
+    padding: 22px; color: var(--muted); }
+  .disclaimer { margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">BYLD</div>
+  <h1>Cancelada — Estepona plot</h1>
+  <div class="sub">Cancelada · Estepona · Costa del Sol, Málaga</div>
+  <a class="back" href="/">← back to the map</a><br>
+  <span class="status">Identified · under review</span>
+
+  <div class="facts">
+    <div class="fact"><div class="k">Cadastral ref</div><div class="v" style="font-size:14px">6573201UF1367S</div></div>
+    <div class="fact"><div class="k">Surface</div><div class="v">— <small>pending Catastro</small></div></div>
+    <div class="fact"><div class="k">Locality</div><div class="v" style="font-size:15px">Cancelada</div></div>
+    <div class="fact"><div class="k">Municipality</div><div class="v" style="font-size:15px">Estepona</div></div>
+  </div>
+
+  <!-- ============ PUBLIC INFORMATION ============ -->
+  <h2><b>1</b> Public information</h2>
+  <p>An urban-format cadastral parcel in <b>Cancelada</b>, the village district on the eastern side of Estepona — the New Golden Mile corridor between Marbella (San Pedro/Guadalmina) and Estepona town, a few minutes above the A-7 and the coastal beach strip.</p>
+
+  <table>
+    <tr><th>Item</th><th>Public record</th></tr>
+    <tr><td>Cadastre</td><td>Ref. <a href="https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiud.aspx?RefC=6573201UF1367S" target="_blank" rel="noopener">6573201UF1367S ↗</a> — urban-format reference, map sheet UF1367 (Cancelada). Surface, use and croquis to be pulled from the record.</td></tr>
+    <tr><td>Location</td><td>Cancelada, Estepona (Málaga). The parcel outline and exact position draw live on the <a href="/">BYLD map</a> from the official Catastro INSPIRE geometry.</td></tr>
+    <tr><td>Planning framework</td><td><span class="flag warn">⚠ pending</span> PGOU de Estepona — sector classification, use and edificability to be verified for this parcel (cédula urbanística).</td></tr>
+    <tr><td>Context</td><td>New Golden Mile: A-7 corridor, golf frontage (La Resina / Los Flamingos nearby), 10 min to San Pedro, ~15 min to Puerto Banús, ~55 min to Málaga airport.</td></tr>
+  </table>
+
+  <p class="note">This section will grow as the public record is pulled: Catastro surface &amp; croquis, PGOU ficha, protections and servitudes.</p>
+
+  <!-- ============ BYLD INTENT ============ -->
+  <h2><b>2</b> What BYLD intends to do</h2>
+  <div class="pending">
+    <b style="color:var(--fg)">Pending brief.</b><br>
+    BYLD's program for Cancelada has not been defined yet. When the brief lands, this section will follow the same structure as the <a href="/sites/boalo.html">Boalo page</a>: program table by phase, design method, compliance approach and gates.
+  </div>
+
+  <div class="disclaimer">
+    BYLD · collaborator material. Public-record items sourced from Catastro; planning items pending verification against the PGOU de Estepona. Nothing on this page constitutes an entitlement or an offer.
+  </div>
+</div>
+</body>
+</html>

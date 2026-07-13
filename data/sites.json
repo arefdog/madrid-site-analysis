@@ -211,6 +211,7 @@
           "exit": "Sell residences unit-by-unit (transaction-proven). Hotel/spa core stays conditional and small (amenity economics); consider operator-light models (villas + services) that the villa-rental comps (€240–378/night) actually support."
         }
       },
+<<<<<<< Updated upstream
       "publicRecord": {
         "asOf": "09-Jul-2026",
         "title": "Parcela 1683501VL2018S · El Boalo (Madrid)",
@@ -336,6 +337,9 @@
           }
         ]
       }
+=======
+      "detailsUrl": "/sites/boalo.html"
+>>>>>>> Stashed changes
     },
     {
       "id": "colmenarejo-ue18",
@@ -859,6 +863,7 @@
       }
     },
     {
+<<<<<<< Updated upstream
       "id": "estepona-riviera",
       "name": "Estepona — Riviera Beach enclave, Cancelada",
       "municipality": "Estepona",
@@ -884,6 +889,20 @@
         "landClass": "Catastro register: URBANA (both parcels) — an urban enclave surrounded by rústico (polígono 5 of Cancelada). Indicative only: the binding classification sits in the PGOU 1994 / Adaptación planos, not yet retrieved",
         "features": "Coastal-plain enclave in Urbanización Riviera Beach, immediately south of the A-7, 450–500 m from the Saladillo shoreline; an unfinished 1987 commercial shell (7,120 m² built) stands on the small parcel, the rest is vacant",
         "orientation": "S (coastal plain)",
+=======
+      "id": "cancelada-plot",
+      "name": "Cancelada — Estepona plot",
+      "municipality": "Estepona",
+      "muniCode": "29051",
+      "status": "Identified · under review",
+      "sources": [],
+      "land": {
+        "grossM2": null,
+        "parcelCount": 1,
+        "landClass": "Catastro urbano (INSPIRE) · Cancelada, Estepona",
+        "features": null,
+        "orientation": null,
+>>>>>>> Stashed changes
         "elevationM": null
       },
       "location": {
@@ -891,6 +910,7 @@
           36.4617931,
           -5.0485248
         ],
+<<<<<<< Updated upstream
         "accessNote": "Access road between the two parcels off the Riviera Beach urbanization grid; A-7 frontage on the northern edge",
         "distances": [
           {
@@ -919,6 +939,10 @@
             "time": "~45 min"
           }
         ]
+=======
+        "accessNote": "Cancelada, Estepona (Málaga) — New Golden Mile. Outline & position load from Catastro (INSPIRE); pin self-centres on the parcel.",
+        "distances": []
+>>>>>>> Stashed changes
       },
       "cadastre": {
         "refs": [
@@ -1041,7 +1065,8 @@
             ]
           }
         ]
-      }
+      },
+      "detailsUrl": "/sites/cancelada.html"
     }
   ]
 }
