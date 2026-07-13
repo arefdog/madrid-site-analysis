@@ -231,6 +231,8 @@ function compactPopup(site, parcelLine) {
     <div style="margin-top:8px">
       <button class="sr-open" onclick="__byldReport('${site.id}')">BYLD report</button>
       <button class="sr-open sr-open--alt" onclick="__byldReport('${site.id}','public')">Public record</button>
+      ${site.detailsUrl
+        ? ` <a href="${site.detailsUrl}" target="_blank" rel="noopener">details ↗</a>` : ''}
       ${site.market?.listingUrl
         ? ` <a href="${site.market.listingUrl}" target="_blank" rel="noopener">listing ↗</a>` : ''}
     </div>`;

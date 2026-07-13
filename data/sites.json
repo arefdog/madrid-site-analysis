@@ -335,7 +335,8 @@
             ]
           }
         ]
-      }
+      },
+      "detailsUrl": "/sites/boalo.html"
     },
     {
       "id": "colmenarejo-ue18",
@@ -864,6 +865,7 @@
       "municipality": "Estepona",
       "muniCode": "29051",
       "status": "Under evaluation · BYLD · Jul 2026",
+      "detailsUrl": "/sites/cancelada.html",
       "sources": [
         {
           "label": "Catastro OVC + INSPIRE, parcel records & geometry (12-Jul-2026)",
@@ -1041,7 +1043,8 @@
             ]
           }
         ]
-      }
+      },
+      "detailsUrl": "/sites/cancelada.html"
     }
   ]
 }
