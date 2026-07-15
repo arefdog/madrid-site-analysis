@@ -29,6 +29,7 @@ import sites from './sites.js';
 import masterplan from './masterplan.js';
 import microparcels from './microparcels.js';
 import constraints from './constraints.js';
+import protectedZoning from './protectedZoning.js';
 import protectedLand from './protectedLand.js';
 import siteFeatures from './siteFeatures.js';
 
@@ -39,6 +40,7 @@ export const layers = [
   microparcels,
   siteFeatures,
   constraints,
+  protectedZoning,
   protectedLand,
   scores,
   purchasingPower,
