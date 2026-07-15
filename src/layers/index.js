@@ -28,6 +28,7 @@ import scores from './scores.js';
 import sites from './sites.js';
 import masterplan from './masterplan.js';
 import microparcels from './microparcels.js';
+import rusticoEngine from './rusticoEngine.js';
 import protectedZoning from './protectedZoning.js';
 
 export const layers = [
@@ -35,6 +36,7 @@ export const layers = [
   sites,
   masterplan,
   microparcels,
+  rusticoEngine,
   protectedZoning,
   scores,
   purchasingPower,

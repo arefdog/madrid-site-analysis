@@ -168,7 +168,7 @@ const RUSTICO_GATE =
 const RUSTICO_REF =
   'Ley 9/2001 art. 29 (mod. Ley 7/2024) · ≤10% ocupación · ≤4.5 m alero · Decreto 48/2023 (hotel rural ≤50 keys) · RD 804/2011 (equine welfare)';
 
-const RUSTICO_PARCELS = [
+export const RUSTICO_PARCELS = [
   { rc: '28023A00500001', areaM2: 85739, type: 'equestrian', z: {
     id: 'R1', name: 'Equestrian core (rústico)', areaM2: 85739, builtM2: 4150,
     program: 'Primary exploitation: stable block ~2,400 m² (60–80 boxes at 3.0×3.5 m), covered arena ~1,200 m², feed & tack ~400 m², ONE accessory manager dwelling ~150 m² (employment-linked, discretionary). 4.8% of the 8,574 m² occupation ceiling.',
