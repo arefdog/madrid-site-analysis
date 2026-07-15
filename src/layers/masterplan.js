@@ -152,6 +152,99 @@ const COLMENAREJO_RUSTIC = {
   cteRef: 'SNU — no edificability · Ley 9/2001 cessions per ficha U.E. 18',
 };
 
+// ---------------------------------------------------------------------------
+// Boalo — surrounding rustico común parcels (polígonos 5 & 9), all available
+// for purchase per the owner. Areas VERIFIED via Catastro INSPIRE WFS
+// (15-Jul-2026). Point-in-polygon against the CM PORN zonification shows the
+// estate area sits OUTSIDE the PRCAM (nearest zone B1 ~410 m NE), so the
+// binding regime is Ley 9/2001 art. 29: calificación urbanística on SNU común
+// — max 10% ocupación, 4.5 m to eaves, uses linked to an agro/equestrian
+// exploitation. NO residential subdivision. Overlays still to verify per
+// parcel: vías pecuarias, montes preservados, DPH.
+// NOTE: 28023A00500006 was in the owner's list but Catastro returns «parcela
+// no encontrada» — likely renumbered or merged; ask for the nota simple.
+const RUSTICO_GATE =
+  'GATED: Calificación Urbanística (Ley 9/2001 art. 29, CM) required BEFORE municipal license. Uses must be linked to the agro/equestrian exploitation; no residential subdivision on SNU.';
+const RUSTICO_REF =
+  'Ley 9/2001 art. 29 (mod. Ley 7/2024) · ≤10% ocupación · ≤4.5 m alero · Decreto 48/2023 (hotel rural ≤50 keys) · RD 804/2011 (equine welfare)';
+
+const RUSTICO_PARCELS = [
+  { rc: '28023A00500001', areaM2: 85739, type: 'equestrian', z: {
+    id: 'R1', name: 'Equestrian core (rústico)', areaM2: 85739, builtM2: 4150,
+    program: 'Primary exploitation: stable block ~2,400 m² (60–80 boxes at 3.0×3.5 m), covered arena ~1,200 m², feed & tack ~400 m², ONE accessory manager dwelling ~150 m² (employment-linked, discretionary). 4.8% of the 8,574 m² occupation ceiling.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500047', areaM2: 57095, type: 'hotel', z: {
+    id: 'R2', name: 'Agritourism hotel (rústico)', areaM2: 57095, builtM2: 2900,
+    program: 'Hotel rural ~30 keys ≈ 2,400 m² GFA + farm-to-table restaurant/spa ~500 m² (Decreto 48/2023: 2–50 keys). Tied to the equestrian/farm exploitation — amenity lodging, not a standalone resort. 5.1% vs the 5,710 m² ceiling. Parking ≥30% of keys.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500043', areaM2: 55545, type: 'residential', z: {
+    id: 'R3', name: 'Farm & bodega (rústico)', areaM2: 55545, builtM2: 1450,
+    program: 'Working farm hub: bodega/processing ~1,200 m² + farm shop & tasting ~250 m² (own production only). 2.6% vs the 5,555 m² ceiling. Removable silos/greenhouses exempt from calificación (Ley 7/2024).',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500061', areaM2: 53117, type: 'green', z: {
+    id: 'R4', name: 'Vineyard / olive grove (rústico)', areaM2: 53117, builtM2: 15,
+    program: 'Planted production land feeding the bodega and restaurant. Only exempt structures: tool shed ≤15 m², removable irrigation and netting. Counts toward the exploitation’s agrarian-use justification.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500044', areaM2: 41059, type: 'green', z: {
+    id: 'R5', name: 'Vineyard / crops (rústico)', areaM2: 41059, builtM2: 15,
+    program: 'Production land — vines/olives/market garden. Exempt structures only (shed ≤15 m², removable greenhouses).',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500046', areaM2: 40400, type: 'green', z: {
+    id: 'R6', name: 'Pasture / hay meadow (rústico)', areaM2: 40400, builtM2: 0,
+    program: 'Grazing and hay for the equestrian core; removable shelters and water troughs only (exempt, Ley 7/2024).',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00509004', areaM2: 32524, type: 'green', z: {
+    id: 'R7', name: 'Paddocks (rústico, polígono 9)', areaM2: 32524, builtM2: 0,
+    program: 'Turnout paddocks and trail link; perimeter fencing and removable field shelters only.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500010', areaM2: 28038, type: 'green', z: {
+    id: 'R8', name: 'Paddocks / trails (rústico)', areaM2: 28038, builtM2: 0,
+    program: 'Below the 3 ha secano minimum on its own — aggregate into the single registered exploitation. Grazing + bridle-path loop.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500004', areaM2: 13798, type: 'green', z: {
+    id: 'R9', name: 'Meadow (rústico)', areaM2: 13798, builtM2: 0,
+    program: 'Below agrarian unit minimums individually — pasture/trails within the aggregated exploitation; no standalone building rights.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500005', areaM2: 14795, type: 'green', z: {
+    id: 'R10', name: 'Meadow (rústico)', areaM2: 14795, builtM2: 0,
+    program: 'Below agrarian unit minimums individually — pasture/trails within the aggregated exploitation; no standalone building rights.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+  { rc: '28023A00500007', areaM2: 230, type: 'green', z: {
+    id: 'R11', name: 'Sliver parcel (rústico)', areaM2: 230, builtM2: 0,
+    program: '230 m² sliver — access/utility point (well or track). No program; verify title role in the nota simple.',
+    phaseGate: RUSTICO_GATE, cteRef: RUSTICO_REF,
+  } },
+];
+
+// Dashed outline = suelo no urbanizable: same program palette, SNU signature.
+function rusticoStyle(type) {
+  return { ...ZONE_STYLES[type], dashArray: '6 4', fillOpacity: (ZONE_STYLES[type].fillOpacity ?? 0.4) * 0.6 };
+}
+
+// Draws the surrounding rustico parcels (real INSPIRE geometry) with their
+// theoretical program envelopes. Shared with the micro-parcels layer so the
+// surround shows under both program views ("Volumes" and "Masterplans").
+export function addRusticoParcels(group) {
+  for (const spec of RUSTICO_PARCELS) {
+    fetchParcelRings(spec.rc)
+      .then((rings) => {
+        group.addLayer(L.polygon(rings, rusticoStyle(spec.type))
+          .bindPopup(zonePopup({ ...spec.z, name: `${spec.z.name} · ${spec.rc}` }), { maxWidth: 250 }));
+      })
+      .catch((e) => console.warn(`[masterplan] rustico ${spec.rc}:`, e.message));
+  }
+}
+
 export function fetchParcelRings(rc) {
   return fetch(SOURCES.cadastreParcelWfs.replace('{rc}', rc))
     .then((r) => (r.ok ? r.text() : Promise.reject(new Error(`Catastro ${r.status}`))))
@@ -224,6 +317,9 @@ export default {
           .bindPopup(zonePopup(COLMENAREJO_URBAN), { maxWidth: 250 }));
       }
     }, 8000);
+
+    // --- Boalo: surrounding rustico parcels, each in its program role. ----
+    addRusticoParcels(group);
 
     return group;
   },

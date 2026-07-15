@@ -2,7 +2,7 @@ import L from 'leaflet';
 import sitesData from '../../data/sites.json';
 import planning from '../../data/planning-config.json';
 import { resolveFeatures } from './siteFeaturesData.js';
-import { getBoaloRings } from './masterplan.js';
+import { getBoaloRings, addRusticoParcels } from './masterplan.js';
 import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
 import { protectedStore } from './protectedStore.js';
 
@@ -284,6 +284,12 @@ export default {
     let control = null;
     let buildToken = 0; // guards against overlapping async rebuilds
 
+    // Surrounding rustico parcels (SNU program envelopes, real INSPIRE
+    // geometry) — populated once; re-attached after every rebuild because
+    // build() clears the group.
+    const rusticoGroup = L.layerGroup();
+    addRusticoParcels(rusticoGroup);
+
     // The whole plan generator, parameterized by an (optional) program
     // override so the brief can be edited from the map card and the plan
     // recalculated live. Re-entrant: a newer build supersedes an in-flight
@@ -293,6 +299,7 @@ export default {
       const stale = () => myToken !== buildToken;
       const PROG = progOverride ?? planning.program;
       group.clearLayers();
+      group.addLayer(rusticoGroup); // survives rebuilds — repopulated never, re-attached always
       if (control) { control.remove(); control = null; }
       // Exactly the same geometry the masterplan-zones layer draws (shared,
       // memoized promise) — the grid and the zones can never diverge.
