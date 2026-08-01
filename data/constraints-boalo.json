@@ -1,0 +1,34 @@
+{
+  "generated": "2026-08-01T06:33:28.285Z",
+  "parcel": "1683501VL2018S",
+  "samples": 16,
+  "sources": {
+    "siu": {
+      "classCount": {
+        "SUELO URBANO": 16
+      }
+    },
+    "enp": {
+      "error": "no candidate answered"
+    },
+    "redNatura": {
+      "error": "no candidate answered"
+    },
+    "viasPecuarias": {
+      "error": "no candidate answered"
+    },
+    "hydro": {
+      "error": "no candidate answered"
+    },
+    "wfs_zfp": {
+      "error": "no WFS candidate answered"
+    },
+    "wfs_viasPecuarias": {
+      "error": "no WFS candidate answered"
+    },
+    "wfs_montesPreservados": {
+      "count": 0
+    }
+  },
+  "protectionPolygons": []
+}
