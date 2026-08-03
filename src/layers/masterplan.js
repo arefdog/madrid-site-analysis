@@ -259,18 +259,29 @@ export function fetchParcelRings(rc) {
 // that draws on the estate (masterplan zones, micro-parcels). Memoized so the
 // WFS is hit once; resolves to the official parcel rings or, failing that,
 // the hand-drawn footprint.
-let boaloRingsPromise = null;
-export function getBoaloRings() {
-  if (!boaloRingsPromise) {
-    const boalo = SITES['boalo-estate'];
-    const rc = boalo?.cadastre?.refs?.[0]?.rc;
-    boaloRingsPromise = (rc ? fetchParcelRings(rc) : Promise.reject(new Error('no rc')))
+// Memoized parcel geometry per site, so the pixel engine (and any layer that
+// draws on the plot) fetch Catastro once. Rings come from the site's
+// `masterplanRc` if set (a single parcel whose polygon defines the plan area),
+// else the first cadastral ref, else the hand-drawn footprint fallback. This
+// is what makes the masterplan engine run on ANY site by RC.
+const siteRingsPromises = new Map();
+export function getSiteRings(site) {
+  if (!site) return Promise.resolve([]);
+  if (!siteRingsPromises.has(site.id)) {
+    const rc = site.masterplanRc ?? (site.useFootprintForPlan ? null : site?.cadastre?.refs?.[0]?.rc);
+    const p = (rc ? fetchParcelRings(rc) : Promise.reject(new Error('no rc / footprint-based')))
       .catch((e) => {
-        console.warn('[boalo] Catastro unavailable, using footprint:', e.message);
-        return boalo?.footprint ? [boalo.footprint] : [];
+        console.warn(`[${site.id}] Catastro geometry unavailable, using footprint:`, e.message);
+        return site?.footprint ? [site.footprint] : [];
       });
+    siteRingsPromises.set(site.id, p);
   }
-  return boaloRingsPromise;
+  return siteRingsPromises.get(site.id);
+}
+
+// Back-compat wrapper — the Volumes layer and sites layer still call this.
+export function getBoaloRings() {
+  return getSiteRings(SITES['boalo-estate']);
 }
 
 function addBoaloZones(group, rings) {

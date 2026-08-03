@@ -2,7 +2,7 @@ import L from 'leaflet';
 import sitesData from '../../data/sites.json';
 import planning from '../../data/planning-config.json';
 import { resolveFeatures } from './siteFeaturesData.js';
-import { getBoaloRings, addRusticoParcels } from './masterplan.js';
+import { getSiteRings, addRusticoParcels } from './masterplan.js';
 import { cellsToGeoJSON, cellsToDXF, ledgerToCSV, download } from './exports.js';
 import { protectedStore } from './protectedStore.js';
 
@@ -58,9 +58,6 @@ const ANCHOR_RADIUS_M = 30; // premium band around a kept tree/outcrop
 // Terrain comes from one batched EU-DEM 25 m request (bilinear-interpolated);
 // if the API is unreachable a calibrated fallback model is used (El Boalo:
 // ground rises N-NW toward the Sierra from ~905 m at the road).
-
-const SITES = Object.fromEntries(sitesData.sites.map((s) => [s.id, s]));
-const BOALO = SITES['boalo-estate'];
 
 const TARGET_PARCELS = 1000;
 const M_PER_DEG_LAT = 111320;
@@ -196,10 +193,13 @@ function gridInterp(gb, n, grid) {
   };
 }
 
-// Baked heightmap (public/terrain/boalo.json, produced by scripts/bake-terrain.mjs
-// in CI where the network allows a much denser sample than one live request).
-async function bakedTerrain(b) {
-  const res = await fetch(`${import.meta.env.BASE_URL}terrain/boalo.json`);
+// Baked heightmap (e.g. public/terrain/boalo.json, produced by
+// scripts/bake-terrain.mjs in CI where the network allows a much denser sample
+// than one live request). Per-site via site.terrainUrl; sites without a baked
+// file fall through to the live elevation API.
+async function bakedTerrain(b, terrainUrl) {
+  if (!terrainUrl) throw new Error('no baked terrain for this site');
+  const res = await fetch(`${import.meta.env.BASE_URL}${terrainUrl}`);
   if (!res.ok) throw new Error(`no baked terrain (${res.status})`);
   const t = await res.json();
   const gb = t.bbox;
@@ -227,24 +227,26 @@ async function fetchElevationGrid(b, n = 10) {
   return gridInterp(b, n, grid);
 }
 
-async function terrainModel(b) {
+async function terrainModel(b, terrainUrl) {
   try {
-    return await bakedTerrain(b);
+    return await bakedTerrain(b, terrainUrl);
   } catch (e) {
     console.info('[microparcels] no baked terrain, trying live API:', e.message);
   }
   try {
     return { elevAt: await fetchElevationGrid(b), source: 'EU-DEM 25 m (live)' };
   } catch (e) {
-    console.warn('[microparcels] elevation API unavailable, using calibrated model:', e.message);
-    // El Boalo: rises N-NW toward the Sierra, ~905 m at the eastern road.
+    console.warn('[microparcels] elevation API unavailable, using gentle synthetic model:', e.message);
+    // Generic gentle slope (only reached if both baked + live fail). Not
+    // site-calibrated — a placeholder surface so the plan still lays out.
+    const midElev = 900;
     const elevAt = (lat, lng) => {
       const fLat = (lat - b.latMin) / (b.latMax - b.latMin);
       const fLng = (lng - b.lngMin) / (b.lngMax - b.lngMin);
-      return 905 + 42 * fLat + 14 * (1 - fLng)
-        + 4 * Math.sin(2.6 * fLat * Math.PI) * Math.cos(1.8 * fLng * Math.PI);
+      return midElev + 20 * fLat + 8 * (1 - fLng)
+        + 3 * Math.sin(2.6 * fLat * Math.PI) * Math.cos(1.8 * fLng * Math.PI);
     };
-    return { elevAt, source: 'estimated terrain model' };
+    return { elevAt, source: 'synthetic terrain (no data)' };
   }
 }
 
@@ -273,22 +275,29 @@ function buildabilityScore(cell, zoneId) {
   return Math.max(0, Math.min(100, score));
 }
 
-export default {
-  id: 'overlay-microparcels',
-  label: 'Micro-parcels (1000-unit master grid)',
-  group: 'overlay',
-  enabled: false, // start blank — no overlays pre-ticked
-  create() {
+// The masterplan layer is a FACTORY over a site descriptor, so the same
+// program-driven pixel engine runs on ANY parcel by RC. `site` fields used:
+//   id, name, cadastre.refs[0].rc / masterplanRc / footprint (via getSiteRings),
+//   terrainUrl (optional baked heightmap), hasFeatures (site trees/rock),
+//   showRustico (draw the surrounding SNU parcels — Boalo only).
+function makeMasterplanLayer(site) {
+  const isBoalo = site.id === 'boalo-estate';
+  return {
+    id: isBoalo ? 'overlay-microparcels' : `overlay-mp-${site.id}`,
+    label: isBoalo ? 'Masterplans' : `Masterplan · ${site.name}`,
+    group: 'overlay',
+    enabled: false, // start blank — no overlays pre-ticked
+    create() {
     const group = L.layerGroup();
     const renderer = L.canvas({ padding: 0.5 });
     let control = null;
     let buildToken = 0; // guards against overlapping async rebuilds
 
     // Surrounding rustico parcels (SNU program envelopes, real INSPIRE
-    // geometry) — populated once; re-attached after every rebuild because
+    // geometry) — Boalo only; re-attached after every rebuild because
     // build() clears the group.
     const rusticoGroup = L.layerGroup();
-    addRusticoParcels(rusticoGroup);
+    if (site.showRustico) addRusticoParcels(rusticoGroup);
 
     // The whole plan generator, parameterized by an (optional) program
     // override so the brief can be edited from the map card and the plan
@@ -299,16 +308,16 @@ export default {
       const stale = () => myToken !== buildToken;
       const PROG = progOverride ?? planning.program;
       group.clearLayers();
-      group.addLayer(rusticoGroup); // survives rebuilds — repopulated never, re-attached always
+      if (site.showRustico) group.addLayer(rusticoGroup); // re-attached every rebuild
       if (control) { control.remove(); control = null; }
-      // Exactly the same geometry the masterplan-zones layer draws (shared,
-      // memoized promise) — the grid and the zones can never diverge.
-      const rings = await getBoaloRings();
+      // Real parcel geometry for this site (Catastro INSPIRE by RC, memoized;
+      // footprint fallback offline) — the same geometry the Volumes layer draws.
+      const rings = await getSiteRings(site);
       if (stale() || !rings.length) return;
-      const rcUsed = BOALO?.cadastre?.refs?.[0]?.rc ?? null;
+      const rcUsed = site.masterplanRc ?? site?.cadastre?.refs?.[0]?.rc ?? null;
 
       const b = bbox(rings);
-      const { elevAt, source } = await terrainModel(b);
+      const { elevAt, source } = await terrainModel(b, site.terrainUrl);
       if (stale()) return; // a newer build started during the terrain fetch
 
       const latRef = (b.latMin + b.latMax) / 2;
@@ -332,9 +341,9 @@ export default {
       const protPolys = [...configPolys, ...protectedStore.allRings()]
         .filter((ring) => Array.isArray(ring) && ring.length >= 3);
 
-      // Site features resolved against the REAL parcel bbox (b) so trees &
-      // outcrops land on the true Catastro geometry, not a hardcoded footprint.
-      const siteFeats = resolveFeatures(b);
+      // Site features (trees/rock) — only for sites that have them (Boalo).
+      // Resolved against the REAL parcel bbox so they land on the true geometry.
+      const siteFeats = site.hasFeatures ? resolveFeatures(b) : [];
       const FEATURE_AVOID = siteFeats.filter((f) => f.role === 'avoid' || f.role === 'both');
       const FEATURE_ANCHOR = siteFeats.filter((f) => f.role === 'anchor' || f.role === 'both');
 
@@ -1168,9 +1177,9 @@ export default {
         L.DomEvent.disableClickPropagation(el);
         el.addEventListener('click', (ev) => {
           const kind = ev.target?.dataset?.x;
-          if (kind === 'geojson') download('boalo-masterplan.geojson', 'application/geo+json', cellsToGeoJSON(cells, rings, { rc: rcUsed, site_m2: Math.round(siteArea) }));
-          if (kind === 'dxf') download('boalo-masterplan-utm30.dxf', 'application/dxf', cellsToDXF(cells, lotExports, rings));
-          if (kind === 'csv') download('boalo-cuadro-superficies.csv', 'text/csv', ledgerToCSV(ledger));
+          if (kind === 'geojson') download(`${site.id}-masterplan.geojson`, 'application/geo+json', cellsToGeoJSON(cells, rings, { rc: rcUsed, site_m2: Math.round(siteArea) }));
+          if (kind === 'dxf') download(`${site.id}-masterplan-utm30.dxf`, 'application/dxf', cellsToDXF(cells, lotExports, rings));
+          if (kind === 'csv') download(`${site.id}-cuadro-superficies.csv`, 'text/csv', ledgerToCSV(ledger));
           if (kind === 'reset') build();
           if (kind === 'rebuild') {
             // Clone the BASE brief and patch it from the form; derived land
@@ -1225,5 +1234,13 @@ export default {
     group.on('remove', () => { onMap = false; });
 
     return group;
-  },
-};
+    },
+  };
+}
+
+// One masterplan layer per site flagged `pixelMasterplan` in sites.json.
+// Boalo keeps the id 'overlay-microparcels' (i18n compat); others get
+// 'overlay-mp-<id>'. Adding a plot = one entry in sites.json with its RC.
+export default sitesData.sites
+  .filter((s) => s.pixelMasterplan)
+  .map((s) => makeMasterplanLayer(s));
