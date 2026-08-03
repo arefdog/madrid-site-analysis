@@ -1049,6 +1049,164 @@
         ]
       },
       "detailsUrl": "/sites/cancelada.html"
+    },
+    {
+      "id": "mimbreras-subasta",
+      "name": "Valle de las Mimbreras — subasta AGE (Madrid)",
+      "municipality": "Madrid",
+      "muniCode": "28079",
+      "status": "Public auction · AGE/Patrimonio del Estado · tasación €5,655 · BOCM 22-Oct-2025",
+      "pixelMasterplan": true,
+      "scaleProgramToArea": true,
+      "masterplanRc": "28900C00200069",
+      "sources": [
+        {
+          "label": "BOCM nº 252, 22-Oct-2025 — subasta pública AGE (BOCM-20251022-53)",
+          "url": "https://www.bocm.es/boletin/CM_Orden_BOCM/2025/10/22/BOCM-20251022-53.PDF"
+        },
+        {
+          "label": "Catastro — parcela rústica 28900C002000690000YY (Madrid, polígono 2, parcela 69)",
+          "url": "https://www1.sedecatastro.gob.es/CYCBienInmueble/OVCConCiu.aspx?RefC=28900C002000690000YY"
+        }
+      ],
+      "land": {
+        "grossM2": 7352,
+        "parcelCount": 1,
+        "landClass": "Suelo NO urbanizable (rústica de secano, sin cerramiento). Catastro: parcela 28900C002000690000YY, término municipal de Madrid, polígono 2, parcela 69, paraje «Valle de las Mimbreras». Superficie registral y catastral 7.352 m² per BOCM-20251022-53 (una fuente indexada da 9.839 m² para la misma parcela — comprobar en la ficha catastral).",
+        "features": "Vaguada de secano en el borde sur del término de Madrid (distrito Latina/Carabanchel), junto a parcelas rústicas del polígono 2 y suelo urbano al norte (linda con la parcela urbana 3496230VK3639E)",
+        "orientation": null,
+        "elevationM": null
+      },
+      "location": {
+        "marker": [
+          40.3762,
+          -3.7452
+        ],
+        "accessNote": "Approximate marker (Valle de las Mimbreras, Latina) — the exact plan geometry is drawn LIVE from Catastro by RC on the deployed map; the footprint below is only an offline fallback.",
+        "distances": [
+          {
+            "label": "Madrid — Puerta del Sol",
+            "km": 8,
+            "time": "~20 min"
+          },
+          {
+            "label": "MAD — Barajas",
+            "km": 22,
+            "time": "~30 min"
+          }
+        ]
+      },
+      "cadastre": {
+        "refs": [
+          {
+            "rc": "28900C00200069",
+            "label": "Parcela rústica (polígono 2, parcela 69)",
+            "areaM2": 7352
+          }
+        ]
+      },
+      "planning": {
+        "classification": {
+          "category": "no urbanizable (rústica)",
+          "detail": [
+            {
+              "class": "SUELO NO URBANIZABLE",
+              "scope": "Rústica de secano en el término de Madrid. The masterplan here is STRICTLY an engine demo — a real Plan Parcial is not available on rústica common without a prior reclasificación; nothing below is a development proposal."
+            }
+          ],
+          "basis": "BOCM-20251022-53 (subasta AGE) + Catastro rústica register. No urban instrument assigns edificability to this parcel."
+        },
+        "instrument": "None — rústica común (PGOU de Madrid 1997). No Plan Parcial possible without reclasificación.",
+        "unit": null,
+        "buildableM2": null,
+        "capacity": null,
+        "density": null,
+        "cessions": null,
+        "path": "Engine demonstration only: the generalized pixel-masterplan engine renders a program (scaled to the parcel's real Catastro area) on ANY parcel by RC. It is not an entitlement claim on protected/rústica land.",
+        "constraints": "Rústica: development precluded absent reclasificación. Likely arroyo/DPH and vega-del-Manzanares environmental constraints; verify before treating any figure as real."
+      },
+      "market": {
+        "price": 5655,
+        "pricePerM2": 0.77,
+        "listingUrl": "https://www.bocm.es/boletin/CM_Orden_BOCM/2025/10/22/BOCM-20251022-53.PDF",
+        "terms": "Tasación / tipo de licitación €5.655,46 — subasta pública al alza (AGE/Patrimonio del Estado)",
+        "comps": "Rústica de secano en el término de Madrid; €0,77/m² refleja el uso agrícola/no urbanizable, no expectativa urbanística."
+      },
+      "fit": "Not a BYLD acquisition — added at the user's request as the live test case that the masterplan engine runs on ANY real parcel by RC. Real rústica auction lot (€5,655 tasación); the pixel plan is an engine demo, entitlement-impossible as classified.",
+      "footprint": [
+        [
+          40.37658,
+          -3.74572
+        ],
+        [
+          40.37658,
+          -3.74468
+        ],
+        [
+          40.37582,
+          -3.74468
+        ],
+        [
+          40.37582,
+          -3.74572
+        ]
+      ],
+      "publicRecord": {
+        "asOf": "03-Aug-2026",
+        "title": "Parcela 28900C002000690000YY · Valle de las Mimbreras, Madrid",
+        "sections": [
+          {
+            "title": "1 · Cadastre — Sede Electrónica del Catastro",
+            "cadastre": true,
+            "rows": [],
+            "note": "Rústica register: 28900C002000690000YY (14-char RC 28900C00200069), término municipal de Madrid (código DGC 900), polígono 2, parcela 69, paraje «Valle de las Mimbreras». Registered/cadastral surface 7.352 m² per the BOCM auction notice; one indexed source lists 9.839 m² for parcela 69 — reconcile against the live ficha."
+          },
+          {
+            "title": "2 · Auction — Boletín Oficial de la Comunidad de Madrid",
+            "rows": [
+              {
+                "label": "Notice",
+                "value": "BOCM nº 252, 22-Oct-2025 (BOCM-20251022-53): subasta pública al alza de un inmueble de la Administración General del Estado — parcela rústica de secano sin cerramiento en Valle de las Mimbreras (Madrid)",
+                "url": "https://www.bocm.es/boletin/CM_Orden_BOCM/2025/10/22/BOCM-20251022-53.PDF"
+              },
+              {
+                "label": "Tasación / tipo",
+                "value": "€5.655,46 (valor de tasación = tipo de licitación)"
+              },
+              {
+                "label": "Registro de la Propiedad",
+                "value": "Registro de la Propiedad de Madrid nº 15, finca 82667, código registral único 28039000905073"
+              },
+              {
+                "label": "Linderos",
+                "value": "Norte: parcela urbana 3496230VK3639E; parcelas colindantes 61, 62, 67, 68, 74 del polígono 2 (según la resolución)"
+              }
+            ]
+          },
+          {
+            "title": "3 · Planning — classification",
+            "rows": [
+              {
+                "label": "Class",
+                "value": "Suelo no urbanizable (rústica de secano). No urban instrument assigns edificability; a masterplan here is an engine demonstration, not an entitlement position"
+              }
+            ]
+          },
+          {
+            "title": "4 · Not in the public record",
+            "rows": [
+              {
+                "label": "Development rights",
+                "value": "None — rústica común. No Plan Parcial, edificability, or reclasificación exists or is proposed for this parcel"
+              },
+              {
+                "label": "Surface",
+                "value": "7.352 m² (BOCM) vs 9.839 m² (one indexed source) for parcela 69 — the discrepancy is unresolved from the sandbox (Catastro host blocked); the deployed map draws the true polygon live by RC"
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }
