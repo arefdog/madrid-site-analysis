@@ -60,6 +60,27 @@ const ANCHOR_RADIUS_M = 30; // premium band around a kept tree/outcrop
 // ground rises N-NW toward the Sierra from ~905 m at the road).
 
 const TARGET_PARCELS = 1000;
+const REFERENCE_AREA_M2 = 68938; // the Boalo estate the base program is sized for
+
+// Scale the program brief to a plot's gross area so it fits proportionally on
+// a smaller (or larger) parcel instead of overflowing. Scales built m², land,
+// hotel keys and unit-mix counts; clamped so a tiny plot still gets ≥1 of each.
+function scaleProgramToArea(prog, siteAreaM2) {
+  const f = Math.max(0.03, Math.min(3, siteAreaM2 / REFERENCE_AREA_M2));
+  const items = prog.items.map((it) => {
+    const o = { ...it };
+    if (o.builtM2) o.builtM2 = Math.max(1, Math.round(o.builtM2 * f));
+    if (o.landM2) o.landM2 = Math.max(1, Math.round(o.landM2 * f));
+    if (o.keys) o.keys = Math.max(1, Math.round(o.keys * f));
+    if (o.unitMix) o.unitMix = o.unitMix.map((m) => ({ ...m, count: Math.max(1, Math.round(m.count * f)) }));
+    return o;
+  });
+  return {
+    ...prog, items,
+    visitorPocketM2: Math.round((prog.visitorPocketM2 ?? 0) * f),
+    _scaledFactor: Math.round(f * 100) / 100,
+  };
+}
 const M_PER_DEG_LAT = 111320;
 
 const SPA_COLOR = '#0e7490'; // spa & restaurant cells — teal within the Z1 core
@@ -306,7 +327,7 @@ function makeMasterplanLayer(site) {
     const build = async (progOverride) => {
       const myToken = ++buildToken;
       const stale = () => myToken !== buildToken;
-      const PROG = progOverride ?? planning.program;
+      let PROG = progOverride ?? planning.program;
       group.clearLayers();
       if (site.showRustico) group.addLayer(rusticoGroup); // re-attached every rebuild
       if (control) { control.remove(); control = null; }
@@ -322,6 +343,11 @@ function makeMasterplanLayer(site) {
 
       const latRef = (b.latMin + b.latMax) / 2;
       const siteArea = rings.reduce((s, ring) => s + ringAreaM2(ring, latRef), 0);
+      // Scale the program to the plot: the base brief is sized for the ~68,938 m²
+      // Boalo estate, so on a smaller plot scale built m² / land / keys / unit
+      // counts by area so the plan fits instead of overflowing. Skipped when the
+      // brief was hand-edited (progOverride) or the site opts out.
+      if (site.scaleProgramToArea && !progOverride) PROG = scaleProgramToArea(PROG, siteArea);
       const cellSideM = Math.sqrt(siteArea / TARGET_PARCELS);
       const dLat = cellSideM / M_PER_DEG_LAT;
       const dLng = cellSideM / (M_PER_DEG_LAT * Math.cos((latRef * Math.PI) / 180));
