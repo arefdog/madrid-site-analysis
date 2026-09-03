@@ -13,9 +13,14 @@ export const MAP = {
 export const SOURCES = {
   tiles: {
     light: {
-      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      attribution: '© OpenStreetMap, © CARTO',
-      maxZoom: 20,
+      // CARTO deprecated its free no-key basemaps (tiles now return an
+      // "API KEY REQUIRED" watermark), so the default street base is Esri's
+      // key-free World Street Map — labels + streets, zoom 19, same host the
+      // Satellite/Hillshade layers already use. Swap back to CARTO here if you
+      // add a CARTO API key: .../voyager/{z}/{x}/{y}{r}.png?api_key=YOUR_KEY
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Esri — World Street Map (© Esri, HERE, Garmin, OpenStreetMap contributors)',
+      maxZoom: 19,
     },
     topo: {
       url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
