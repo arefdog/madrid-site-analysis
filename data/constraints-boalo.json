@@ -1,12 +1,10 @@
 {
-  "generated": "2026-09-01T09:17:20.972Z",
+  "generated": "2026-10-01T10:48:37.725Z",
   "parcel": "1683501VL2018S",
   "samples": 16,
   "sources": {
     "siu": {
-      "classCount": {
-        "SUELO URBANO": 16
-      }
+      "error": "SIU 500"
     },
     "enp": {
       "error": "no candidate answered"
